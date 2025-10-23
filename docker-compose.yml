@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: video-chat-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  coturn:
+    image: coturn/coturn:latest
+    container_name: video-chat-coturn
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+    command: >
+      --listening-port=3478
+      --listening-ip=0.0.0.0
+      --realm=paircam.live
+      --server-name=paircam.live
+      --use-auth-secret
+      --static-auth-secret=your-turn-shared-secret
+      --no-tlsv1
+      --no-tlsv1_1
+      --no-tlsv1_2
+      --log-file=stdout
+      --verbose
+      --fingerprint
+      --no-multicast-peers
+    healthcheck:
+      test: ["CMD", "netstat", "-an"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    container_name: video-chat-backend
+    ports:
+      - "3333:3333"
+      - "9090:9090"
+    environment:
+      - NODE_ENV=development
+      - PORT=3333
+      - LOG_LEVEL=debug
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - TURN_HOST=coturn
+      - TURN_PORT=3478
+      - TURN_SHARED_SECRET=your-turn-shared-secret
+      - TURN_REALM=paircam.live
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:4000
+    depends_on:
+      redis:
+        condition: service_healthy
+      coturn:
+        condition: service_healthy
+    volumes:
+      - ./packages/backend:/app
+      - /app/node_modules
+    command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis_data:
+    driver: local

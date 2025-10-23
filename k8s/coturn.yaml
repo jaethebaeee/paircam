@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: coturn
+  namespace: connect-video-chat
+spec:
+  selector:
+    app: coturn
+  ports:
+    - name: turn-tcp
+      port: 3478
+      targetPort: 3478
+    - name: turn-udp
+      port: 3478
+      protocol: UDP
+      targetPort: 3478
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coturn
+  namespace: connect-video-chat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coturn
+  template:
+    metadata:
+      labels:
+        app: coturn
+    spec:
+      containers:
+        - name: coturn
+          image: coturn/coturn:latest
+          args:
+            - "--listening-port=3478"
+            - "--listening-ip=0.0.0.0"
+            - "--realm=paircam.live"
+            - "--server-name=paircam.live"
+            - "--use-auth-secret"
+            - "--static-auth-secret=$(TURN_SHARED_SECRET)"
+            - "--log-file=stdout"
+            - "--verbose"
+            - "--fingerprint"
+            - "--no-multicast-peers"
+          env:
+            - name: TURN_SHARED_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: turn-secret
+                  key: sharedSecret
+          ports:
+            - containerPort: 3478
+            - containerPort: 3478
+              protocol: UDP
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: turn-secret
+  namespace: connect-video-chat
+type: Opaque
+stringData:
+  sharedSecret: your-turn-shared-secret
+
+

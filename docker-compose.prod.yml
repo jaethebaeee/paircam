@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: video-chat-redis-prod
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-change-me-in-production}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-change-me-in-production}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  coturn:
+    image: coturn/coturn:latest
+    container_name: video-chat-coturn-prod
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TURN_USERNAME=videochat
+      - TURN_PASSWORD=${TURN_PASSWORD:-change-me-in-production}
+      - TURN_REALM=${DOMAIN:-paircam.live}
+    command: >
+      -n
+      --listening-port=3478
+      --tls-listening-port=5349
+      --fingerprint
+      --lt-cred-mech
+      --user=videochat:${TURN_PASSWORD:-change-me-in-production}
+      --realm=${DOMAIN:-paircam.live}
+      --log-file=stdout
+      --external-ip=${EXTERNAL_IP:-auto}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    image: video-chat-backend:latest
+    container_name: video-chat-backend-prod
+    restart: unless-stopped
+    ports:
+      - "3333:3333"
+      - "9090:9090"
+    environment:
+      - NODE_ENV=production
+      - PORT=3333
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - JWT_SECRET=${JWT_SECRET:-CHANGE-THIS-IN-PRODUCTION-USE-STRONG-SECRET}
+      - JWT_EXPIRATION=5m
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-change-me-in-production}
+      - TURN_HOST=${TURN_HOST:-coturn}
+      - TURN_PORT=3478
+      - TURN_TLS_PORT=5349
+      - TURN_SHARED_SECRET=${TURN_SHARED_SECRET:-change-me-in-production}
+      - TURN_REALM=${DOMAIN:-paircam.live}
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://yourdomain.com}
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX_REQUESTS=100
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3333/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+      replicas: 1
+
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${API_URL:-https://api.paircam.live}
+        - VITE_WS_URL=${WS_URL:-wss://api.paircam.live}
+    image: video-chat-frontend:latest
+    container_name: video-chat-frontend-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+      replicas: 1
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
+
