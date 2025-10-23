@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ghcr.io/your-org/connect-backend:latest
+          image: ghcr.io/jaethebaeee/connect-backend:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: NODE_ENV
