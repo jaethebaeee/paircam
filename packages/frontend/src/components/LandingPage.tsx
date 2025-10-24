@@ -46,7 +46,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 px-4">
+    <div className="min-h-screen py-12 px-4">
       {/* Premium Button - Fixed Top Right */}
       <button
         onClick={() => setShowPremiumModal(true)}
@@ -55,40 +55,196 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         ⭐ Get Premium
       </button>
 
-      <div className="max-w-2xl w-full">
-        {/* Main Content */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-3 rounded-2xl shadow-lg">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="max-w-6xl mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-16 pt-8">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-4 rounded-3xl shadow-xl">
+              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            Meet People Worldwide
+          <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-6 leading-tight">
+            Meet Someone New<br/>Right Now
           </h1>
-          <p className="text-xl text-gray-700 mb-2 font-medium">
-            🎥 Video Chat • 🎤 Voice Call • 💬 Text Chat
+          <p className="text-2xl text-gray-800 mb-4 font-semibold max-w-3xl mx-auto">
+            Join random video chats in 5 seconds – No signup, no hassle
           </p>
-          <p className="text-base text-gray-600 mb-2">
-            Instantly match with strangers from every corner of the globe
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Anonymous, instant connections with people worldwide. Choose video, voice, or text chat.
           </p>
-          <div className="flex items-center justify-center gap-6 text-sm text-gray-500 mt-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🌍</span>
-              <span>195+ Countries</span>
-            </div>
-            <div className="flex items-center gap-2">
+          
+          {/* Key Value Props */}
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-base text-gray-700 mb-12">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
               <span className="text-2xl">⚡</span>
-              <span>Instant Matching</span>
+              <span className="font-medium">Start in 5 seconds</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
               <span className="text-2xl">🔒</span>
-              <span>100% Anonymous</span>
+              <span className="font-medium">100% Anonymous</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+              <span className="text-2xl">🌍</span>
+              <span className="font-medium">Global Community</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+              <span className="text-2xl">🛡️</span>
+              <span className="font-medium">Safe & Moderated</span>
+            </div>
+          </div>
+
+          {/* Hero Visual Mockup */}
+          <div className="max-w-4xl mx-auto mb-16">
+            <div className="bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 rounded-3xl shadow-2xl overflow-hidden border-4 border-white">
+              <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-white/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-white/60"></div>
+                  <div className="w-3 h-3 rounded-full bg-white/40"></div>
+                </div>
+                <span className="text-white text-sm font-semibold">Live Video Chat</span>
+                <div className="w-20"></div>
+              </div>
+              <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg className="w-24 h-24 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="relative z-10 text-center text-white">
+                  <div className="text-5xl mb-3">👋</div>
+                  <p className="text-xl font-semibold mb-1">Connect face-to-face</p>
+                  <p className="text-sm text-gray-300">with people from around the world</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* How It Works Section */}
+        <div className="mb-16">
+          <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">How It Works</h2>
+          <p className="text-center text-gray-600 mb-12 text-lg">Get started in three simple steps</p>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Step 1 */}
+            <div className="bg-white rounded-3xl shadow-lg border-2 border-pink-100 p-8 text-center hover:shadow-xl transition-shadow">
+              <div className="bg-gradient-to-br from-pink-500 to-pink-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="text-3xl font-bold text-white">1</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Enter Your Name</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Choose a name or nickname. No email, no phone number, no signup required. Stay completely anonymous.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-white rounded-3xl shadow-lg border-2 border-purple-100 p-8 text-center hover:shadow-xl transition-shadow">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="text-3xl font-bold text-white">2</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Get Matched</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Our system instantly pairs you with someone online. It takes just seconds to find your next conversation.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-white rounded-3xl shadow-lg border-2 border-blue-100 p-8 text-center hover:shadow-xl transition-shadow">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="text-3xl font-bold text-white">3</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Start Chatting</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Connect via video, voice, or text. Don't like the match? Skip to the next person instantly with one click.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Trust & Safety Section */}
+        <div className="mb-16 max-w-4xl mx-auto">
+          <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl shadow-lg border-2 border-green-200 p-10">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-2xl mb-4 shadow-lg">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Safety Matters</h2>
+              <p className="text-gray-700 text-lg">We're committed to creating a safe, respectful community</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-1">24/7 Moderation</h3>
+                  <p className="text-sm text-gray-600">AI and human moderators monitor for inappropriate content and behavior</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-1">Anonymous by Default</h3>
+                  <p className="text-sm text-gray-600">No personal info required. Your privacy is protected at all times</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-1">Report & Block</h3>
+                  <p className="text-sm text-gray-600">Instantly report users who violate our community guidelines</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-1">18+ Verification</h3>
+                  <p className="text-sm text-gray-600">Age verification required for video chat to keep minors safe</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 p-4 bg-white/70 rounded-2xl border border-green-300">
+              <p className="text-sm text-gray-700 text-center">
+                <strong className="text-gray-900">Remember:</strong> Never share personal information like your address, phone number, or financial details with strangers online.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Start Chat Form Section */}
+        <div className="max-w-2xl mx-auto">
 
         {/* Modern Options Box */}
         <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 mb-6">
@@ -329,8 +485,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           </div>
         </div>
 
-        {/* Modern Disclaimer */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border border-yellow-200 p-6 shadow-sm">
+        {/* Quick Safety Reminder */}
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-200 p-5 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
               <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,10 +495,10 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
             <div className="flex-1">
               <p className="text-base font-semibold text-gray-900 mb-2">
-                Stay Safe Online
+                Stay Safe, Be Respectful
               </p>
               <p className="text-sm text-gray-700 mb-3">
-                Never share personal information with strangers. Be respectful and report any inappropriate behavior.
+                Never share personal information with strangers. Report any inappropriate behavior immediately.
               </p>
               <p className="text-xs text-gray-600">
                 By using this service, you agree to our{' '}
@@ -350,6 +506,43 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 {' '}and{' '}
                 <a href="#" className="text-blue-600 hover:text-blue-700 font-medium underline">Privacy Policy</a>.
               </p>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        {/* Additional Features Section */}
+        <div className="max-w-5xl mx-auto mt-16 mb-12">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Why Choose Us?</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-pink-500 to-pink-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Lightning Fast</h3>
+              <p className="text-gray-600">Connect with someone in seconds. No waiting, no delays, just instant conversations.</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Global Reach</h3>
+              <p className="text-gray-600">Meet people from 195+ countries. Experience diverse cultures and perspectives.</p>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Your Choice</h3>
+              <p className="text-gray-600">Video, voice, or text – you decide how you want to connect. Switch modes anytime.</p>
             </div>
           </div>
         </div>

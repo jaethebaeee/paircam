@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useSignaling } from '../../hooks/useSignaling';
 import { useWebRTC } from '../../hooks/useWebRTC';
-import { STUN_SERVERS, DEFAULT_MEDIA_CONSTRAINTS, API_URL } from '../../config/api';
+import { useNetworkQuality } from '../../hooks/useNetworkQuality';
+import { useAdaptiveMediaConstraints } from '../../hooks/useAdaptiveMediaConstraints';
+import { STUN_SERVERS, DEFAULT_MEDIA_CONSTRAINTS, AUDIO_ONLY_CONSTRAINTS, API_URL } from '../../config/api';
 import VideoControls from './VideoControls';
 import VideoStreams from './VideoStreams';
 import ChatPanel from './ChatPanel';
+import NetworkQualityIndicator from '../NetworkQualityIndicator';
+import PermissionErrorModal from '../PermissionErrorModal';
 
 type TurnCredentials = {
   urls: string[];
@@ -37,6 +41,16 @@ export default function VideoChat({
   const [messages, setMessages] = useState<Array<{ text: string; isMine: boolean; sender?: string }>>([]);
   const [turnCredentials, setTurnCredentials] = useState<TurnCredentials | null>(null);
   const [isSkipping, setIsSkipping] = useState(false);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
+  const [isAudioOnlyMode, setIsAudioOnlyMode] = useState(false);
+  const [currentQuality] = useState<'auto' | 'high' | 'low'>('auto'); // Future: allow user to manually override
+
+  // Network quality monitoring
+  const networkInfo = useNetworkQuality();
+  const adaptiveConstraints = useAdaptiveMediaConstraints(networkInfo.quality, {
+    video: isVideoEnabled && !isAudioOnlyMode,
+    audio: isAudioEnabled,
+  });
 
   // Auth
   const { accessToken, authenticate } = useAuth();
@@ -89,12 +103,20 @@ export default function VideoChat({
     authenticate();
   }, [authenticate]);
 
-  // Start local stream (skip in text mode)
+  // Start local stream with adaptive quality (skip in text mode)
   useEffect(() => {
     if (accessToken && !isTextMode) {
-      webrtc.startLocalStream(DEFAULT_MEDIA_CONSTRAINTS);
+      const constraints = isAudioOnlyMode 
+        ? AUDIO_ONLY_CONSTRAINTS 
+        : currentQuality === 'auto'
+          ? { audio: adaptiveConstraints.audio, video: adaptiveConstraints.video }
+          : DEFAULT_MEDIA_CONSTRAINTS;
+
+      webrtc.startLocalStream(constraints).catch((error) => {
+        setPermissionError(error.message || 'Failed to access camera/microphone');
+      });
     }
-  }, [accessToken, webrtc, isTextMode]);
+  }, [accessToken, webrtc, isTextMode, isAudioOnlyMode, currentQuality, adaptiveConstraints]);
 
   // Fetch TURN credentials
   useEffect(() => {
@@ -181,6 +203,30 @@ export default function VideoChat({
     webrtc.toggleAudio(newState);
   };
 
+  const handleSwitchToAudioOnly = useCallback(() => {
+    setIsAudioOnlyMode(true);
+    setIsVideoEnabled(false);
+    webrtc.toggleVideo(false);
+    setPermissionError(null);
+  }, [webrtc]);
+
+  const handleSwitchToTextOnly = useCallback(() => {
+    if (signaling.matched) {
+      signaling.endCall(signaling.matched.sessionId);
+    }
+    webrtc.endCall();
+    onStopChatting();
+    // Parent should handle switching to text mode
+  }, [signaling, webrtc, onStopChatting]);
+
+  const handleRetryPermissions = useCallback(() => {
+    setPermissionError(null);
+    const constraints = isAudioOnlyMode ? AUDIO_ONLY_CONSTRAINTS : DEFAULT_MEDIA_CONSTRAINTS;
+    webrtc.startLocalStream(constraints).catch((error) => {
+      setPermissionError(error.message || 'Failed to access camera/microphone');
+    });
+  }, [webrtc, isAudioOnlyMode]);
+
   const handleReport = async () => {
     try {
       if (!accessToken || !signaling.matched) return;
@@ -209,6 +255,29 @@ export default function VideoChat({
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-slate-900 relative">
+      {/* Network Quality Indicator */}
+      {!isTextMode && (
+        <NetworkQualityIndicator
+          quality={networkInfo.quality}
+          type={networkInfo.type}
+          downlink={networkInfo.downlink}
+          rtt={networkInfo.rtt}
+          onDegradeToAudio={handleSwitchToAudioOnly}
+          showRecommendation={!isAudioOnlyMode}
+        />
+      )}
+
+      {/* Permission Error Modal */}
+      {permissionError && (
+        <PermissionErrorModal
+          error={permissionError}
+          onDismiss={() => setPermissionError(null)}
+          onRetry={handleRetryPermissions}
+          onSwitchToAudio={handleSwitchToAudioOnly}
+          onSwitchToText={handleSwitchToTextOnly}
+        />
+      )}
+
       {isTextMode ? (
         // Text-only mode UI
         <div className="h-full flex items-center justify-center p-4">
@@ -227,13 +296,13 @@ export default function VideoChat({
           localVideoRef={webrtc.localVideoRef}
           remoteVideoRef={webrtc.remoteVideoRef}
           isConnecting={!signaling.matched}
-          isVideoEnabled={isVideoEnabled}
+          isVideoEnabled={isVideoEnabled && !isAudioOnlyMode}
           connectionState={webrtc.connectionState}
         />
       )}
 
       <VideoControls
-        isVideoEnabled={isVideoEnabled}
+        isVideoEnabled={isVideoEnabled && !isAudioOnlyMode}
         isAudioEnabled={isAudioEnabled}
         onToggleVideo={handleToggleVideo}
         onToggleAudio={handleToggleAudio}
@@ -243,6 +312,8 @@ export default function VideoChat({
         onReport={handleReport}
         isSkipping={isSkipping}
         isTextMode={isTextMode}
+        isAudioOnlyMode={isAudioOnlyMode}
+        onSwitchToAudioOnly={handleSwitchToAudioOnly}
       />
 
       {!isTextMode && showChat && (
