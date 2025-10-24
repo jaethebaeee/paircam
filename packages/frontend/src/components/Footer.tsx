@@ -64,16 +64,16 @@ export default function Footer() {
             <h3 className="text-gray-900 font-semibold text-sm uppercase tracking-wider mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Privacy Policy</a>
+                <a href="/privacy-policy" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Privacy Policy</a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Terms of Service</a>
+                <a href="/terms-of-service" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Terms of Service</a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Cookie Policy</a>
+                <a href="/cookie-policy" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Cookie Policy</a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Contact Us</a>
+                <a href="mailto:support@paircam.live" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Contact Us</a>
               </li>
             </ul>
           </div>

@@ -83,54 +83,72 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-white to-purple-50">
-      {/* Dynamic SEO meta tags */}
-      <SEO
-        title={isInCall ? 'In Call' : undefined}
-        description={
-          isInCall
-            ? 'You are currently in a video chat. Enjoy your conversation!'
-            : undefined
-        }
-      />
-
-      <Navbar />
-      
-      <main className="flex-1 relative">
-        <Suspense fallback={<LoadingSpinner />}>
-          {isInCall ? (
-            <VideoChat 
-              onStopChatting={handleStopChatting} 
-              userName={userName}
-              userGender={userGender}
-              genderPreference={genderPreference}
-              isTextMode={isTextMode}
-              initialVideoEnabled={initialVideoEnabled}
-            />
-          ) : (
-            <LandingPage onStartCall={handleStartCall} />
-          )}
-        </Suspense>
-      </main>
-      
-      <Footer />
-
-      {/* Safety Modal */}
-      {_showSafetyModal && (
-        <SafetyModal 
-          onAccept={handleSafetyAccept}
-          onDecline={handleSafetyDecline}
+    <BrowserRouter>
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-white to-purple-50">
+        {/* Dynamic SEO meta tags */}
+        <SEO
+          title={isInCall ? 'In Call' : undefined}
+          description={
+            isInCall
+              ? 'You are currently in a video chat. Enjoy your conversation!'
+              : undefined
+          }
         />
-      )}
 
-      {/* Permission Modal */}
-      {_showPermissionModal && (
-        <PermissionModal 
-          onPermissionsGranted={handlePermissionsGranted}
-          onPermissionsDenied={handlePermissionsDenied}
-        />
-      )}
-    </div>
+        <Navbar />
+        
+        <main className="flex-1 relative">
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              {/* Main App Routes */}
+              <Route 
+                path="/" 
+                element={
+                  isInCall ? (
+                    <VideoChat 
+                      onStopChatting={handleStopChatting} 
+                      userName={userName}
+                      userGender={userGender}
+                      genderPreference={genderPreference}
+                      isTextMode={isTextMode}
+                      initialVideoEnabled={initialVideoEnabled}
+                    />
+                  ) : (
+                    <LandingPage onStartCall={handleStartCall} />
+                  )
+                }
+              />
+              
+              {/* Legal Pages */}
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/cookie-policy" element={<CookiePolicy />} />
+              
+              {/* Catch all - redirect to home */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </main>
+        
+        <Footer />
+
+        {/* Safety Modal */}
+        {_showSafetyModal && (
+          <SafetyModal 
+            onAccept={handleSafetyAccept}
+            onDecline={handleSafetyDecline}
+          />
+        )}
+
+        {/* Permission Modal */}
+        {_showPermissionModal && (
+          <PermissionModal 
+            onPermissionsGranted={handlePermissionsGranted}
+            onPermissionsDenied={handlePermissionsDenied}
+          />
+        )}
+      </div>
+    </BrowserRouter>
   );
 }
 
