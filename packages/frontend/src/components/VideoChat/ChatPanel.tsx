@@ -62,7 +62,7 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
           <>
             {messages.map((msg, idx) => (
               <div
-                key={idx}
+                key={`${idx}-${msg.text.substring(0, 10)}-${msg.isMine}`}
                 className={`flex ${msg.isMine ? 'justify-end' : 'justify-start'} animate-fadeIn`}
               >
                 <div

@@ -485,8 +485,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           </div>
         </div>
 
-        {/* Quick Safety Reminder */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-200 p-5 shadow-sm">
+        {/* Modern Disclaimer */}
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border border-yellow-200 p-6 shadow-sm">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
               <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -34,9 +34,10 @@ export default function PermissionErrorModal({
 
   const getInstructions = () => {
     if (isPermissionDenied) {
-      const isChrome = /Chrome/.test(navigator.userAgent);
-      const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-      const isFirefox = /Firefox/.test(navigator.userAgent);
+      const ua = navigator.userAgent;
+      const isChrome = /Chrome/.test(ua) && !/Edg/.test(ua);
+      const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua) && !/Edg/.test(ua);
+      const isFirefox = /Firefox/.test(ua);
 
       if (isChrome) {
         return (

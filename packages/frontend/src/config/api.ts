@@ -1,5 +1,24 @@
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333';
-export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3333';
+// Validate and export API URLs
+const getApiUrl = () => {
+  const url = import.meta.env.VITE_API_URL || 'http://localhost:3333';
+  // Warn in development if using default
+  if (import.meta.env.DEV && url === 'http://localhost:3333') {
+    console.warn('Using default API URL. Set VITE_API_URL in .env for production.');
+  }
+  return url;
+};
+
+const getWsUrl = () => {
+  const url = import.meta.env.VITE_WS_URL || 'ws://localhost:3333';
+  // Warn in development if using default
+  if (import.meta.env.DEV && url === 'ws://localhost:3333') {
+    console.warn('Using default WebSocket URL. Set VITE_WS_URL in .env for production.');
+  }
+  return url;
+};
+
+export const API_URL = getApiUrl();
+export const WS_URL = getWsUrl();
 
 export const STUN_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },

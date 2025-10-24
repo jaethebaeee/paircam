@@ -32,14 +32,34 @@ export default function VideoStreams({
 
   // Detect remote video stream
   useEffect(() => {
-    if (remoteVideoRef.current?.srcObject) {
+    const videoElement = remoteVideoRef.current;
+    if (!videoElement) return;
+
+    const handleLoadedMetadata = () => {
       setRemoteVideoReady(true);
       setIsDisconnecting(false);
-    } else if (remoteVideoReady) {
-      // Video was there but now gone - partner disconnected
-      setIsDisconnecting(true);
+    };
+
+    const handleEmptied = () => {
+      if (remoteVideoReady) {
+        setIsDisconnecting(true);
+      }
+    };
+
+    videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+    videoElement.addEventListener('emptied', handleEmptied);
+
+    // Check initial state
+    if (videoElement.srcObject) {
+      setRemoteVideoReady(true);
+      setIsDisconnecting(false);
     }
-  }, [remoteVideoRef.current?.srcObject, remoteVideoReady]);
+
+    return () => {
+      videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      videoElement.removeEventListener('emptied', handleEmptied);
+    };
+  }, [remoteVideoReady]);
 
   // Reset disconnecting state when reconnecting
   useEffect(() => {

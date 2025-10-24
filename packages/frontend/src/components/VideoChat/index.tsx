@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useSignaling } from '../../hooks/useSignaling';
 import { useWebRTC } from '../../hooks/useWebRTC';
@@ -44,13 +44,18 @@ export default function VideoChat({
   const [permissionError, setPermissionError] = useState<string | null>(null);
   const [isAudioOnlyMode, setIsAudioOnlyMode] = useState(false);
   const [currentQuality] = useState<'auto' | 'high' | 'low'>('auto'); // Future: allow user to manually override
+  const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Network quality monitoring
   const networkInfo = useNetworkQuality();
-  const adaptiveConstraints = useAdaptiveMediaConstraints(networkInfo.quality, {
+  
+  // Memoize user preferences to prevent unnecessary re-renders
+  const userPreferences = useMemo(() => ({
     video: isVideoEnabled && !isAudioOnlyMode,
     audio: isAudioEnabled,
-  });
+  }), [isVideoEnabled, isAudioOnlyMode, isAudioEnabled]);
+  
+  const adaptiveConstraints = useAdaptiveMediaConstraints(networkInfo.quality, userPreferences);
 
   // Auth
   const { accessToken, authenticate } = useAuth();
@@ -116,7 +121,8 @@ export default function VideoChat({
         setPermissionError(error.message || 'Failed to access camera/microphone');
       });
     }
-  }, [accessToken, webrtc, isTextMode, isAudioOnlyMode, currentQuality, adaptiveConstraints]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken, isTextMode, isAudioOnlyMode, currentQuality]);
 
   // Fetch TURN credentials
   useEffect(() => {
@@ -154,7 +160,7 @@ export default function VideoChat({
     }
   }, [signaling.matched, signaling, webrtc, isTextMode]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     // Prevent rapid clicking (debounce)
     if (isSkipping) return;
     
@@ -166,9 +172,26 @@ export default function VideoChat({
     setMessages([]);
     signaling.joinQueue('global', 'en', userGender, genderPreference);
     
+    // Clear any existing timeout
+    if (skipTimeoutRef.current) {
+      clearTimeout(skipTimeoutRef.current);
+    }
+    
     // Re-enable after 2 seconds
-    setTimeout(() => setIsSkipping(false), 2000);
-  };
+    skipTimeoutRef.current = setTimeout(() => {
+      setIsSkipping(false);
+      skipTimeoutRef.current = null;
+    }, 2000);
+  }, [isSkipping, signaling, userGender, genderPreference]);
+  
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (skipTimeoutRef.current) {
+        clearTimeout(skipTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleStopChatting = () => {
     if (signaling.matched) {
