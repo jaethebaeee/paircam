@@ -158,10 +158,22 @@ export class MatchmakingService {
       return false;
     }
 
-    // PREMIUM FEATURE: Gender filter
+    // PREMIUM FEATURE: Gender filter (improved logic)
     // If user1 is premium and has gender preference, check if user2 matches
     if (user1.isPremium && user1.genderPreference && user1.genderPreference !== 'any') {
-      if (!user2.gender || user2.gender !== user1.genderPreference) {
+      // user2 must have specified a gender (not undefined/null) AND it must match
+      if (!user2.gender) {
+        // user2 chose "Private" - can't be filtered
+        this.logger.debug('Gender filter: user2 is private', {
+          user1: user1.userId,
+          wantsGender: user1.genderPreference,
+          user2: user2.userId,
+          user2Gender: 'undefined/private',
+        });
+        return false; // Premium users can't match with private users when filtering
+      }
+      
+      if (user2.gender !== user1.genderPreference) {
         this.logger.debug('Gender filter mismatch', {
           user1: user1.userId,
           wantsGender: user1.genderPreference,
@@ -174,7 +186,19 @@ export class MatchmakingService {
 
     // If user2 is premium and has gender preference, check if user1 matches
     if (user2.isPremium && user2.genderPreference && user2.genderPreference !== 'any') {
-      if (!user1.gender || user1.gender !== user2.genderPreference) {
+      // user1 must have specified a gender (not undefined/null) AND it must match
+      if (!user1.gender) {
+        // user1 chose "Private" - can't be filtered
+        this.logger.debug('Gender filter: user1 is private', {
+          user2: user2.userId,
+          wantsGender: user2.genderPreference,
+          user1: user1.userId,
+          user1Gender: 'undefined/private',
+        });
+        return false; // Premium users can't match with private users when filtering
+      }
+      
+      if (user1.gender !== user2.genderPreference) {
         this.logger.debug('Gender filter mismatch', {
           user2: user2.userId,
           wantsGender: user2.genderPreference,
@@ -185,9 +209,22 @@ export class MatchmakingService {
       }
     }
 
-    // Check if users have been matched recently (prevent immediate re-matching)
-    const _recentMatchKey = `recent_match:${user1.userId}:${user2.userId}`;
-    // This would need to be implemented with Redis TTL
+    // If neither user has gender filters, or both are compatible, match them
+    // This means:
+    // - Free users always match (no filter)
+    // - Premium users with "any" preference match everyone
+    // - Private users match with free users and premium users who want "any"
+    
+    this.logger.debug('Users are compatible', {
+      user1: user1.userId,
+      user1Gender: user1.gender || 'private',
+      user1Premium: user1.isPremium,
+      user1Pref: user1.genderPreference,
+      user2: user2.userId,
+      user2Gender: user2.gender || 'private',
+      user2Premium: user2.isPremium,
+      user2Pref: user2.genderPreference,
+    });
 
     return true;
   }

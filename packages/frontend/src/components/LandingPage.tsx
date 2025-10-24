@@ -17,6 +17,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [userName, setUserName] = useState('');
   const [userAge, setUserAge] = useState('');
+  const [userGender, setUserGender] = useState<string | undefined>(undefined);
   const [genderPreference, setGenderPreference] = useState('any');
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
@@ -36,7 +37,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
     }
     onStartCall({
       name: userName.trim(),
-      gender: undefined,  // Gender not collected anymore
+      gender: userGender,  // Optional: undefined means private/anonymous
       genderPreference: genderPreference,
       isTextMode: textMode,
     });
@@ -202,6 +203,94 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 )}
               </div>
             )}
+
+            {/* Gender Selection (Optional) */}
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-5 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="bg-blue-500 rounded-full p-2">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 text-base mb-1">
+                    Your Gender (Optional)
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Specifying your gender helps premium users find you through filters. Select "Private" to remain anonymous and match with everyone.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-4 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setUserGender('male')}
+                  className={`p-3 rounded-xl border-2 transition-all ${
+                    userGender === 'male'
+                      ? 'border-blue-500 bg-blue-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">👨</div>
+                  <div className="text-xs font-medium">Male</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserGender('female')}
+                  className={`p-3 rounded-xl border-2 transition-all ${
+                    userGender === 'female'
+                      ? 'border-pink-500 bg-pink-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">👩</div>
+                  <div className="text-xs font-medium">Female</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserGender('other')}
+                  className={`p-3 rounded-xl border-2 transition-all ${
+                    userGender === 'other'
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">✨</div>
+                  <div className="text-xs font-medium">Other</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUserGender(undefined)}
+                  className={`p-3 rounded-xl border-2 transition-all ${
+                    userGender === undefined
+                      ? 'border-gray-500 bg-gray-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">🔒</div>
+                  <div className="text-xs font-medium">Private</div>
+                </button>
+              </div>
+              
+              {userGender === undefined && (
+                <div className="flex items-center gap-2 text-xs text-gray-600 bg-white/60 rounded-lg p-2">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Private mode: You'll match with everyone, but premium users can't filter you</span>
+                </div>
+              )}
+              
+              {userGender && (
+                <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 rounded-lg p-2">
+                  <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Great! Premium users looking for {userGender === 'other' ? 'diverse matches' : `${userGender}s`} can find you</span>
+                </div>
+              )}
+            </div>
 
             {/* Gender Filter (Premium Feature) */}
             <GenderFilter
