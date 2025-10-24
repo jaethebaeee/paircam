@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers, Req, UseGuards, RawBodyRequest } from '@nestjs/common';
+import { Controller, Post, Get, Body, Headers, Req, Query, UseGuards, RawBodyRequest, BadRequestException } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Public } from '../auth/public.decorator';
 import { PaymentsService } from './payments.service';
@@ -34,6 +34,19 @@ export class PaymentsController {
   @Post('cancel-subscription')
   async cancelSubscription(@Req() req: { user: { deviceId: string } }) {
     return this.paymentsService.cancelSubscription(req.user.deviceId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('verify')
+  async verifyPayment(
+    @Req() req: { user: { deviceId: string } },
+    @Query('session_id') sessionId: string,
+  ) {
+    if (!sessionId) {
+      throw new BadRequestException('Missing session_id parameter');
+    }
+
+    return this.paymentsService.verifyCheckoutSession(sessionId, req.user.deviceId);
   }
 }
 

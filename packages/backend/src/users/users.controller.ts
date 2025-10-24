@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Put, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -52,6 +52,34 @@ export class UsersController {
 
     const isPremium = await this.usersService.isPremium(user.id);
     return { isPremium };
+  }
+
+  @Post('sync')
+  async syncUser(
+    @Req() req: { user: { deviceId: string } },
+    @Body() body: { supabaseUserId?: string; email?: string; name?: string },
+  ) {
+    const user = await this.usersService.findOrCreate(req.user.deviceId);
+    
+    // Update user with Supabase info if provided
+    if (body.supabaseUserId || body.email || body.name) {
+      await this.usersService.updateProfile(req.user.deviceId, {
+        email: body.email,
+        // Store supabaseUserId in a custom field if needed
+        // For now, we'll just update email and name
+      });
+    }
+    
+    const isPremium = await this.usersService.isPremium(user.id);
+    const { subscriptions, ...userProfile } = user;
+    
+    return {
+      success: true,
+      user: {
+        ...userProfile,
+        isPremium,
+      },
+    };
   }
 }
 

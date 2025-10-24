@@ -253,5 +253,49 @@ export class PaymentsService {
       throw new BadRequestException('Failed to cancel subscription');
     }
   }
+
+  async verifyCheckoutSession(sessionId: string, deviceId: string) {
+    if (!this.stripe) {
+      throw new BadRequestException('Payment system not configured');
+    }
+
+    try {
+      // Retrieve the checkout session from Stripe
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId);
+
+      // Verify the session belongs to this user
+      const user = await this.usersService.findByDeviceId(deviceId);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      // Check if payment was successful
+      if (session.payment_status !== 'paid') {
+        throw new BadRequestException('Payment not completed');
+      }
+
+      // Check if subscription exists (webhook should have created it)
+      const subscription = await this.subscriptionsService.findActiveByUserId(user.id);
+      
+      this.logger.log('Payment verified', {
+        userId: user.id,
+        sessionId,
+        subscriptionId: subscription?.id,
+      });
+
+      return {
+        success: true,
+        isPremium: !!subscription,
+        subscription: subscription ? {
+          plan: subscription.plan,
+          status: subscription.status,
+          currentPeriodEnd: subscription.currentPeriodEnd,
+        } : null,
+      };
+    } catch (error) {
+      this.logger.error('Failed to verify payment', error.stack);
+      throw new BadRequestException('Failed to verify payment');
+    }
+  }
 }
 
