@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import GenderFilter from './GenderFilter';
 import PremiumModal from './PremiumModal';
-import GoogleSignInButton from './GoogleSignIn';
 import { useAuthContext } from '../contexts/AuthContext';
 
 interface LandingPageProps {
@@ -210,24 +209,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               onUpgradeClick={() => setShowPremiumModal(true)}
               isPremium={isPremium}
             />
-
-            {/* Google Sign-In */}
-            <div className="space-y-3">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-gray-500">Or continue with</span>
-                </div>
-              </div>
-              
-              <GoogleSignInButton />
-              
-              <p className="text-xs text-gray-500 text-center">
-                Sign in to save your profile and access premium features
-              </p>
-            </div>
 
             {/* Modern Primary Button */}
             <div className="pt-4">
