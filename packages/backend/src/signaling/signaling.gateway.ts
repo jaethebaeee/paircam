@@ -164,11 +164,25 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         preferences: data.preferences || {},
       });
 
+      const queueLength = await this.redisService.getQueueLength();
       client.emit('queue-joined', { 
-        position: await this.redisService.getQueueLength(),
+        position: queueLength,
+        queueLength: queueLength,
         timestamp: Date.now(),
         isPremium, // Let frontend know premium status
       });
+      
+      // Send periodic queue position updates every 2 seconds
+      const queueUpdateInterval = setInterval(async () => {
+        const currentPosition = await this.redisService.getQueueLength();
+        client.emit('queue-update', {
+          position: currentPosition,
+          estimatedWaitTime: Math.max(5, currentPosition * 3), // Estimate 3 seconds per person in queue
+        });
+      }, 2000);
+      
+      // Store interval ID to clear it later
+      client.data.queueUpdateInterval = queueUpdateInterval;
 
       this.logger.debug('User joined queue', { 
         deviceId, 
@@ -188,6 +202,11 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
 
   @SubscribeMessage('leave-queue')
   async handleLeaveQueue(@ConnectedSocket() client: Socket) {
+    // Clear queue update interval
+    if (client.data.queueUpdateInterval) {
+      clearInterval(client.data.queueUpdateInterval);
+      client.data.queueUpdateInterval = null;
+    }
     const deviceId = client.data.deviceId;
     if (!deviceId) return;
 

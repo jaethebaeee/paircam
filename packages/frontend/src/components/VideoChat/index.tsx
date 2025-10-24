@@ -294,8 +294,8 @@ export default function VideoChat({
   if (showWaitingQueue && !signaling.matched) {
     return (
       <WaitingQueue
-        queuePosition={undefined} // TODO: Get from backend via signaling
-        estimatedWaitTime={undefined} // TODO: Get from backend
+        queuePosition={signaling.queueStatus?.position}
+        estimatedWaitTime={undefined} // Backend calculates this now
         onCancel={onWaitingCancel || onStopChatting}
       />
     );

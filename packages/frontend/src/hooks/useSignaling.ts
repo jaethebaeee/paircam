@@ -99,6 +99,15 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
       setQueueStatus(data);
     });
 
+    newSocket.on('queue-update', (data: { position: number; estimatedWaitTime: number }) => {
+      console.log('Queue position updated:', data);
+      setQueueStatus(prev => ({
+        ...prev,
+        position: data.position,
+        timestamp: Date.now(),
+      } as QueueStatus));
+    });
+
     newSocket.on('queue-left', (data: { timestamp: number }) => {
       console.log('Left queue:', data);
       setQueueStatus(null);
