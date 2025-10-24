@@ -2,6 +2,7 @@ import { useState } from 'react';
 import GenderFilter from './GenderFilter';
 import PremiumModal from './PremiumModal';
 import GoogleSignInButton from './GoogleSignIn';
+import { useAuthContext } from '../contexts/AuthContext';
 
 interface LandingPageProps {
   onStartCall: (data: { 
@@ -21,7 +22,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [isPremium] = useState(false); // TODO: Get from auth context
+  
+  // Get premium status from auth context
+  const { isPremium, user } = useAuthContext();
 
   const handleStartChat = () => {
     if (!userName.trim()) {

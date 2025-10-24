@@ -19,6 +19,28 @@ export default function GoogleSignInButton({ onSuccess, onError }: GoogleSignInB
 
       console.log('Signed in with Google:', data.user);
       
+      // Sync with backend
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3333';
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('omegle_access_token');
+        
+        await fetch(`${apiUrl}/api/users/sync`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            supabaseUserId: data.user?.id,
+            email: data.user?.email,
+            name: data.user?.user_metadata?.name || data.user?.user_metadata?.full_name,
+          }),
+        });
+      } catch (syncError) {
+        console.warn('Failed to sync with backend:', syncError);
+        // Continue anyway - user is still signed in to Supabase
+      }
+      
       // Call success callback
       if (onSuccess) {
         onSuccess();
