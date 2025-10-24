@@ -24,10 +24,12 @@ adc1342 - Add comprehensive code review findings
 ## 🌐 Live Deployments
 
 ### 1. Frontend (Vercel)
-**URL:** https://paircam.vercel.app
+**Production URL:** https://www.paircam.live/  
+**Vercel URL:** https://paircam.vercel.app
 
 **Auto-Deploy Status:**
 - ✅ Connected to GitHub repository
+- ✅ Custom domain configured: www.paircam.live
 - 🔄 Deploys automatically on push to `main`
 - ⏱️ Deploy time: 2-3 minutes
 
@@ -38,7 +40,7 @@ adc1342 - Add comprehensive code review findings
 4. Look for commit `8d4c711`
 
 **Test the Fix:**
-1. Visit https://paircam.vercel.app
+1. Visit **https://www.paircam.live/**
 2. Click "Disable Video" toggle (should turn gray)
 3. Start chat
 4. Verify video is OFF when call starts
@@ -135,7 +137,7 @@ Expected response:
 ## 🧪 Quick Test Sequence
 
 ### Test 1: Video Toggle OFF
-1. Go to https://paircam.vercel.app
+1. Go to **https://www.paircam.live/**
 2. Click "Disable Video" (turns gray/disabled)
 3. Enter name and start chat
 4. **Expected:** Video should be OFF when call starts
@@ -221,6 +223,7 @@ All good when you see:
 
 **🎉 Your app is live and working!**
 
-**Frontend:** https://paircam.vercel.app  
-**GitHub:** https://github.com/jaethebaeee/paircam
+**Production:** https://www.paircam.live/  
+**GitHub:** https://github.com/jaethebaeee/paircam  
+**Vercel Dashboard:** https://vercel.com/dashboard
 
