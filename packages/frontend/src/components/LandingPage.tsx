@@ -50,9 +50,13 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       {/* Premium Button - Fixed Top Right */}
       <button
         onClick={() => setShowPremiumModal(true)}
-        className="fixed top-24 right-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105"
+        className="group fixed top-24 right-4 z-10 bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-5 py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden"
       >
-        ⭐ Get Premium
+        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <span className="relative flex items-center gap-2">
+          <span className="text-lg animate-bounce-subtle">⭐</span>
+          <span>Get Premium</span>
+        </span>
       </button>
 
       <div className="max-w-6xl mx-auto">
@@ -247,31 +251,42 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className="max-w-2xl mx-auto">
 
         {/* Modern Options Box */}
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Start chatting:</h2>
+        <div className="bg-white rounded-3xl shadow-luxury border border-gray-100 p-10 mb-6 hover:shadow-luxury-hover transition-all duration-300 animate-fadeIn">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">Start chatting:</h2>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
             {/* Name Input */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-900">
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-gray-900">
                 What's your name? <span className="text-pink-600">*</span>
               </label>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => {
-                  setUserName(e.target.value);
-                  setShowNameError(false);
-                }}
-                placeholder="Enter your name or nickname"
-                className={`w-full px-4 py-3 rounded-2xl border-2 ${
-                  showNameError ? 'border-red-500' : 'border-gray-200'
-                } focus:border-pink-500 focus:ring-0 outline-none text-base bg-gray-50 focus:bg-white transition-all placeholder:text-gray-400`}
-                maxLength={30}
-              />
+              <div className="relative group">
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => {
+                    setUserName(e.target.value);
+                    setShowNameError(false);
+                  }}
+                  placeholder="Enter your name or nickname"
+                  className={`w-full px-5 py-4 rounded-2xl border-2 ${
+                    showNameError 
+                      ? 'border-red-400 bg-red-50/30 focus:border-red-500' 
+                      : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 focus:border-pink-500'
+                  } focus:ring-4 focus:ring-pink-100 outline-none text-base transition-all duration-200 placeholder:text-gray-400 shadow-sm hover:shadow-md`}
+                  maxLength={30}
+                />
+                {userName && !showNameError && (
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+              </div>
               {showNameError && (
-                <p className="text-sm text-red-600 flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <p className="text-sm text-red-600 flex items-center gap-2 animate-fadeIn">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   Please enter your name to continue
@@ -280,22 +295,27 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
 
             {/* Modern Toggle Switch for Video */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-              <label className="flex items-center cursor-pointer flex-1">
+            <div className="flex items-center justify-between p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl shadow-inner border border-gray-100 hover:shadow-md transition-all duration-200 group">
+              <label className="flex items-center cursor-pointer flex-1" onClick={() => setIsVideoEnabled(!isVideoEnabled)}>
                 <div className="flex-1">
-                  <span className="text-base font-medium text-gray-900">Enable video</span>
-                  <p className="text-sm text-gray-500">Share your camera during calls</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-base font-semibold text-gray-900">Enable video</span>
+                    <svg className={`w-4 h-4 transition-colors ${isVideoEnabled ? 'text-pink-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-600">Share your camera during calls</p>
                 </div>
               </label>
               <button
                 onClick={() => setIsVideoEnabled(!isVideoEnabled)}
-                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
-                  isVideoEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-500' : 'bg-gray-300'
+                className={`relative inline-flex h-9 w-16 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-pink-100 shadow-sm ${
+                  isVideoEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-500 shadow-pink-200' : 'bg-gray-300 hover:bg-gray-400'
                 }`}
               >
                 <span
-                  className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform duration-300 ${
-                    isVideoEnabled ? 'translate-x-7' : 'translate-x-1'
+                  className={`inline-block h-7 w-7 transform rounded-full bg-white shadow-md transition-all duration-300 ${
+                    isVideoEnabled ? 'translate-x-8 scale-110' : 'translate-x-1'
                   }`}
                 />
               </button>
@@ -310,50 +330,61 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   setShowAgeError(false);
                 }
               }}
-              className="flex items-start p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors"
+              className="flex items-start p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl cursor-pointer hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200/50 transition-all duration-200 shadow-inner border border-gray-100 group hover:shadow-md"
             >
-              <div className="flex items-center h-6">
-                <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+              <div className="flex items-center h-6 mt-1">
+                <div className={`h-7 w-7 rounded-xl border-2 flex items-center justify-center transition-all duration-300 shadow-sm ${
                   isAdultConfirmed 
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-500 border-pink-500' 
-                    : 'border-gray-300 bg-white'
+                    ? 'bg-gradient-to-br from-pink-500 to-purple-600 border-pink-500 shadow-pink-200 scale-105' 
+                    : 'border-gray-300 bg-white group-hover:border-gray-400'
                 }`}>
                   {isAdultConfirmed && (
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-white animate-scaleIn" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                 </div>
               </div>
-              <div className="ml-3 flex-1">
-                <span className="text-base font-medium text-gray-900">I'm 18 years or older</span>
-                <p className="text-sm text-gray-500">Required for unmoderated video chat</p>
+              <div className="ml-4 flex-1">
+                <span className="text-base font-semibold text-gray-900">I'm 18 years or older</span>
+                <p className="text-sm text-gray-600 mt-0.5">Required for unmoderated video chat</p>
               </div>
             </div>
 
             {/* Age Input - Shows when 18+ is confirmed */}
             {isAdultConfirmed && (
-              <div className="space-y-2 animate-fadeIn">
-                <label className="block text-sm font-medium text-gray-900">
+              <div className="space-y-3 animate-slideUp">
+                <label className="block text-sm font-semibold text-gray-900">
                   What's your age? <span className="text-pink-600">*</span>
                 </label>
-                <input
-                  type="number"
-                  value={userAge}
-                  onChange={(e) => {
-                    setUserAge(e.target.value);
-                    setShowAgeError(false);
-                  }}
-                  placeholder="Enter your age"
-                  min="18"
-                  max="120"
-                  className={`w-full px-4 py-3 rounded-2xl border-2 ${
-                    showAgeError ? 'border-red-500' : 'border-gray-200'
-                  } focus:border-pink-500 focus:ring-0 outline-none text-base bg-gray-50 focus:bg-white transition-all placeholder:text-gray-400`}
-                />
+                <div className="relative group">
+                  <input
+                    type="number"
+                    value={userAge}
+                    onChange={(e) => {
+                      setUserAge(e.target.value);
+                      setShowAgeError(false);
+                    }}
+                    placeholder="Enter your age"
+                    min="18"
+                    max="120"
+                    className={`w-full px-5 py-4 rounded-2xl border-2 ${
+                      showAgeError 
+                        ? 'border-red-400 bg-red-50/30 focus:border-red-500' 
+                        : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 focus:border-pink-500'
+                    } focus:ring-4 focus:ring-pink-100 outline-none text-base transition-all duration-200 placeholder:text-gray-400 shadow-sm hover:shadow-md`}
+                  />
+                  {userAge && parseInt(userAge) >= 18 && !showAgeError && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 animate-scaleIn">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
                 {showAgeError && (
-                  <p className="text-sm text-red-600 flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <p className="text-sm text-red-600 flex items-center gap-2 animate-fadeIn">
+                    <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                     You must be 18 or older to use this service
@@ -363,89 +394,89 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             )}
 
             {/* Gender Selection (Optional) */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-5 space-y-3">
+            <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-pink-50/50 border-2 border-blue-200/60 rounded-2xl p-6 space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex items-start gap-3">
-                <div className="bg-blue-500 rounded-full p-2">
+                <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-2.5 shadow-md">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 text-base mb-1">
+                  <h3 className="font-bold text-gray-900 text-base mb-1.5">
                     Your Gender (Optional)
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <p className="text-sm text-gray-700 leading-relaxed">
                     Specifying your gender helps premium users find you through filters. Select "Private" to remain anonymous and match with everyone.
                   </p>
                 </div>
               </div>
               
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-3">
                 <button
                   type="button"
                   onClick={() => setUserGender('male')}
-                  className={`p-3 rounded-xl border-2 transition-all ${
+                  className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
                     userGender === 'male'
-                      ? 'border-blue-500 bg-blue-50 shadow-md'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                      ? 'border-blue-500 bg-blue-100/70 shadow-lg shadow-blue-200/50 scale-105'
+                      : 'border-gray-200 hover:border-blue-300 bg-white hover:bg-blue-50 shadow-sm hover:shadow-md hover:scale-105'
                   }`}
                 >
-                  <div className="text-2xl mb-1">👨</div>
-                  <div className="text-xs font-medium">Male</div>
+                  <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">👨</div>
+                  <div className="text-xs font-semibold text-gray-700">Male</div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setUserGender('female')}
-                  className={`p-3 rounded-xl border-2 transition-all ${
+                  className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
                     userGender === 'female'
-                      ? 'border-pink-500 bg-pink-50 shadow-md'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                      ? 'border-pink-500 bg-pink-100/70 shadow-lg shadow-pink-200/50 scale-105'
+                      : 'border-gray-200 hover:border-pink-300 bg-white hover:bg-pink-50 shadow-sm hover:shadow-md hover:scale-105'
                   }`}
                 >
-                  <div className="text-2xl mb-1">👩</div>
-                  <div className="text-xs font-medium">Female</div>
+                  <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">👩</div>
+                  <div className="text-xs font-semibold text-gray-700">Female</div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setUserGender('other')}
-                  className={`p-3 rounded-xl border-2 transition-all ${
+                  className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
                     userGender === 'other'
-                      ? 'border-purple-500 bg-purple-50 shadow-md'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                      ? 'border-purple-500 bg-purple-100/70 shadow-lg shadow-purple-200/50 scale-105'
+                      : 'border-gray-200 hover:border-purple-300 bg-white hover:bg-purple-50 shadow-sm hover:shadow-md hover:scale-105'
                   }`}
                 >
-                  <div className="text-2xl mb-1">✨</div>
-                  <div className="text-xs font-medium">Other</div>
+                  <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">✨</div>
+                  <div className="text-xs font-semibold text-gray-700">Other</div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setUserGender(undefined)}
-                  className={`p-3 rounded-xl border-2 transition-all ${
+                  className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
                     userGender === undefined
-                      ? 'border-gray-500 bg-gray-50 shadow-md'
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                      ? 'border-gray-500 bg-gray-100/70 shadow-lg shadow-gray-200/50 scale-105'
+                      : 'border-gray-200 hover:border-gray-400 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md hover:scale-105'
                   }`}
                 >
-                  <div className="text-2xl mb-1">🔒</div>
-                  <div className="text-xs font-medium">Private</div>
+                  <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">🔒</div>
+                  <div className="text-xs font-semibold text-gray-700">Private</div>
                 </button>
               </div>
               
               {userGender === undefined && (
-                <div className="flex items-center gap-2 text-xs text-gray-600 bg-white/60 rounded-lg p-2">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-2 text-xs text-gray-700 bg-white/80 rounded-xl p-3 shadow-sm border border-gray-200 animate-fadeIn">
+                  <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Private mode: You'll match with everyone, but premium users can't filter you</span>
+                  <span className="leading-relaxed">Private mode: You'll match with everyone, but premium users can't filter you</span>
                 </div>
               )}
               
               {userGender && (
-                <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 rounded-lg p-2">
-                  <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-100/70 rounded-xl p-3 shadow-sm border border-blue-200 animate-fadeIn">
+                  <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Great! Premium users looking for {userGender === 'other' ? 'diverse matches' : `${userGender}s`} can find you</span>
+                  <span className="leading-relaxed font-medium">Great! Premium users looking for {userGender === 'other' ? 'diverse matches' : `${userGender}s`} can find you</span>
                 </div>
               )}
             </div>
@@ -458,53 +489,63 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             />
 
             {/* Modern Primary Button */}
-            <div className="pt-4">
+            <div className="pt-6">
               <button 
                 onClick={() => handleStartChat(false)}
-                className="group relative w-full py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold text-lg rounded-2xl shadow-lg shadow-pink-500/50 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+                className="group relative w-full py-5 px-8 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 hover:from-pink-600 hover:via-purple-600 hover:to-purple-700 text-white font-bold text-lg rounded-2xl shadow-xl shadow-pink-500/40 hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.97] focus:outline-none focus:ring-4 focus:ring-pink-300 overflow-hidden"
               >
-                <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="relative flex items-center justify-center gap-2">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:animate-pulse" />
+                <span className="relative flex items-center justify-center gap-3">
+                  <svg className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  Start Video Chat
+                  <span className="tracking-wide">Start Video Chat</span>
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
                 </span>
               </button>
             </div>
 
             {/* Text Only Option */}
-            <div className="text-center">
+            <div className="text-center pt-2">
               <button 
                 onClick={() => handleStartChat(true)}
-                className="text-pink-600 hover:text-purple-700 font-medium text-base hover:underline transition-colors"
+                className="group inline-flex items-center gap-2 text-pink-600 hover:text-purple-700 font-semibold text-base transition-all duration-200 hover:gap-3 px-4 py-2 rounded-xl hover:bg-pink-50"
               >
-                💬 Text only mode
+                <span className="text-xl">💬</span>
+                <span className="relative">
+                  Text only mode
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-600 to-purple-700 group-hover:w-full transition-all duration-300"></span>
+                </span>
               </button>
             </div>
           </div>
         </div>
 
         {/* Modern Disclaimer */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border border-yellow-200 p-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
+        <div className="bg-gradient-to-br from-yellow-50 via-orange-50 to-amber-50 rounded-2xl border-2 border-yellow-200/70 p-6 shadow-md hover:shadow-lg transition-all duration-300">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 mt-0.5">
+              <div className="bg-gradient-to-br from-yellow-400 to-orange-500 p-2 rounded-xl shadow-md">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
             </div>
             <div className="flex-1">
-              <p className="text-base font-semibold text-gray-900 mb-2">
+              <p className="text-lg font-bold text-gray-900 mb-2.5">
                 Stay Safe, Be Respectful
               </p>
-              <p className="text-sm text-gray-700 mb-3">
+              <p className="text-sm text-gray-700 mb-4 leading-relaxed">
                 Never share personal information with strangers. Report any inappropriate behavior immediately.
               </p>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-600 leading-relaxed">
                 By using this service, you agree to our{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-700 font-medium underline">Terms of Service</a>
+                <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold underline transition-colors">Terms of Service</a>
                 {' '}and{' '}
-                <a href="#" className="text-blue-600 hover:text-blue-700 font-medium underline">Privacy Policy</a>.
+                <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold underline transition-colors">Privacy Policy</a>.
               </p>
             </div>
           </div>
