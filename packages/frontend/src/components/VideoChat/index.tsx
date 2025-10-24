@@ -20,10 +20,18 @@ interface VideoChatProps {
   userGender?: string;
   genderPreference?: string;
   isTextMode?: boolean;
+  initialVideoEnabled?: boolean;
 }
 
-export default function VideoChat({ onStopChatting, userName, userGender, genderPreference, isTextMode = false }: VideoChatProps) {
-  const [isVideoEnabled, setIsVideoEnabled] = useState(!isTextMode);
+export default function VideoChat({ 
+  onStopChatting, 
+  userName, 
+  userGender, 
+  genderPreference, 
+  isTextMode = false,
+  initialVideoEnabled = true 
+}: VideoChatProps) {
+  const [isVideoEnabled, setIsVideoEnabled] = useState(isTextMode ? false : initialVideoEnabled);
   const [isAudioEnabled, setIsAudioEnabled] = useState(!isTextMode);
   const [showChat, setShowChat] = useState(isTextMode); // Auto-show chat in text mode
   const [messages, setMessages] = useState<Array<{ text: string; isMine: boolean; sender?: string }>>([]);

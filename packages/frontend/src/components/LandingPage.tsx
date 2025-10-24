@@ -9,6 +9,7 @@ interface LandingPageProps {
     gender?: string; 
     genderPreference?: string;
     isTextMode?: boolean;
+    isVideoEnabled?: boolean;
   }) => void;
 }
 
@@ -40,6 +41,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       gender: userGender,  // Optional: undefined means private/anonymous
       genderPreference: genderPreference,
       isTextMode: textMode,
+      isVideoEnabled: isVideoEnabled,  // Pass video preference to parent
     });
   };
 

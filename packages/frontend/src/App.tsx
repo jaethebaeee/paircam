@@ -12,6 +12,7 @@ function App() {
   const [userGender, setUserGender] = useState('');
   const [genderPreference, setGenderPreference] = useState('any');
   const [isTextMode, setIsTextMode] = useState(false);
+  const [initialVideoEnabled, setInitialVideoEnabled] = useState(true);
   const [_showSafetyModal, setShowSafetyModal] = useState(false);
   const [_showPermissionModal, setShowPermissionModal] = useState(false);
   const [_safetyAccepted, setSafetyAccepted] = useState(false);
@@ -22,11 +23,13 @@ function App() {
     gender?: string; 
     genderPreference?: string;
     isTextMode?: boolean;
+    isVideoEnabled?: boolean;
   }) => {
     setUserName(data.name);
     setUserGender(data.gender || '');
     setGenderPreference(data.genderPreference || 'any');
     setIsTextMode(data.isTextMode || false);
+    setInitialVideoEnabled(data.isVideoEnabled ?? true);
     // Show safety modal first
     setShowSafetyModal(true);
   };
@@ -81,6 +84,7 @@ function App() {
             userGender={userGender}
             genderPreference={genderPreference}
             isTextMode={isTextMode}
+            initialVideoEnabled={initialVideoEnabled}
           />
         ) : (
           <LandingPage onStartCall={handleStartCall} />
