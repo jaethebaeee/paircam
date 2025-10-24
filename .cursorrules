@@ -17,6 +17,7 @@
 - Update actual files (robots.txt, sitemap.xml, etc.) not documentation
 - Test and verify changes work before completing
 
+
 ## Documentation
 - **DO NOT** create markdown files (.md) unless explicitly requested
 - Use inline comments for complex logic
