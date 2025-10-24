@@ -154,9 +154,9 @@ export class PaymentsService {
         stripePriceId: subscription.items.data[0].price.id,
         status: subscription.status,
         plan,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-        trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : undefined,
+        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+        trialEnd: (subscription as any).trial_end ? new Date((subscription as any).trial_end * 1000) : undefined,
       });
 
       this.logger.log('Subscription created from checkout', {
@@ -174,9 +174,9 @@ export class PaymentsService {
     try {
       await this.subscriptionsService.updateByStripeId(subscription.id, {
         status: subscription.status,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+        cancelAtPeriodEnd: (subscription as any).cancel_at_period_end,
       });
 
       this.logger.log('Subscription updated', {
@@ -211,10 +211,7 @@ export class PaymentsService {
   }
 
   private async handlePaymentFailed(invoice: Stripe.Invoice) {
-    this.logger.error('Payment failed', {
-      invoiceId: invoice.id,
-      attemptCount: invoice.attempt_count,
-    });
+    this.logger.error('Payment failed', invoice.id);
   }
 
   async cancelSubscription(deviceId: string) {

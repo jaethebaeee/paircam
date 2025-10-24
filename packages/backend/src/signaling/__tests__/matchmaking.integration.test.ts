@@ -39,8 +39,8 @@ describe('MatchmakingService integration', () => {
   });
 
   it('matches two users and creates a session', async () => {
-    await service.addToQueue('u1', { socketId: 's1', region: 'global', language: 'en' });
-    await service.addToQueue('u2', { socketId: 's2', region: 'global', language: 'en' });
+    await service.addToQueue('u1', { socketId: 's1', region: 'global', language: 'en', deviceId: 'd1', isPremium: false });
+    await service.addToQueue('u2', { socketId: 's2', region: 'global', language: 'en', deviceId: 'd2', isPremium: false });
 
     await service.processQueue();
 
@@ -48,11 +48,11 @@ describe('MatchmakingService integration', () => {
   });
 
   it('preserves FIFO order and handles concurrent join/leave', async () => {
-    await service.addToQueue('u1', { socketId: 's1', region: 'global', language: 'en' });
-    await service.addToQueue('u2', { socketId: 's2', region: 'global', language: 'en' });
-    await service.addToQueue('u3', { socketId: 's3', region: 'global', language: 'en' });
+    await service.addToQueue('u1', { socketId: 's1', region: 'global', language: 'en', deviceId: 'd1', isPremium: false });
+    await service.addToQueue('u2', { socketId: 's2', region: 'global', language: 'en', deviceId: 'd2', isPremium: false });
+    await service.addToQueue('u3', { socketId: 's3', region: 'global', language: 'en', deviceId: 'd3', isPremium: false });
     await service.removeFromQueue('u2');
-    await service.addToQueue('u4', { socketId: 's4', region: 'global', language: 'en' });
+    await service.addToQueue('u4', { socketId: 's4', region: 'global', language: 'en', deviceId: 'd4', isPremium: false });
 
     await service.processQueue();
     expect((redis as any).createSession).toHaveBeenCalled();
