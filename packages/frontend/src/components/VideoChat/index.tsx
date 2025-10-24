@@ -17,9 +17,11 @@ type TurnCredentials = {
 interface VideoChatProps {
   onEndCall: () => void;
   userName: string;
+  userGender?: string;
+  genderPreference?: string;
 }
 
-export default function VideoChat({ onEndCall, userName }: VideoChatProps) {
+export default function VideoChat({ onEndCall, userName, userGender, genderPreference }: VideoChatProps) {
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [showChat, setShowChat] = useState(false);
@@ -104,9 +106,9 @@ export default function VideoChat({ onEndCall, userName }: VideoChatProps) {
   // Join queue when ready
   useEffect(() => {
     if (webrtc.localStream && signaling.connected && !signaling.matched) {
-      signaling.joinQueue();
+      signaling.joinQueue('global', 'en', userGender, genderPreference);
     }
-  }, [webrtc.localStream, signaling.connected, signaling]);
+  }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference]);
 
   // Create offer when matched
   useEffect(() => {
@@ -127,7 +129,7 @@ export default function VideoChat({ onEndCall, userName }: VideoChatProps) {
       signaling.endCall(signaling.matched.sessionId);
     }
     setMessages([]);
-    signaling.joinQueue();
+    signaling.joinQueue('global', 'en', userGender, genderPreference);
     
     // Re-enable after 2 seconds
     setTimeout(() => setIsSkipping(false), 2000);

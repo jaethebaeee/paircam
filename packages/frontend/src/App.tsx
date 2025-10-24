@@ -9,13 +9,21 @@ import PermissionModal from './components/PermissionModal';
 function App() {
   const [isInCall, setIsInCall] = useState(false);
   const [userName, setUserName] = useState('');
+  const [userGender, setUserGender] = useState('');
+  const [genderPreference, setGenderPreference] = useState('any');
   const [_showSafetyModal, setShowSafetyModal] = useState(false);
   const [_showPermissionModal, setShowPermissionModal] = useState(false);
   const [_safetyAccepted, setSafetyAccepted] = useState(false);
   const [_permissionsGranted, setPermissionsGranted] = useState(false);
 
-  const handleStartCall = (name: string) => {
-    setUserName(name);
+  const handleStartCall = (data: { 
+    name: string; 
+    gender?: string; 
+    genderPreference?: string;
+  }) => {
+    setUserName(data.name);
+    setUserGender(data.gender || '');
+    setGenderPreference(data.genderPreference || 'any');
     // Show safety modal first
     setShowSafetyModal(true);
   };
@@ -61,6 +69,8 @@ function App() {
           <VideoChat 
             onEndCall={handleEndCall} 
             userName={userName}
+            userGender={userGender}
+            genderPreference={genderPreference}
           />
         ) : (
           <LandingPage onStartCall={handleStartCall} />

@@ -56,8 +56,22 @@ export const env = {
   // CORS Configuration
   CORS_ORIGINS: process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:3000',
   
-  // Database Configuration (Optional)
+  // Database Configuration
   DATABASE_URL: process.env.DATABASE_URL || undefined,
+  
+  // Stripe Configuration
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '',
+  STRIPE_PRICE_ID_WEEKLY: process.env.STRIPE_PRICE_ID_WEEKLY || '',
+  STRIPE_PRICE_ID_MONTHLY: process.env.STRIPE_PRICE_ID_MONTHLY || '',
+  
+  // Frontend URL (for Stripe redirects)
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
+  
+  
+  // Google OAuth
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
   
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10), // 1 minute

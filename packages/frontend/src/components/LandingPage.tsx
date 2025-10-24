@@ -1,7 +1,14 @@
 import { useState } from 'react';
+import GenderFilter from './GenderFilter';
+import PremiumModal from './PremiumModal';
+import GoogleSignInButton from './GoogleSignIn';
 
 interface LandingPageProps {
-  onStartCall: (name: string) => void;
+  onStartCall: (data: { 
+    name: string; 
+    gender?: string; 
+    genderPreference?: string;
+  }) => void;
 }
 
 export default function LandingPage({ onStartCall }: LandingPageProps) {
@@ -9,8 +16,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [userName, setUserName] = useState('');
   const [userAge, setUserAge] = useState('');
+  const [userGender, setUserGender] = useState('');
+  const [genderPreference, setGenderPreference] = useState('any');
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [isPremium] = useState(false); // TODO: Get from auth context
 
   const handleStartChat = () => {
     if (!userName.trim()) {
@@ -21,11 +32,23 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       setShowAgeError(true);
       return;
     }
-    onStartCall(userName.trim());
+    onStartCall({
+      name: userName.trim(),
+      gender: userGender,
+      genderPreference: genderPreference,
+    });
   };
 
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 px-4">
+      {/* Premium Button - Fixed Top Right */}
+      <button
+        onClick={() => setShowPremiumModal(true)}
+        className="fixed top-24 right-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105"
+      >
+        ⭐ Get Premium
+      </button>
+
       <div className="max-w-2xl w-full">
         {/* Main Content */}
         <div className="text-center mb-8">
@@ -177,6 +200,56 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </div>
             )}
 
+            {/* Gender Selection */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-900">
+                What's your gender?
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {['male', 'female', 'other'].map((gender) => (
+                  <button
+                    key={gender}
+                    onClick={() => setUserGender(gender)}
+                    className={`p-3 rounded-xl border-2 transition-all ${
+                      userGender === gender
+                        ? 'border-pink-500 bg-pink-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">
+                      {gender === 'male' ? '👨' : gender === 'female' ? '👩' : '✨'}
+                    </div>
+                    <div className="text-sm font-medium capitalize">{gender}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Gender Filter (Premium Feature) */}
+            <GenderFilter
+              onPreferenceChange={setGenderPreference}
+              onUpgradeClick={() => setShowPremiumModal(true)}
+              isPremium={isPremium}
+            />
+
+            {/* Google Sign-In */}
+            <div className="space-y-3">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+              
+              <GoogleSignInButton />
+              
+              <p className="text-xs text-gray-500 text-center">
+                Sign in to save your profile and access premium features
+              </p>
+            </div>
+
             {/* Modern Primary Button */}
             <div className="pt-4">
               <button 
@@ -227,6 +300,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Premium Modal */}
+      {showPremiumModal && (
+        <PremiumModal onClose={() => setShowPremiumModal(false)} />
+      )}
     </div>
   );
 }

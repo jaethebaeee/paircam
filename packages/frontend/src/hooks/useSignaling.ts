@@ -20,7 +20,7 @@ export interface UseSignalingReturn {
   matched: MatchData | null;
   queueStatus: QueueStatus | null;
   error: string | null;
-  joinQueue: (region?: string, language?: string) => void;
+  joinQueue: (region?: string, language?: string, gender?: string, genderPreference?: string) => void;
   leaveQueue: () => void;
   sendOffer: (sessionId: string, offer: RTCSessionDescriptionInit) => void;
   sendAnswer: (sessionId: string, answer: RTCSessionDescriptionInit) => void;
@@ -170,10 +170,10 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
   // Join matchmaking queue
   const joinQueue = useCallback(
-    (region: string = 'global', language: string = 'en') => {
+    (region: string = 'global', language: string = 'en', gender?: string, genderPreference?: string) => {
       if (socket?.connected) {
-        console.log('Joining queue:', { region, language });
-        socket.emit('join-queue', { region, language });
+        console.log('Joining queue:', { region, language, gender, genderPreference });
+        socket.emit('join-queue', { region, language, gender, genderPreference });
       } else {
         console.warn('Cannot join queue: socket not connected');
       }

@@ -6,11 +6,21 @@ import { v4 as uuidv4 } from 'uuid';
 
 export interface QueueUser {
   userId: string;
+  deviceId: string;
   timestamp: number;
   region: string;
   language: string;
-  preferences: Record<string, unknown>;
   socketId: string;
+  
+  // User profile data
+  gender?: string;
+  age?: number;
+  
+  // Premium features
+  isPremium: boolean;
+  genderPreference?: string; // 'any', 'male', 'female'
+  
+  preferences: Record<string, unknown>;
 }
 
 @Injectable()
@@ -22,18 +32,37 @@ export class MatchmakingService {
     private readonly logger: LoggerService,
   ) {}
 
-  async addToQueue(userId: string, metadata: { region?: string; language?: string; preferences?: Record<string, unknown>; socketId: string }): Promise<void> {
+  async addToQueue(userId: string, metadata: { 
+    region?: string; 
+    language?: string; 
+    socketId: string;
+    deviceId: string;
+    gender?: string;
+    age?: number;
+    isPremium: boolean;
+    genderPreference?: string;
+    preferences?: Record<string, unknown>;
+  }): Promise<void> {
     const queueData: QueueUser = {
       userId,
+      deviceId: metadata.deviceId,
       timestamp: Date.now(),
       region: metadata.region || 'global',
       language: metadata.language || 'en',
-      preferences: metadata.preferences || {},
       socketId: metadata.socketId,
+      gender: metadata.gender,
+      age: metadata.age,
+      isPremium: metadata.isPremium,
+      genderPreference: metadata.genderPreference || 'any',
+      preferences: metadata.preferences || {},
     };
 
     await this.redisService.addToQueue(userId, queueData);
-    this.logger.debug('User added to queue', { ...queueData });
+    this.logger.debug('User added to queue', { 
+      userId, 
+      isPremium: queueData.isPremium,
+      genderPreference: queueData.genderPreference,
+    });
   }
 
   async removeFromQueue(userId: string): Promise<void> {
@@ -73,20 +102,43 @@ export class MatchmakingService {
     const matches: Array<{ user1: QueueUser; user2: QueueUser }> = [];
     const used = new Set<string>();
 
-    // Sort users by timestamp (FIFO)
-    users.sort((a, b) => a.timestamp - b.timestamp);
+    // Separate premium and free users
+    const premiumUsers = users.filter(u => u.isPremium).sort((a, b) => a.timestamp - b.timestamp);
+    const freeUsers = users.filter(u => !u.isPremium).sort((a, b) => a.timestamp - b.timestamp);
 
-    for (let i = 0; i < users.length - 1; i++) {
-      if (used.has(users[i].userId)) continue;
+    // Match premium users first (they get priority)
+    for (const premiumUser of premiumUsers) {
+      if (used.has(premiumUser.userId)) continue;
 
-      for (let j = i + 1; j < users.length; j++) {
-        if (used.has(users[j].userId)) continue;
+      // Try to find match in all users (premium can match with anyone compatible)
+      for (const candidate of [...premiumUsers, ...freeUsers]) {
+        if (used.has(candidate.userId) || candidate.userId === premiumUser.userId) continue;
 
-        // Check compatibility
-        if (this.areCompatible(users[i], users[j])) {
-          matches.push({ user1: users[i], user2: users[j] });
-          used.add(users[i].userId);
-          used.add(users[j].userId);
+        if (this.areCompatible(premiumUser, candidate)) {
+          matches.push({ user1: premiumUser, user2: candidate });
+          used.add(premiumUser.userId);
+          used.add(candidate.userId);
+          this.logger.debug('Premium match created', {
+            user1: premiumUser.userId,
+            user2: candidate.userId,
+            genderFilter: premiumUser.genderPreference,
+          });
+          break;
+        }
+      }
+    }
+
+    // Then match remaining free users
+    for (let i = 0; i < freeUsers.length - 1; i++) {
+      if (used.has(freeUsers[i].userId)) continue;
+
+      for (let j = i + 1; j < freeUsers.length; j++) {
+        if (used.has(freeUsers[j].userId)) continue;
+
+        if (this.areCompatible(freeUsers[i], freeUsers[j])) {
+          matches.push({ user1: freeUsers[i], user2: freeUsers[j] });
+          used.add(freeUsers[i].userId);
+          used.add(freeUsers[j].userId);
           break;
         }
       }
@@ -104,6 +156,33 @@ export class MatchmakingService {
     // Same language preference
     if (user1.language !== user2.language) {
       return false;
+    }
+
+    // PREMIUM FEATURE: Gender filter
+    // If user1 is premium and has gender preference, check if user2 matches
+    if (user1.isPremium && user1.genderPreference && user1.genderPreference !== 'any') {
+      if (!user2.gender || user2.gender !== user1.genderPreference) {
+        this.logger.debug('Gender filter mismatch', {
+          user1: user1.userId,
+          wantsGender: user1.genderPreference,
+          user2: user2.userId,
+          hasGender: user2.gender,
+        });
+        return false;
+      }
+    }
+
+    // If user2 is premium and has gender preference, check if user1 matches
+    if (user2.isPremium && user2.genderPreference && user2.genderPreference !== 'any') {
+      if (!user1.gender || user1.gender !== user2.genderPreference) {
+        this.logger.debug('Gender filter mismatch', {
+          user2: user2.userId,
+          wantsGender: user2.genderPreference,
+          user1: user1.userId,
+          hasGender: user1.gender,
+        });
+        return false;
+      }
     }
 
     // Check if users have been matched recently (prevent immediate re-matching)

@@ -13,10 +13,13 @@ import { LoggerService } from '../services/logger.service';
 import { RedisService } from '../redis/redis.service';
 import { MatchmakingService } from './matchmaking.service';
 import { AuthService } from '../auth/auth.service';
+import { UsersService } from '../users/users.service';
 
 export interface JoinQueueDto {
   region?: string;
   language?: string;
+  gender?: string;
+  genderPreference?: string;
   preferences?: Record<string, unknown>;
 }
 
@@ -57,6 +60,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     @Inject(forwardRef(() => MatchmakingService))
     private readonly matchmakingService: MatchmakingService,
     private readonly authService: AuthService,
+    private readonly usersService: UsersService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -143,20 +147,35 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         return;
       }
 
-      // Add to matchmaking queue
+      // Get user data and premium status
+      const user = await this.usersService.findOrCreate(deviceId);
+      const isPremium = await this.usersService.isPremium(user.id);
+
+      // Add to matchmaking queue with user data
       await this.matchmakingService.addToQueue(deviceId, {
         region: data.region || 'global',
         language: data.language || 'en',
-        preferences: data.preferences || {},
         socketId: client.id,
+        deviceId,
+        gender: data.gender || user.gender,
+        age: user.age,
+        isPremium,
+        genderPreference: data.genderPreference || 'any',
+        preferences: data.preferences || {},
       });
 
       client.emit('queue-joined', { 
         position: await this.redisService.getQueueLength(),
-        timestamp: Date.now() 
+        timestamp: Date.now(),
+        isPremium, // Let frontend know premium status
       });
 
-      this.logger.debug('User joined queue', { deviceId, ...data });
+      this.logger.debug('User joined queue', { 
+        deviceId, 
+        isPremium,
+        genderPreference: data.genderPreference,
+        ...data 
+      });
 
       // Try to find a match immediately
       await this.matchmakingService.processQueue();
