@@ -113,6 +113,7 @@ describe('SignalingGateway integration', () => {
       redis,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       { validateToken: jest.fn(async () => { throw new Error('bad'); }) } as any,
+      { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
     );
 
@@ -125,6 +126,7 @@ describe('SignalingGateway integration', () => {
       redis,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
+      { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
     );
     const client2 = { handshake: { headers: {} }, disconnect: jest.fn(), data: {} } as any;
