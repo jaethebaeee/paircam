@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import GenderFilter from './GenderFilter';
 import PremiumModal from './PremiumModal';
 import { useAuthContext } from '../contexts/AuthContext';
 
@@ -18,14 +17,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [userName, setUserName] = useState('');
   const [userAge, setUserAge] = useState('');
-  const [userGender, setUserGender] = useState<string | undefined>(undefined);
-  const [genderPreference, setGenderPreference] = useState('any');
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   
-  // Get premium status from auth context
-  const { isPremium } = useAuthContext();
+  // Get premium status from auth context (used for premium button visibility)
+  const { } = useAuthContext();
 
   const handleStartChat = (textMode = false) => {
     if (!userName.trim()) {
@@ -36,12 +33,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       setShowAgeError(true);
       return;
     }
+    // Just pass basic info, preferences will be collected in modal
     onStartCall({
       name: userName.trim(),
-      gender: userGender,  // Optional: undefined means private/anonymous
-      genderPreference: genderPreference,
       isTextMode: textMode,
-      isVideoEnabled: isVideoEnabled,  // Pass video preference to parent
+      isVideoEnabled: isVideoEnabled,
     });
   };
 
@@ -393,100 +389,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </div>
             )}
 
-            {/* Gender Selection (Optional) */}
-            <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-pink-50/50 border-2 border-blue-200/60 rounded-2xl p-6 space-y-4 shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-start gap-3">
-                <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-2.5 shadow-md">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-gray-900 text-base mb-1.5">
-                    Your Gender (Optional)
-                  </h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    Specifying your gender helps premium users find you through filters. Select "Private" to remain anonymous and match with everyone.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setUserGender('male')}
-                  className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
-                    userGender === 'male'
-                      ? 'border-blue-500 bg-blue-100/70 shadow-lg shadow-blue-200/50 scale-105'
-                      : 'border-gray-200 hover:border-blue-300 bg-white hover:bg-blue-50 shadow-sm hover:shadow-md hover:scale-105'
-                  }`}
-                >
-                  <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">👨</div>
-                  <div className="text-xs font-semibold text-gray-700">Male</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUserGender('female')}
-                  className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
-                    userGender === 'female'
-                      ? 'border-pink-500 bg-pink-100/70 shadow-lg shadow-pink-200/50 scale-105'
-                      : 'border-gray-200 hover:border-pink-300 bg-white hover:bg-pink-50 shadow-sm hover:shadow-md hover:scale-105'
-                  }`}
-                >
-                  <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">👩</div>
-                  <div className="text-xs font-semibold text-gray-700">Female</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUserGender('other')}
-                  className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
-                    userGender === 'other'
-                      ? 'border-purple-500 bg-purple-100/70 shadow-lg shadow-purple-200/50 scale-105'
-                      : 'border-gray-200 hover:border-purple-300 bg-white hover:bg-purple-50 shadow-sm hover:shadow-md hover:scale-105'
-                  }`}
-                >
-                  <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">✨</div>
-                  <div className="text-xs font-semibold text-gray-700">Other</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUserGender(undefined)}
-                  className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
-                    userGender === undefined
-                      ? 'border-gray-500 bg-gray-100/70 shadow-lg shadow-gray-200/50 scale-105'
-                      : 'border-gray-200 hover:border-gray-400 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md hover:scale-105'
-                  }`}
-                >
-                  <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">🔒</div>
-                  <div className="text-xs font-semibold text-gray-700">Private</div>
-                </button>
-              </div>
-              
-              {userGender === undefined && (
-                <div className="flex items-center gap-2 text-xs text-gray-700 bg-white/80 rounded-xl p-3 shadow-sm border border-gray-200 animate-fadeIn">
-                  <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span className="leading-relaxed">Private mode: You'll match with everyone, but premium users can't filter you</span>
-                </div>
-              )}
-              
-              {userGender && (
-                <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-100/70 rounded-xl p-3 shadow-sm border border-blue-200 animate-fadeIn">
-                  <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="leading-relaxed font-medium">Great! Premium users looking for {userGender === 'other' ? 'diverse matches' : `${userGender}s`} can find you</span>
-                </div>
-              )}
-            </div>
-
-            {/* Gender Filter (Premium Feature) */}
-            <GenderFilter
-              onPreferenceChange={setGenderPreference}
-              onUpgradeClick={() => setShowPremiumModal(true)}
-              isPremium={isPremium}
-            />
 
             {/* Modern Primary Button */}
             <div className="pt-6">

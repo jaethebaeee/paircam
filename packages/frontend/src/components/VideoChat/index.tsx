@@ -10,6 +10,7 @@ import VideoStreams from './VideoStreams';
 import ChatPanel from './ChatPanel';
 import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
+import WaitingQueue from '../WaitingQueue';
 
 type TurnCredentials = {
   urls: string[];
@@ -25,6 +26,9 @@ interface VideoChatProps {
   genderPreference?: string;
   isTextMode?: boolean;
   initialVideoEnabled?: boolean;
+  showWaitingQueue?: boolean;
+  onMatched?: () => void;
+  onWaitingCancel?: () => void;
 }
 
 export default function VideoChat({ 
@@ -33,7 +37,10 @@ export default function VideoChat({
   userGender, 
   genderPreference, 
   isTextMode = false,
-  initialVideoEnabled = true 
+  initialVideoEnabled = true,
+  showWaitingQueue = false,
+  onMatched,
+  onWaitingCancel
 }: VideoChatProps) {
   const [isVideoEnabled, setIsVideoEnabled] = useState(isTextMode ? false : initialVideoEnabled);
   const [isAudioEnabled, setIsAudioEnabled] = useState(!isTextMode);
@@ -150,6 +157,13 @@ export default function VideoChat({
       signaling.joinQueue('global', 'en', userGender, genderPreference);
     }
   }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, isTextMode]);
+
+  // Notify parent when matched
+  useEffect(() => {
+    if (signaling.matched && onMatched) {
+      onMatched();
+    }
+  }, [signaling.matched, onMatched]);
 
   // Create offer when matched (skip in text mode)
   useEffect(() => {
@@ -275,6 +289,17 @@ export default function VideoChat({
       alert('Failed to submit report.');
     }
   };
+
+  // Show waiting queue while searching for match
+  if (showWaitingQueue && !signaling.matched) {
+    return (
+      <WaitingQueue
+        queuePosition={undefined} // TODO: Get from backend via signaling
+        estimatedWaitTime={undefined} // TODO: Get from backend
+        onCancel={onWaitingCancel || onStopChatting}
+      />
+    );
+  }
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-slate-900 relative">

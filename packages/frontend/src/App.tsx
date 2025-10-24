@@ -4,8 +4,11 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SafetyModal from './components/SafetyModal';
 import PermissionModal from './components/PermissionModal';
+import PreferencesModal from './components/PreferencesModal';
 import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
+import { useAuthContext } from './contexts/AuthContext';
+import PremiumModal from './components/PremiumModal';
 
 // Lazy load heavy components for better performance and SEO
 const LandingPage = lazy(() => import('./components/LandingPage'));
@@ -17,17 +20,17 @@ const PrivacyPolicy = lazy(() => import('./components/legal/PrivacyPolicy'));
 const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
 
 function App() {
-  const [isInCall, setIsInCall] = useState(false);
+  const [appState, setAppState] = useState<'landing' | 'preferences' | 'safety' | 'permissions' | 'waiting' | 'chatting'>('landing');
   const [userName, setUserName] = useState('');
   const [userGender, setUserGender] = useState('');
   const [genderPreference, setGenderPreference] = useState('any');
   const [isTextMode, setIsTextMode] = useState(false);
   const [initialVideoEnabled, setInitialVideoEnabled] = useState(true);
-  const [_showSafetyModal, setShowSafetyModal] = useState(false);
-  const [_showPermissionModal, setShowPermissionModal] = useState(false);
-  const [_safetyAccepted, setSafetyAccepted] = useState(false);
-  const [_permissionsGranted, setPermissionsGranted] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  
+  const { isPremium } = useAuthContext();
 
+  // Flow: Landing → Preferences → Safety → Permissions → Waiting → Chatting
   const handleStartCall = (data: { 
     name: string; 
     gender?: string; 
@@ -36,49 +39,53 @@ function App() {
     isVideoEnabled?: boolean;
   }) => {
     setUserName(data.name);
-    setUserGender(data.gender || '');
-    setGenderPreference(data.genderPreference || 'any');
     setIsTextMode(data.isTextMode || false);
     setInitialVideoEnabled(data.isVideoEnabled ?? true);
-    // Show safety modal first
-    setShowSafetyModal(true);
+    // Show preferences modal
+    setAppState('preferences');
+  };
+
+  const handlePreferencesSet = (preferences: { gender?: string; genderPreference: string }) => {
+    setUserGender(preferences.gender || '');
+    setGenderPreference(preferences.genderPreference);
+    // Show safety modal
+    setAppState('safety');
+  };
+
+  const handlePreferencesCancel = () => {
+    setAppState('landing');
   };
 
   const handleSafetyAccept = () => {
-    setSafetyAccepted(true);
-    setShowSafetyModal(false);
-    // Then show permission modal (skip if text mode)
+    // Show permissions modal if video, otherwise go to waiting
     if (isTextMode) {
-      setPermissionsGranted(true);
-      setIsInCall(true);
+      setAppState('waiting');
     } else {
-      setShowPermissionModal(true);
+      setAppState('permissions');
     }
   };
 
   const handleSafetyDecline = () => {
-    setShowSafetyModal(false);
+    setAppState('landing');
     alert('You must accept the safety guidelines to use this service.');
   };
 
   const handlePermissionsGranted = () => {
-    setPermissionsGranted(true);
-    setShowPermissionModal(false);
-    // Finally start the call
-    setIsInCall(true);
+    setAppState('waiting');
   };
 
   const handlePermissionsDenied = () => {
-    setShowPermissionModal(false);
-    setSafetyAccepted(false);
+    setAppState('landing');
     alert('Camera and microphone access is required for video chat. Please allow access and try again.');
   };
 
+  const handleWaitingCancel = () => {
+    setAppState('landing');
+  };
+
   const handleStopChatting = () => {
-    setIsInCall(false);
-    // Reset permissions for next time
-    setPermissionsGranted(false);
-    setSafetyAccepted(false);
+    setAppState('landing');
+    // Reset state
     setIsTextMode(false);
   };
 
@@ -87,9 +94,9 @@ function App() {
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-white to-purple-50">
         {/* Dynamic SEO meta tags */}
         <SEO
-          title={isInCall ? 'In Call' : undefined}
+          title={appState === 'chatting' ? 'In Call' : undefined}
           description={
-            isInCall
+            appState === 'chatting'
               ? 'You are currently in a video chat. Enjoy your conversation!'
               : undefined
           }
@@ -104,7 +111,7 @@ function App() {
               <Route 
                 path="/" 
                 element={
-                  isInCall ? (
+                  (appState === 'chatting' || appState === 'waiting') ? (
                     <VideoChat 
                       onStopChatting={handleStopChatting} 
                       userName={userName}
@@ -112,6 +119,9 @@ function App() {
                       genderPreference={genderPreference}
                       isTextMode={isTextMode}
                       initialVideoEnabled={initialVideoEnabled}
+                      showWaitingQueue={appState === 'waiting'}
+                      onMatched={() => setAppState('chatting')}
+                      onWaitingCancel={handleWaitingCancel}
                     />
                   ) : (
                     <LandingPage onStartCall={handleStartCall} />
@@ -132,8 +142,18 @@ function App() {
         
         <Footer />
 
+        {/* Preferences Modal */}
+        {appState === 'preferences' && (
+          <PreferencesModal
+            onStart={handlePreferencesSet}
+            onCancel={handlePreferencesCancel}
+            isPremium={isPremium}
+            onUpgrade={() => setShowPremiumModal(true)}
+          />
+        )}
+
         {/* Safety Modal */}
-        {_showSafetyModal && (
+        {appState === 'safety' && (
           <SafetyModal 
             onAccept={handleSafetyAccept}
             onDecline={handleSafetyDecline}
@@ -141,11 +161,16 @@ function App() {
         )}
 
         {/* Permission Modal */}
-        {_showPermissionModal && (
+        {appState === 'permissions' && (
           <PermissionModal 
             onPermissionsGranted={handlePermissionsGranted}
             onPermissionsDenied={handlePermissionsDenied}
           />
+        )}
+
+        {/* Premium Modal */}
+        {showPremiumModal && (
+          <PremiumModal onClose={() => setShowPremiumModal(false)} />
         )}
       </div>
     </BrowserRouter>
