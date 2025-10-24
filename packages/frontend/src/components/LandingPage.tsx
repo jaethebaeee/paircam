@@ -24,7 +24,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   
   // Get premium status from auth context
-  const { isPremium, user } = useAuthContext();
+  const { isPremium } = useAuthContext();
 
   const handleStartChat = () => {
     if (!userName.trim()) {
