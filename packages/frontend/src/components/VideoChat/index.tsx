@@ -15,16 +15,17 @@ type TurnCredentials = {
 };
 
 interface VideoChatProps {
-  onEndCall: () => void;
+  onStopChatting: () => void;
   userName: string;
   userGender?: string;
   genderPreference?: string;
+  isTextMode?: boolean;
 }
 
-export default function VideoChat({ onEndCall, userName, userGender, genderPreference }: VideoChatProps) {
-  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
-  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-  const [showChat, setShowChat] = useState(false);
+export default function VideoChat({ onStopChatting, userName, userGender, genderPreference, isTextMode = false }: VideoChatProps) {
+  const [isVideoEnabled, setIsVideoEnabled] = useState(!isTextMode);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(!isTextMode);
+  const [showChat, setShowChat] = useState(isTextMode); // Auto-show chat in text mode
   const [messages, setMessages] = useState<Array<{ text: string; isMine: boolean; sender?: string }>>([]);
   const [turnCredentials, setTurnCredentials] = useState<TurnCredentials | null>(null);
   const [isSkipping, setIsSkipping] = useState(false);
@@ -80,12 +81,12 @@ export default function VideoChat({ onEndCall, userName, userGender, genderPrefe
     authenticate();
   }, [authenticate]);
 
-  // Start local stream
+  // Start local stream (skip in text mode)
   useEffect(() => {
-    if (accessToken) {
+    if (accessToken && !isTextMode) {
       webrtc.startLocalStream(DEFAULT_MEDIA_CONSTRAINTS);
     }
-  }, [accessToken, webrtc]);
+  }, [accessToken, webrtc, isTextMode]);
 
   // Fetch TURN credentials
   useEffect(() => {
@@ -103,21 +104,25 @@ export default function VideoChat({ onEndCall, userName, userGender, genderPrefe
     }
   }, [accessToken]);
 
-  // Join queue when ready
+  // Join queue when ready (in text mode, skip waiting for local stream)
   useEffect(() => {
-    if (webrtc.localStream && signaling.connected && !signaling.matched) {
+    const canJoinQueue = isTextMode 
+      ? signaling.connected && !signaling.matched
+      : webrtc.localStream && signaling.connected && !signaling.matched;
+      
+    if (canJoinQueue) {
       signaling.joinQueue('global', 'en', userGender, genderPreference);
     }
-  }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference]);
+  }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, isTextMode]);
 
-  // Create offer when matched
+  // Create offer when matched (skip in text mode)
   useEffect(() => {
-    if (signaling.matched && webrtc.localStream) {
+    if (signaling.matched && !isTextMode && webrtc.localStream) {
       webrtc.createOffer().then((offer) => {
         signaling.sendOffer(signaling.matched!.sessionId, offer);
       });
     }
-  }, [signaling.matched, signaling, webrtc]);
+  }, [signaling.matched, signaling, webrtc, isTextMode]);
 
   const handleNext = () => {
     // Prevent rapid clicking (debounce)
@@ -135,12 +140,14 @@ export default function VideoChat({ onEndCall, userName, userGender, genderPrefe
     setTimeout(() => setIsSkipping(false), 2000);
   };
 
-  const handleEndCall = () => {
+  const handleStopChatting = () => {
     if (signaling.matched) {
       signaling.endCall(signaling.matched.sessionId);
     }
-    webrtc.endCall();
-    onEndCall();
+    if (!isTextMode) {
+      webrtc.endCall();
+    }
+    onStopChatting();
   };
 
   const handleSendMessage = (message: string) => {
@@ -194,31 +201,48 @@ export default function VideoChat({ onEndCall, userName, userGender, genderPrefe
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-slate-900 relative">
-      <VideoStreams
-        localVideoRef={webrtc.localVideoRef}
-        remoteVideoRef={webrtc.remoteVideoRef}
-        isConnecting={!signaling.matched}
-        isVideoEnabled={isVideoEnabled}
-        connectionState={webrtc.connectionState}
-      />
+      {isTextMode ? (
+        // Text-only mode UI
+        <div className="h-full flex items-center justify-center p-4">
+          <div className="max-w-4xl w-full h-[600px]">
+            <ChatPanel
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              onClose={() => {}} // Can't close in text mode
+              isFullScreen={true}
+            />
+          </div>
+        </div>
+      ) : (
+        // Video mode UI
+        <VideoStreams
+          localVideoRef={webrtc.localVideoRef}
+          remoteVideoRef={webrtc.remoteVideoRef}
+          isConnecting={!signaling.matched}
+          isVideoEnabled={isVideoEnabled}
+          connectionState={webrtc.connectionState}
+        />
+      )}
 
       <VideoControls
         isVideoEnabled={isVideoEnabled}
         isAudioEnabled={isAudioEnabled}
         onToggleVideo={handleToggleVideo}
         onToggleAudio={handleToggleAudio}
-        onEndCall={handleEndCall}
+        onStopChatting={handleStopChatting}
         onNext={handleNext}
         onToggleChat={() => setShowChat(!showChat)}
         onReport={handleReport}
         isSkipping={isSkipping}
+        isTextMode={isTextMode}
       />
 
-      {showChat && (
+      {!isTextMode && showChat && (
         <ChatPanel
           messages={messages}
           onSendMessage={handleSendMessage}
           onClose={() => setShowChat(false)}
+          isFullScreen={false}
         />
       )}
     </div>

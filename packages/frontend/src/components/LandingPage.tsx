@@ -9,6 +9,7 @@ interface LandingPageProps {
     name: string; 
     gender?: string; 
     genderPreference?: string;
+    isTextMode?: boolean;
   }) => void;
 }
 
@@ -17,7 +18,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [userName, setUserName] = useState('');
   const [userAge, setUserAge] = useState('');
-  const [userGender, setUserGender] = useState('');
   const [genderPreference, setGenderPreference] = useState('any');
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
@@ -26,7 +26,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   // Get premium status from auth context
   const { isPremium } = useAuthContext();
 
-  const handleStartChat = () => {
+  const handleStartChat = (textMode = false) => {
     if (!userName.trim()) {
       setShowNameError(true);
       return;
@@ -37,8 +37,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
     }
     onStartCall({
       name: userName.trim(),
-      gender: userGender,
+      gender: undefined,  // Gender not collected anymore
       genderPreference: genderPreference,
+      isTextMode: textMode,
     });
   };
 
@@ -203,31 +204,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </div>
             )}
 
-            {/* Gender Selection */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-900">
-                What's your gender?
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {['male', 'female', 'other'].map((gender) => (
-                  <button
-                    key={gender}
-                    onClick={() => setUserGender(gender)}
-                    className={`p-3 rounded-xl border-2 transition-all ${
-                      userGender === gender
-                        ? 'border-pink-500 bg-pink-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">
-                      {gender === 'male' ? '👨' : gender === 'female' ? '👩' : '✨'}
-                    </div>
-                    <div className="text-sm font-medium capitalize">{gender}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Gender Filter (Premium Feature) */}
             <GenderFilter
               onPreferenceChange={setGenderPreference}
@@ -256,7 +232,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             {/* Modern Primary Button */}
             <div className="pt-4">
               <button 
-                onClick={handleStartChat}
+                onClick={() => handleStartChat(false)}
                 className="group relative w-full py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold text-lg rounded-2xl shadow-lg shadow-pink-500/50 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -271,8 +247,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
 
             {/* Text Only Option */}
             <div className="text-center">
-              <button className="text-pink-600 hover:text-purple-700 font-medium text-base hover:underline transition-colors">
-                Text only mode
+              <button 
+                onClick={() => handleStartChat(true)}
+                className="text-pink-600 hover:text-purple-700 font-medium text-base hover:underline transition-colors"
+              >
+                💬 Text only mode
               </button>
             </div>
           </div>

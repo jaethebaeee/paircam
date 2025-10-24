@@ -11,6 +11,7 @@ function App() {
   const [userName, setUserName] = useState('');
   const [userGender, setUserGender] = useState('');
   const [genderPreference, setGenderPreference] = useState('any');
+  const [isTextMode, setIsTextMode] = useState(false);
   const [_showSafetyModal, setShowSafetyModal] = useState(false);
   const [_showPermissionModal, setShowPermissionModal] = useState(false);
   const [_safetyAccepted, setSafetyAccepted] = useState(false);
@@ -20,10 +21,12 @@ function App() {
     name: string; 
     gender?: string; 
     genderPreference?: string;
+    isTextMode?: boolean;
   }) => {
     setUserName(data.name);
     setUserGender(data.gender || '');
     setGenderPreference(data.genderPreference || 'any');
+    setIsTextMode(data.isTextMode || false);
     // Show safety modal first
     setShowSafetyModal(true);
   };
@@ -31,8 +34,13 @@ function App() {
   const handleSafetyAccept = () => {
     setSafetyAccepted(true);
     setShowSafetyModal(false);
-    // Then show permission modal
-    setShowPermissionModal(true);
+    // Then show permission modal (skip if text mode)
+    if (isTextMode) {
+      setPermissionsGranted(true);
+      setIsInCall(true);
+    } else {
+      setShowPermissionModal(true);
+    }
   };
 
   const handleSafetyDecline = () => {
@@ -53,11 +61,12 @@ function App() {
     alert('Camera and microphone access is required for video chat. Please allow access and try again.');
   };
 
-  const handleEndCall = () => {
+  const handleStopChatting = () => {
     setIsInCall(false);
     // Reset permissions for next time
     setPermissionsGranted(false);
     setSafetyAccepted(false);
+    setIsTextMode(false);
   };
 
   return (
@@ -67,10 +76,11 @@ function App() {
       <main className="flex-1 relative">
         {isInCall ? (
           <VideoChat 
-            onEndCall={handleEndCall} 
+            onStopChatting={handleStopChatting} 
             userName={userName}
             userGender={userGender}
             genderPreference={genderPreference}
+            isTextMode={isTextMode}
           />
         ) : (
           <LandingPage onStartCall={handleStartCall} />
