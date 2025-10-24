@@ -6,14 +6,18 @@ echo ""
 
 # DNS Check
 echo "1️⃣ DNS Configuration:"
-echo "   api.paircam.live → $(dig +short api.paircam.live | xargs)"
+echo "   paircam.live     → $(dig +short paircam.live | xargs)"
+echo "   www.paircam.live → $(dig +short www.paircam.live | xargs)"
 echo "   app.paircam.live → $(dig +short app.paircam.live | xargs)"
+echo "   api.paircam.live → $(dig +short api.paircam.live | xargs)"
 echo ""
 
 # Expected
 echo "   Expected:"
-echo "   api.paircam.live → 161.35.253.148"
+echo "   paircam.live     → 76.76.21.21"
+echo "   www.paircam.live → 76.76.21.21 (or CNAME to paircam.live)"
 echo "   app.paircam.live → 76.76.21.21"
+echo "   api.paircam.live → 161.35.253.148"
 echo ""
 
 # Backend Test
