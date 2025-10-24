@@ -31,11 +31,28 @@ try {
   }
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </React.StrictMode>,
-);
+const rootElement = document.getElementById('root')!;
+
+// Support react-snap pre-rendering
+if (rootElement.hasChildNodes()) {
+  // Page was pre-rendered by react-snap, so we hydrate
+  ReactDOM.hydrateRoot(
+    rootElement,
+    <React.StrictMode>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </React.StrictMode>,
+  );
+} else {
+  // Normal client-side rendering
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </React.StrictMode>,
+  );
+}
+
 // Cache bust Fri Oct 24 14:32:13 EDT 2025

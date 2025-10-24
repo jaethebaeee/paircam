@@ -7,6 +7,7 @@ interface SEOProps {
   url?: string;
   type?: string;
   keywords?: string;
+  jsonLd?: object; // Schema.org structured data
 }
 
 /**
@@ -20,6 +21,7 @@ export default function SEO({
   url,
   type = 'website',
   keywords,
+  jsonLd,
 }: SEOProps) {
   const defaultTitle = 'PairCam - Free Random Video Chat | Meet New People Online Instantly';
   const defaultDescription =
@@ -82,7 +84,24 @@ export default function SEO({
       document.head.appendChild(canonical);
     }
     canonical.href = seoUrl;
-  }, [seoTitle, seoDescription, seoImage, seoUrl, type, seoKeywords]);
+
+    // Add or update JSON-LD structured data
+    const jsonLdId = 'jsonld-schema';
+    let jsonLdScript = document.getElementById(jsonLdId) as HTMLScriptElement;
+    
+    if (jsonLd) {
+      if (!jsonLdScript) {
+        jsonLdScript = document.createElement('script');
+        jsonLdScript.id = jsonLdId;
+        jsonLdScript.type = 'application/ld+json';
+        document.head.appendChild(jsonLdScript);
+      }
+      jsonLdScript.textContent = JSON.stringify(jsonLd);
+    } else if (jsonLdScript) {
+      // Remove if no jsonLd prop provided
+      jsonLdScript.remove();
+    }
+  }, [seoTitle, seoDescription, seoImage, seoUrl, type, seoKeywords, jsonLd]);
 
   return null; // This component doesn't render anything
 }

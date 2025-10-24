@@ -60,17 +60,18 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className="text-center mb-16 pt-8">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-4 rounded-3xl shadow-xl">
-              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="PairCam logo - Global video chat network">
+                <title>PairCam - Connect with people worldwide</title>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
           <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-6 leading-tight">
-            Meet Someone New<br/>Right Now
+            PairCam: Instant Video Chat with Strangers
           </h1>
-          <p className="text-2xl text-gray-800 mb-4 font-semibold max-w-3xl mx-auto">
-            Join random video chats in 5 seconds – No signup, no hassle
-          </p>
+          <h2 className="text-2xl text-gray-800 mb-4 font-semibold max-w-3xl mx-auto">
+            Meet new people instantly - No signup, 100% free
+          </h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Anonymous, instant connections with people worldwide. Choose video, voice, or text chat.
           </p>
@@ -248,7 +249,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
 
         {/* Modern Options Box */}
         <div className="bg-white rounded-3xl shadow-luxury border border-gray-100 p-10 mb-6 hover:shadow-luxury-hover transition-all duration-300 animate-fadeIn">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">Start chatting:</h2>
+          <h3 className="text-3xl font-bold text-gray-900 mb-8 tracking-tight">Start chatting:</h3>
           
           <div className="space-y-6">
             {/* Name Input */}
