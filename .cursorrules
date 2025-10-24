@@ -1,0 +1,48 @@
+# Cursor AI Rules for PairCam Project
+
+## General Guidelines
+- Focus on code implementation over documentation
+- Only create markdown documentation when explicitly requested
+- Provide concise explanations in responses, not separate MD files
+- Prefer inline code comments for documentation
+
+## Code Style
+- Use TypeScript for type safety
+- Follow existing code patterns in the project
+- Keep components clean and reusable
+- Avoid duplicate code
+
+## SEO Optimization
+- All SEO changes should be implemented directly in code
+- Update actual files (robots.txt, sitemap.xml, etc.) not documentation
+- Test and verify changes work before completing
+
+## Documentation
+- **DO NOT** create markdown files (.md) unless explicitly requested
+- Use inline comments for complex logic
+- Keep README files minimal and focused
+- Summarize changes in chat responses only
+
+## Testing
+- Always build and verify changes work
+- Check for linter errors after modifications
+- Test SEO files are accessible
+
+## Workflow
+1. Make the actual code/file changes
+2. Verify they work (build, test)
+3. Summarize what was done in the response
+4. Move to next task
+
+## What NOT to Do
+- ❌ Don't create summary MD files after every change
+- ❌ Don't create implementation guides unless requested
+- ❌ Don't over-document simple changes
+- ❌ Don't ask for permission to continue (user said keep going)
+
+## User Preferences
+- User prefers meticulous critique, not always agreeing
+- Focus on high-level features and clean code
+- No duplicate code
+- Code consistency is important
+

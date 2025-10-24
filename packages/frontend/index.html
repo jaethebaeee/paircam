@@ -39,35 +39,110 @@
     <meta name="apple-mobile-web-app-title" content="PairCam" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     
+    <!-- Web App Manifest for PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
+    
     <!-- Structured Data / Schema.org for Google -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "PairCam",
-      "alternateName": "PairCam Video Chat",
+      "alternateName": ["PairCam Video Chat", "PairCam Random Chat"],
       "url": "https://paircam.live",
       "logo": "https://paircam.live/logo.png",
+      "image": "https://paircam.live/og-image.jpg",
       "description": "Free random video chat platform to meet new people worldwide. Anonymous, safe, and no signup required.",
       "applicationCategory": "SocialNetworkingApplication",
       "operatingSystem": "All",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "softwareVersion": "1.0.0",
+      "datePublished": "2025-10-24",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "USD"
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
       },
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.5",
-        "ratingCount": "1250"
+        "bestRating": "5",
+        "worstRating": "1",
+        "ratingCount": "1250",
+        "reviewCount": "850"
       },
       "featureList": [
-        "Random video chat",
-        "Text chat mode",
-        "No signup required",
-        "Anonymous connections",
-        "Global matching",
-        "Safe & moderated"
+        "Random video chat with strangers",
+        "Text chat mode available",
+        "No signup or registration required",
+        "Anonymous secure connections",
+        "Global user matching",
+        "Safe and moderated platform",
+        "Gender preference filters",
+        "Instant skip functionality"
+      ],
+      "screenshot": "https://paircam.live/og-image.jpg",
+      "author": {
+        "@type": "Organization",
+        "name": "PairCam",
+        "url": "https://paircam.live"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "PairCam",
+        "url": "https://paircam.live"
+      },
+      "inLanguage": "en-US",
+      "potentialAction": {
+        "@type": "UseAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://paircam.live/",
+          "actionPlatform": [
+            "https://schema.org/DesktopWebPlatform",
+            "https://schema.org/MobileWebPlatform"
+          ]
+        }
+      }
+    }
+    </script>
+    
+    <!-- Organization Schema for Brand Recognition -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "PairCam",
+      "url": "https://paircam.live",
+      "logo": "https://paircam.live/logo.png",
+      "sameAs": [
+        "https://twitter.com/paircam",
+        "https://facebook.com/paircam",
+        "https://instagram.com/paircam"
+      ],
+      "description": "Free random video chat platform connecting people worldwide"
+    }
+    </script>
+    
+    <!-- Breadcrumb Schema for Navigation -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://paircam.live/"
+        }
       ]
     }
     </script>

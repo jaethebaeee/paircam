@@ -1,23 +1,26 @@
 # robots.txt for PairCam
+# Optimized for Google search indexing
 
+# Allow all search engines to crawl everything
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /admin/
 
-# Sitemap location
+# Sitemap location (critical for Google)
 Sitemap: https://paircam.live/sitemap.xml
 
-# Crawl delay (be nice to servers)
-Crawl-delay: 1
+# Block bad bots (optional - keep if you want)
+User-agent: AhrefsBot
+Crawl-delay: 10
 
-# Specific bots
+User-agent: SemrushBot
+Crawl-delay: 10
+
+# Allow major search engines full speed for fast indexing
 User-agent: Googlebot
-Allow: /
-
 User-agent: Bingbot
-Allow: /
-
 User-agent: Slurp
+User-agent: DuckDuckBot
+User-agent: Baiduspider
+User-agent: YandexBot
 Allow: /
 

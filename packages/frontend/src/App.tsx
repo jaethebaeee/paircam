@@ -1,10 +1,20 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import LandingPage from './components/LandingPage';
-import VideoChat from './components/VideoChat/index';
 import SafetyModal from './components/SafetyModal';
 import PermissionModal from './components/PermissionModal';
+import LoadingSpinner from './components/LoadingSpinner';
+import SEO from './components/SEO';
+
+// Lazy load heavy components for better performance and SEO
+const LandingPage = lazy(() => import('./components/LandingPage'));
+const VideoChat = lazy(() => import('./components/VideoChat/index'));
+
+// Lazy load legal pages (rarely visited, so separate bundle)
+const TermsOfService = lazy(() => import('./components/legal/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./components/legal/PrivacyPolicy'));
+const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
 
 function App() {
   const [isInCall, setIsInCall] = useState(false);
@@ -74,21 +84,33 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      {/* Dynamic SEO meta tags */}
+      <SEO
+        title={isInCall ? 'In Call' : undefined}
+        description={
+          isInCall
+            ? 'You are currently in a video chat. Enjoy your conversation!'
+            : undefined
+        }
+      />
+
       <Navbar />
       
       <main className="flex-1 relative">
-        {isInCall ? (
-          <VideoChat 
-            onStopChatting={handleStopChatting} 
-            userName={userName}
-            userGender={userGender}
-            genderPreference={genderPreference}
-            isTextMode={isTextMode}
-            initialVideoEnabled={initialVideoEnabled}
-          />
-        ) : (
-          <LandingPage onStartCall={handleStartCall} />
-        )}
+        <Suspense fallback={<LoadingSpinner />}>
+          {isInCall ? (
+            <VideoChat 
+              onStopChatting={handleStopChatting} 
+              userName={userName}
+              userGender={userGender}
+              genderPreference={genderPreference}
+              isTextMode={isTextMode}
+              initialVideoEnabled={initialVideoEnabled}
+            />
+          ) : (
+            <LandingPage onStartCall={handleStartCall} />
+          )}
+        </Suspense>
       </main>
       
       <Footer />
