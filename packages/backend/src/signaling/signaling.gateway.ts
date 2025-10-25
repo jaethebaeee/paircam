@@ -7,10 +7,11 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Inject, forwardRef } from '@nestjs/common';
+import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { LoggerService } from '../services/logger.service';
 import { RedisService } from '../redis/redis.service';
+import { RedisPubSubService, MatchNotifyEvent, SessionEndEvent } from '../redis/redis-pubsub.service';
 import { MatchmakingService } from './matchmaking.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { AuthService } from '../auth/auth.service';
@@ -54,7 +55,7 @@ export interface ReactionDto {
   },
   namespace: '/signaling',
 })
-export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
   @WebSocketServer()
   server: Server;
 
@@ -62,6 +63,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
 
   constructor(
     private readonly redisService: RedisService,
+    private readonly redisPubSub: RedisPubSubService,
     @Inject(forwardRef(() => MatchmakingService))
     private readonly matchmakingService: MatchmakingService,
     @Inject(forwardRef(() => MatchAnalyticsService))
@@ -70,6 +72,20 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     private readonly usersService: UsersService,
     private readonly logger: LoggerService,
   ) {}
+
+  async onModuleInit() {
+    // Subscribe to distributed match notifications
+    await this.redisPubSub.subscribe('match:notify', (event) => {
+      this.handleRemoteMatchNotify(event as MatchNotifyEvent);
+    });
+
+    // Subscribe to distributed session end events
+    await this.redisPubSub.subscribe('session:end', (event) => {
+      this.handleRemoteSessionEnd(event as SessionEndEvent);
+    });
+
+    this.logger.log(`🌐 SignalingGateway subscribed to Pub/Sub (instance: ${this.redisPubSub.getInstanceId()})`);
+  }
 
   async handleConnection(client: Socket) {
     try {
@@ -559,11 +575,8 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
-  // Public method for matchmaking service to notify clients
+  // 🌐 Public method for matchmaking service to notify clients (now uses Pub/Sub)
   async notifyMatch(deviceId1: string, deviceId2: string, sessionId: string) {
-    const client1 = this.connectedClients.get(deviceId1);
-    const client2 = this.connectedClients.get(deviceId2);
-
     // 🆕 Track session start time for reputation
     const startTime = Date.now();
     await this.redisService.getClient().setEx(
@@ -571,6 +584,10 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       600, // 10 minute TTL
       startTime.toString()
     );
+
+    // Try local notification first (this instance might have the clients)
+    const client1 = this.connectedClients.get(deviceId1);
+    const client2 = this.connectedClients.get(deviceId2);
 
     if (client1) {
       client1.data.sessionId = sessionId;
@@ -581,6 +598,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         peerId: deviceId2,
         timestamp: startTime,
       });
+      this.logger.log('✅ Local match notification sent', { deviceId: deviceId1 });
     }
 
     if (client2) {
@@ -592,8 +610,92 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         peerId: deviceId1,
         timestamp: startTime,
       });
+      this.logger.log('✅ Local match notification sent', { deviceId: deviceId2 });
     }
 
-    this.logger.log('Users matched', { deviceId1, deviceId2, sessionId });
+    // 🌐 Publish to Pub/Sub for other instances (distributed notification)
+    await this.redisPubSub.publishMatchNotify(deviceId1, deviceId2, sessionId);
+
+    this.logger.log('🌐 Match published to Pub/Sub', { 
+      deviceId1, 
+      deviceId2, 
+      sessionId,
+      localClient1: !!client1,
+      localClient2: !!client2,
+    });
+  }
+
+  // 🌐 Handle match notifications from other instances
+  private handleRemoteMatchNotify(event: MatchNotifyEvent) {
+    try {
+      const { deviceId1, deviceId2, sessionId, timestamp } = event;
+
+      // Check if we have either client connected to THIS instance
+      const client1 = this.connectedClients.get(deviceId1);
+      const client2 = this.connectedClients.get(deviceId2);
+
+      if (client1) {
+        client1.data.sessionId = sessionId;
+        client1.data.peerId = deviceId2;
+        client1.data.sessionStartTime = timestamp;
+        client1.emit('matched', {
+          sessionId,
+          peerId: deviceId2,
+          timestamp,
+        });
+        this.logger.log('📥 Remote match notification delivered', { 
+          deviceId: deviceId1, 
+          fromInstance: event.instanceId 
+        });
+      }
+
+      if (client2) {
+        client2.data.sessionId = sessionId;
+        client2.data.peerId = deviceId1;
+        client2.data.sessionStartTime = timestamp;
+        client2.emit('matched', {
+          sessionId,
+          peerId: deviceId1,
+          timestamp,
+        });
+        this.logger.log('📥 Remote match notification delivered', { 
+          deviceId: deviceId2, 
+          fromInstance: event.instanceId 
+        });
+      }
+
+      // If we don't have either client, that's fine - another instance has them
+      if (!client1 && !client2) {
+        this.logger.debug('Remote match event received but no local clients', {
+          deviceId1,
+          deviceId2,
+          fromInstance: event.instanceId,
+        });
+      }
+    } catch (error) {
+      this.logger.error('Error handling remote match notification', error.stack);
+    }
+  }
+
+  // 🌐 Handle session end notifications from other instances
+  private handleRemoteSessionEnd(event: SessionEndEvent) {
+    try {
+      const { sessionId, deviceId } = event;
+
+      // Find if we have any clients in this session
+      for (const [clientDeviceId, client] of this.connectedClients.entries()) {
+        if (client.data.sessionId === sessionId && clientDeviceId !== deviceId) {
+          // This client's peer ended the session from another instance
+          client.emit('peer-disconnected', { sessionId });
+          this.logger.log('📥 Remote session end notification delivered', { 
+            deviceId: clientDeviceId, 
+            sessionId,
+            fromInstance: event.instanceId 
+          });
+        }
+      }
+    } catch (error) {
+      this.logger.error('Error handling remote session end', error.stack);
+    }
   }
 }

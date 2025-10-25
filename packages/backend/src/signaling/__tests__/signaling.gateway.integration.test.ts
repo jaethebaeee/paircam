@@ -17,8 +17,16 @@ describe('SignalingGateway integration', () => {
       trackConnectionFailed: jest.fn(async () => {}),
     } as any;
 
+    const redisPubSub = {
+      subscribe: jest.fn(async () => {}),
+      publish: jest.fn(async () => {}),
+      publishMatchNotify: jest.fn(async () => {}),
+      getInstanceId: jest.fn(() => 'test-instance'),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
+      redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
@@ -55,8 +63,16 @@ describe('SignalingGateway integration', () => {
       trackConnectionFailed: jest.fn(async () => {}),
     } as any;
 
+    const redisPubSub = {
+      subscribe: jest.fn(async () => {}),
+      publish: jest.fn(async () => {}),
+      publishMatchNotify: jest.fn(async () => {}),
+      getInstanceId: jest.fn(() => 'test-instance'),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
+      redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
@@ -101,8 +117,16 @@ describe('SignalingGateway integration', () => {
       trackConnectionFailed: jest.fn(async () => {}),
     } as any;
 
+    const redisPubSub = {
+      subscribe: jest.fn(async () => {}),
+      publish: jest.fn(async () => {}),
+      publishMatchNotify: jest.fn(async () => {}),
+      getInstanceId: jest.fn(() => 'test-instance'),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
+      redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
@@ -141,9 +165,17 @@ describe('SignalingGateway integration', () => {
       trackConnectionFailed: jest.fn(async () => {}),
     } as any;
 
+    const redisPubSub = {
+      subscribe: jest.fn(async () => {}),
+      publish: jest.fn(async () => {}),
+      publishMatchNotify: jest.fn(async () => {}),
+      getInstanceId: jest.fn(() => 'test-instance'),
+    } as any;
+
     // invalid token case
     const gatewayInvalid = new SignalingGateway(
       redis,
+      redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
       { validateToken: jest.fn(async () => { throw new Error('bad'); }) } as any,
@@ -158,6 +190,7 @@ describe('SignalingGateway integration', () => {
     // missing token case
     const gatewayMissing = new SignalingGateway(
       redis,
+      redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
@@ -184,8 +217,16 @@ describe('SignalingGateway integration', () => {
       trackConnectionFailed: jest.fn(async () => {}),
     } as any;
 
+    const redisPubSub = {
+      subscribe: jest.fn(async () => {}),
+      publish: jest.fn(async () => {}),
+      publishMatchNotify: jest.fn(async () => {}),
+      getInstanceId: jest.fn(() => 'test-instance'),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
+      redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
