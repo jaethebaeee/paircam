@@ -114,7 +114,14 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
 
       // Clean up session if active
       if (client.data.sessionId) {
+        // 🆕 Track reputation for unexpected disconnects (treat as skip)
+        await this.trackCallReputation(client.data.sessionId, deviceId, true);
         await this.cleanupSession(client.data.sessionId, deviceId);
+      }
+
+      // Clear queue update interval if active
+      if (client.data.queueUpdateInterval) {
+        clearInterval(client.data.queueUpdateInterval);
       }
 
       this.connectedClients.delete(deviceId);
@@ -150,6 +157,9 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       // Get user data and premium status
       const user = await this.usersService.findOrCreate(deviceId);
       const isPremium = await this.usersService.isPremium(user.id);
+      
+      // 🆕 Get user reputation
+      const reputation = await this.redisService.getUserReputation(user.id);
 
       // Add to matchmaking queue with user data
       await this.matchmakingService.addToQueue(deviceId, {
@@ -161,6 +171,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         age: user.age,
         isPremium,
         genderPreference: data.genderPreference || 'any',
+        reputation: reputation.rating, // 🆕 Include reputation score
         preferences: data.preferences || {},
       });
 
@@ -392,9 +403,12 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
   }
 
   @SubscribeMessage('end-call')
-  async handleEndCall(@ConnectedSocket() client: Socket, @MessageBody() data: { sessionId: string }) {
+  async handleEndCall(@ConnectedSocket() client: Socket, @MessageBody() data: { sessionId: string; wasSkipped?: boolean }) {
     const deviceId = client.data.deviceId;
     if (!deviceId) return;
+
+    // 🆕 Track reputation before cleanup
+    await this.trackCallReputation(data.sessionId, deviceId, data.wasSkipped || false);
 
     await this.cleanupSession(data.sessionId, deviceId);
     client.emit('call-ended', { sessionId: data.sessionId });
@@ -431,6 +445,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       await this.redisService.deleteSession(sessionId);
       await this.redisService.getClient().del(`offer:${sessionId}`);
       await this.redisService.getClient().del(`answer:${sessionId}`);
+      await this.redisService.getClient().del(`session:${sessionId}:startTime`); // 🆕 Clean up start time
       
       // Clean up ICE candidates
       const keys = await this.redisService.getClient().keys(`candidates:${sessionId}:*`);
@@ -445,28 +460,81 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
+  // 🆕 Track call reputation
+  private async trackCallReputation(sessionId: string, deviceId: string, wasSkipped: boolean) {
+    try {
+      // Get session data
+      const session = await this.redisService.getSession<{ peers: string[] }>(sessionId);
+      if (!session) return;
+
+      // Get start time
+      const startTimeStr = await this.redisService.getClient().get(`session:${sessionId}:startTime`);
+      if (!startTimeStr) return;
+
+      const startTime = parseInt(startTimeStr, 10);
+      const callDuration = Math.round((Date.now() - startTime) / 1000); // seconds
+
+      // Get user ID from deviceId
+      const user = await this.usersService.findOrCreate(deviceId);
+      const peerId = session.peers.find((p: string) => p !== deviceId);
+
+      // Update reputation for both users
+      await this.redisService.updateReputation(user.id, {
+        wasSkipped,
+        callDuration,
+      });
+
+      if (peerId) {
+        const peerUser = await this.usersService.findOrCreate(peerId);
+        await this.redisService.updateReputation(peerUser.id, {
+          wasSkipped,
+          callDuration,
+        });
+      }
+
+      this.logger.debug('Reputation tracked', {
+        sessionId,
+        userId: user.id,
+        callDuration,
+        wasSkipped,
+      });
+    } catch (error) {
+      this.logger.error('Reputation tracking error', error.stack);
+    }
+  }
+
   // Public method for matchmaking service to notify clients
   async notifyMatch(deviceId1: string, deviceId2: string, sessionId: string) {
     const client1 = this.connectedClients.get(deviceId1);
     const client2 = this.connectedClients.get(deviceId2);
 
+    // 🆕 Track session start time for reputation
+    const startTime = Date.now();
+    await this.redisService.getClient().setEx(
+      `session:${sessionId}:startTime`,
+      600, // 10 minute TTL
+      startTime.toString()
+    );
+
     if (client1) {
       client1.data.sessionId = sessionId;
       client1.data.peerId = deviceId2;
+      client1.data.sessionStartTime = startTime;
       client1.emit('matched', {
         sessionId,
         peerId: deviceId2,
-        timestamp: Date.now(),
+        timestamp: startTime,
       });
     }
 
     if (client2) {
       client2.data.sessionId = sessionId;
       client2.data.peerId = deviceId1;
+      client2.data.sessionStartTime = startTime;
       client2.emit('matched', {
         sessionId,
         peerId: deviceId1,
-        timestamp: Date.now(),
+        timestamp: startTime,
       });
     }
 

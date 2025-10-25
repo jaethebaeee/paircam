@@ -181,7 +181,7 @@ export default function VideoChat({
     setIsSkipping(true);
     
     if (signaling.matched) {
-      signaling.endCall(signaling.matched.sessionId);
+      signaling.endCall(signaling.matched.sessionId, true); // 🆕 Mark as skipped
     }
     setMessages([]);
     signaling.joinQueue('global', 'en', userGender, genderPreference);

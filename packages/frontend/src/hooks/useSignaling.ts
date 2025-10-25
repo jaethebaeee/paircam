@@ -27,7 +27,7 @@ export interface UseSignalingReturn {
   sendCandidate: (sessionId: string, candidate: RTCIceCandidateInit) => void;
   sendMessage: (sessionId: string, message: string, sender?: string) => void;
   sendReaction: (sessionId: string, emoji: string) => void;
-  endCall: (sessionId: string) => void;
+  endCall: (sessionId: string, wasSkipped?: boolean) => void;
 }
 
 interface UseSignalingOptions {
@@ -282,10 +282,10 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
   // End call
   const endCall = useCallback(
-    (sessionId: string) => {
+    (sessionId: string, wasSkipped: boolean = false) => {
       if (socket?.connected) {
-        console.log('Ending call for session:', sessionId);
-        socket.emit('end-call', { sessionId });
+        console.log('Ending call for session:', sessionId, { wasSkipped });
+        socket.emit('end-call', { sessionId, wasSkipped }); // 🆕 Send skip status
         setMatched(null);
         setQueueStatus(null);
       }

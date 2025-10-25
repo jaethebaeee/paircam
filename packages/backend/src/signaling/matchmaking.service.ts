@@ -20,6 +20,9 @@ export interface QueueUser {
   isPremium: boolean;
   genderPreference?: string; // 'any', 'male', 'female'
   
+  // 🆕 Reputation data
+  reputation?: number; // 0-100 rating
+  
   preferences: Record<string, unknown>;
 }
 
@@ -41,6 +44,7 @@ export class MatchmakingService {
     age?: number;
     isPremium: boolean;
     genderPreference?: string;
+    reputation?: number; // 🆕 Include reputation
     preferences?: Record<string, unknown>;
   }): Promise<void> {
     const queueData: QueueUser = {
@@ -54,6 +58,7 @@ export class MatchmakingService {
       age: metadata.age,
       isPremium: metadata.isPremium,
       genderPreference: metadata.genderPreference || 'any',
+      reputation: metadata.reputation, // 🆕 Pass through reputation
       preferences: metadata.preferences || {},
     };
 
@@ -82,8 +87,8 @@ export class MatchmakingService {
       const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
       const users: QueueUser[] = queueItems.map(item => JSON.parse(item));
 
-      // Try to find matches
-      const matches = this.findMatches(users);
+      // Try to find matches (now async)
+      const matches = await this.findMatches(users);
       
       for (const match of matches) {
         await this.createSession(match.user1, match.user2);
@@ -98,56 +103,149 @@ export class MatchmakingService {
     }
   }
 
-  private findMatches(users: QueueUser[]): Array<{ user1: QueueUser; user2: QueueUser }> {
-    const matches: Array<{ user1: QueueUser; user2: QueueUser }> = [];
+  private async findMatches(users: QueueUser[]): Promise<Array<{ user1: QueueUser; user2: QueueUser; waitTime?: number; score?: number }>> {
+    const matches: Array<{ user1: QueueUser; user2: QueueUser; waitTime?: number; score?: number }> = [];
     const used = new Set<string>();
+    const now = Date.now();
 
-    // Separate premium and free users
-    const premiumUsers = users.filter(u => u.isPremium).sort((a, b) => a.timestamp - b.timestamp);
-    const freeUsers = users.filter(u => !u.isPremium).sort((a, b) => a.timestamp - b.timestamp);
+    // 🆕 WAIT TIME BALANCING - Separate by wait time
+    const urgent = users.filter(u => now - u.timestamp > 60000); // 1+ minute wait
+    const normal = users.filter(u => now - u.timestamp <= 60000);
 
-    // Match premium users first (they get priority)
-    for (const premiumUser of premiumUsers) {
-      if (used.has(premiumUser.userId)) continue;
+    this.logger.debug('Queue breakdown', {
+      total: users.length,
+      urgent: urgent.length,
+      normal: normal.length,
+    });
 
-      // Try to find match in all users (premium can match with anyone compatible)
-      for (const candidate of [...premiumUsers, ...freeUsers]) {
-        if (used.has(candidate.userId) || candidate.userId === premiumUser.userId) continue;
+    // 🆕 Priority 1: Match urgent waiters first (lower compatibility standards)
+    for (const urgentUser of urgent) {
+      if (used.has(urgentUser.userId)) continue;
 
-        if (this.areCompatible(premiumUser, candidate)) {
-          matches.push({ user1: premiumUser, user2: candidate });
-          used.add(premiumUser.userId);
+      // Find ANY compatible match (ignore premium priority for urgent users)
+      for (const candidate of [...urgent, ...normal]) {
+        if (used.has(candidate.userId) || candidate.userId === urgentUser.userId) continue;
+
+        if (await this.areCompatible(urgentUser, candidate)) {
+          const waitTime = now - urgentUser.timestamp;
+          matches.push({ 
+            user1: urgentUser, 
+            user2: candidate,
+            waitTime 
+          });
+          used.add(urgentUser.userId);
           used.add(candidate.userId);
-          this.logger.debug('Premium match created', {
-            user1: premiumUser.userId,
+          this.logger.log('Urgent match created', {
+            user1: urgentUser.userId,
             user2: candidate.userId,
-            genderFilter: premiumUser.genderPreference,
+            waitTime: `${Math.round(waitTime / 1000)}s`,
           });
           break;
         }
       }
     }
 
-    // Then match remaining free users
-    for (let i = 0; i < freeUsers.length - 1; i++) {
-      if (used.has(freeUsers[i].userId)) continue;
+    // 🆕 Priority 2: SMART COMPATIBILITY SCORING for normal users
+    const premiumUsers = normal.filter(u => !used.has(u.userId) && u.isPremium);
+    const freeUsers = normal.filter(u => !used.has(u.userId) && !u.isPremium);
+    const remainingUsers = [...premiumUsers, ...freeUsers];
 
-      for (let j = i + 1; j < freeUsers.length; j++) {
-        if (used.has(freeUsers[j].userId)) continue;
-
-        if (this.areCompatible(freeUsers[i], freeUsers[j])) {
-          matches.push({ user1: freeUsers[i], user2: freeUsers[j] });
-          used.add(freeUsers[i].userId);
-          used.add(freeUsers[j].userId);
-          break;
+    // Calculate compatibility scores for all pairs
+    const scoredPairs: Array<{ user1: QueueUser; user2: QueueUser; score: number }> = [];
+    
+    for (let i = 0; i < remainingUsers.length - 1; i++) {
+      for (let j = i + 1; j < remainingUsers.length; j++) {
+        const user1 = remainingUsers[i];
+        const user2 = remainingUsers[j];
+        
+        if (used.has(user1.userId) || used.has(user2.userId)) continue;
+        
+        // Check basic compatibility first
+        if (await this.areCompatible(user1, user2)) {
+          const score = await this.calculateCompatibilityScore(user1, user2, now);
+          scoredPairs.push({ user1, user2, score });
         }
+      }
+    }
+
+    // Sort by compatibility score (highest first)
+    scoredPairs.sort((a, b) => b.score - a.score);
+
+    // Match from highest to lowest score
+    for (const pair of scoredPairs) {
+      if (!used.has(pair.user1.userId) && !used.has(pair.user2.userId)) {
+        matches.push({ 
+          user1: pair.user1, 
+          user2: pair.user2,
+          score: pair.score 
+        });
+        used.add(pair.user1.userId);
+        used.add(pair.user2.userId);
+        
+        this.logger.log('Smart match created', {
+          user1: pair.user1.userId,
+          user2: pair.user2.userId,
+          compatibilityScore: pair.score.toFixed(1),
+          premium: pair.user1.isPremium || pair.user2.isPremium,
+        });
       }
     }
 
     return matches;
   }
 
-  private areCompatible(user1: QueueUser, user2: QueueUser): boolean {
+  // 🆕 Calculate compatibility score (0-100)
+  private async calculateCompatibilityScore(user1: QueueUser, user2: QueueUser, now: number): Promise<number> {
+    let score = 0;
+
+    // 1. Location Match (25 points) - Same region = lower latency
+    if (user1.region === user2.region) {
+      score += 25;
+    } else if (user1.region === 'global' || user2.region === 'global') {
+      score += 12; // Partial credit for flexible region
+    }
+
+    // 2. Language Match (20 points)
+    if (user1.language === user2.language) {
+      score += 20;
+    }
+
+    // 3. Reputation Score (30 points) - Match good users together
+    const rep1 = user1.reputation || 70;
+    const rep2 = user2.reputation || 70;
+    
+    // Both high reputation (70+)
+    if (rep1 >= 70 && rep2 >= 70) {
+      score += 30;
+    }
+    // Both medium reputation (40-70)
+    else if (rep1 >= 40 && rep2 >= 40) {
+      score += 20;
+    }
+    // Give low-rep users a chance with high-rep (rehab)
+    else if ((rep1 >= 70 && rep2 >= 30) || (rep2 >= 70 && rep1 >= 30)) {
+      score += 15;
+    }
+    // Both low reputation
+    else {
+      score += 10; // Still allow match but low priority
+    }
+
+    // 4. Wait Time Bonus (15 points) - Reward longer waiters
+    const avgWaitTime = ((now - user1.timestamp) + (now - user2.timestamp)) / 2;
+    if (avgWaitTime > 45000) score += 15; // 45+ seconds
+    else if (avgWaitTime > 30000) score += 10; // 30+ seconds
+    else if (avgWaitTime > 15000) score += 5; // 15+ seconds
+
+    // 5. Premium Priority (10 points)
+    if (user1.isPremium || user2.isPremium) {
+      score += 10; // Premium users get slight boost
+    }
+
+    return Math.min(100, Math.max(0, score)); // Clamp to 0-100
+  }
+
+  private async areCompatible(user1: QueueUser, user2: QueueUser): Promise<boolean> {
     // Same region preference
     if (user1.region !== 'global' && user2.region !== 'global' && user1.region !== user2.region) {
       return false;
@@ -155,6 +253,19 @@ export class MatchmakingService {
 
     // Same language preference
     if (user1.language !== user2.language) {
+      return false;
+    }
+
+    // 🆕 AVOID RECENT MATCHES - Don't match same people within 1 hour
+    const user1Recent = await this.redisService.getRecentMatches(user1.userId);
+    const user2Recent = await this.redisService.getRecentMatches(user2.userId);
+    
+    if (user1Recent.includes(user2.userId) || user2Recent.includes(user1.userId)) {
+      this.logger.debug('Skipping recent match', { 
+        user1: user1.userId, 
+        user2: user2.userId,
+        reason: 'Matched within last hour'
+      });
       return false;
     }
 
@@ -241,6 +352,10 @@ export class MatchmakingService {
 
     // Store session in Redis (5 minute TTL)
     await this.redisService.createSession(sessionId, sessionData, 300);
+
+    // 🆕 Remember this match to avoid rematching
+    await this.redisService.addToRecentMatches(user1.userId, user2.userId);
+    await this.redisService.addToRecentMatches(user2.userId, user1.userId);
 
     // Notify both users
     await this.signalingGateway.notifyMatch(user1.userId, user2.userId, sessionId);
