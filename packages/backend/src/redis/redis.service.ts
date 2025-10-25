@@ -186,6 +186,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  // Counter operations for analytics (removed duplicate - see below for main implementation)
+
   async updateReputation(userId: string, update: {
     wasSkipped?: boolean;
     callDuration?: number;

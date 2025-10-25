@@ -9,6 +9,7 @@ import { RedisModule } from './redis/redis.module';
 import { TurnModule } from './turn/turn.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
+import { AnalyticsModule } from './analytics/analytics.module'; // 🆕 Analytics
 import { UsersModule } from './users/users.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
@@ -41,6 +42,7 @@ import { Payment } from './payments/entities/payment.entity';
     UsersModule,
     SubscriptionsModule,
     PaymentsModule,
+    AnalyticsModule, // 🆕 Match quality tracking
     SignalingModule,
     TurnModule,
     ReportingModule,

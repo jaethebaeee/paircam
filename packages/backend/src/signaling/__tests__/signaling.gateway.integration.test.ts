@@ -10,9 +10,17 @@ describe('SignalingGateway integration', () => {
       getSession: jest.fn(async () => ({ peers: ['a', 'b'] })),
     } as any as RedisService;
 
+    const analyticsService = {
+      trackMatchCreated: jest.fn(async () => {}),
+      trackCallEnded: jest.fn(async () => {}),
+      trackConnectionEstablished: jest.fn(async () => {}),
+      trackConnectionFailed: jest.fn(async () => {}),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -40,9 +48,17 @@ describe('SignalingGateway integration', () => {
       getSession: jest.fn(async () => ({ peers: ['a', 'b'] })),
     } as any as RedisService;
 
+    const analyticsService = {
+      trackMatchCreated: jest.fn(async () => {}),
+      trackCallEnded: jest.fn(async () => {}),
+      trackConnectionEstablished: jest.fn(async () => {}),
+      trackConnectionFailed: jest.fn(async () => {}),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -74,11 +90,21 @@ describe('SignalingGateway integration', () => {
       getSession: jest.fn(async () => ({ peers: ['a', 'b'] })),
       deleteSession: jest.fn(async () => {}),
       getClient: jest.fn(() => fakeClientApi),
+      getUserReputation: jest.fn(async () => ({ rating: 70 })),
+      updateReputation: jest.fn(async () => {}),
     } as any as RedisService;
+
+    const analyticsService = {
+      trackMatchCreated: jest.fn(async () => {}),
+      trackCallEnded: jest.fn(async () => {}),
+      trackConnectionEstablished: jest.fn(async () => {}),
+      trackConnectionFailed: jest.fn(async () => {}),
+    } as any;
 
     const gateway = new SignalingGateway(
       redis,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -108,10 +134,18 @@ describe('SignalingGateway integration', () => {
       isBlocked: jest.fn(async () => false),
     } as any as RedisService;
 
+    const analyticsService = {
+      trackMatchCreated: jest.fn(async () => {}),
+      trackCallEnded: jest.fn(async () => {}),
+      trackConnectionEstablished: jest.fn(async () => {}),
+      trackConnectionFailed: jest.fn(async () => {}),
+    } as any;
+
     // invalid token case
     const gatewayInvalid = new SignalingGateway(
       redis,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      analyticsService,
       { validateToken: jest.fn(async () => { throw new Error('bad'); }) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -125,6 +159,7 @@ describe('SignalingGateway integration', () => {
     const gatewayMissing = new SignalingGateway(
       redis,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -142,9 +177,17 @@ describe('SignalingGateway integration', () => {
       storeOffer: jest.fn(async () => {}),
     } as any as RedisService;
 
+    const analyticsService = {
+      trackMatchCreated: jest.fn(async () => {}),
+      trackCallEnded: jest.fn(async () => {}),
+      trackConnectionEstablished: jest.fn(async () => {}),
+      trackConnectionFailed: jest.fn(async () => {}),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,

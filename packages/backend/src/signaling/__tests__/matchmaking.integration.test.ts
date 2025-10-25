@@ -35,7 +35,14 @@ describe('MatchmakingService integration', () => {
       notifyMatch: jest.fn(async () => {}),
     } as any;
 
-    service = new MatchmakingService(redis, gateway, logger);
+    const analyticsService = {
+      trackMatchCreated: jest.fn(async () => {}),
+      trackCallEnded: jest.fn(async () => {}),
+      trackConnectionEstablished: jest.fn(async () => {}),
+      trackConnectionFailed: jest.fn(async () => {}),
+    } as any;
+
+    service = new MatchmakingService(redis, gateway, analyticsService, logger);
   });
 
   it('matches two users and creates a session', async () => {

@@ -12,6 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { LoggerService } from '../services/logger.service';
 import { RedisService } from '../redis/redis.service';
 import { MatchmakingService } from './matchmaking.service';
+import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
 
@@ -63,6 +64,8 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     private readonly redisService: RedisService,
     @Inject(forwardRef(() => MatchmakingService))
     private readonly matchmakingService: MatchmakingService,
+    @Inject(forwardRef(() => MatchAnalyticsService))
+    private readonly analyticsService: MatchAnalyticsService,
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly logger: LoggerService,
@@ -468,11 +471,11 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
-  // 🆕 Track call reputation
+  // 🆕 Track call reputation and analytics
   private async trackCallReputation(sessionId: string, deviceId: string, wasSkipped: boolean) {
     try {
       // Get session data
-      const session = await this.redisService.getSession<{ peers: string[] }>(sessionId);
+      const session = await this.redisService.getSession<{ peers: string[]; matchId?: string }>(sessionId);
       if (!session) return;
 
       // Get start time
@@ -500,14 +503,59 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         });
       }
 
-      this.logger.debug('Reputation tracked', {
+      // 🆕 Track analytics if matchId exists
+      if (session.matchId) {
+        await this.analyticsService.trackCallEnded({
+          matchId: session.matchId,
+          sessionId,
+          wasSkipped,
+          callDuration,
+        });
+      }
+
+      this.logger.debug('Reputation and analytics tracked', {
         sessionId,
+        matchId: session.matchId,
         userId: user.id,
         callDuration,
         wasSkipped,
       });
     } catch (error) {
       this.logger.error('Reputation tracking error', error.stack);
+    }
+  }
+
+  // 🆕 Track connection success/failure
+  @SubscribeMessage('connection-status')
+  async handleConnectionStatus(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { sessionId: string; status: 'connected' | 'failed'; connectionTime?: number }
+  ) {
+    try {
+      const session = await this.redisService.getSession<{ matchId?: string }>(data.sessionId);
+      if (!session || !session.matchId) return;
+
+      if (data.status === 'connected' && data.connectionTime) {
+        await this.analyticsService.trackConnectionEstablished({
+          matchId: session.matchId,
+          sessionId: data.sessionId,
+          connectionTime: data.connectionTime,
+        });
+      } else if (data.status === 'failed') {
+        await this.analyticsService.trackConnectionFailed({
+          matchId: session.matchId,
+          sessionId: data.sessionId,
+          reason: 'WebRTC connection failed',
+        });
+      }
+
+      this.logger.debug('Connection status tracked', {
+        sessionId: data.sessionId,
+        matchId: session.matchId,
+        status: data.status,
+      });
+    } catch (error) {
+      this.logger.error('Connection status tracking error', error.stack);
     }
   }
 

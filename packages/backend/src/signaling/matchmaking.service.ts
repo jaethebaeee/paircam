@@ -2,6 +2,7 @@ import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { SignalingGateway } from './signaling.gateway';
 import { LoggerService } from '../services/logger.service';
+import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface QueueUser {
@@ -42,6 +43,8 @@ export class MatchmakingService {
     private readonly redisService: RedisService,
     @Inject(forwardRef(() => SignalingGateway))
     private readonly signalingGateway: SignalingGateway,
+    @Inject(forwardRef(() => MatchAnalyticsService))
+    private readonly analyticsService: MatchAnalyticsService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -131,7 +134,7 @@ export class MatchmakingService {
         const matches = await this.findMatches(queueUsers);
         
         for (const match of matches) {
-          await this.createSession(match.user1, match.user2);
+          await this.createSession(match.user1, match.user2, match.score); // 🆕 Pass compatibility score
           
           // Remove matched users from queue
           await this.redisService.removeFromQueue(match.user1.userId);
@@ -149,7 +152,7 @@ export class MatchmakingService {
         const crossMatches = await this.findMatches(singleUsers);
         
         for (const match of crossMatches) {
-          await this.createSession(match.user1, match.user2);
+          await this.createSession(match.user1, match.user2, match.score); // 🆕 Pass compatibility score
           await this.redisService.removeFromQueue(match.user1.userId);
           await this.redisService.removeFromQueue(match.user2.userId);
         }
@@ -467,10 +470,13 @@ export class MatchmakingService {
     return true;
   }
 
-  private async createSession(user1: QueueUser, user2: QueueUser): Promise<void> {
+  private async createSession(user1: QueueUser, user2: QueueUser, compatibilityScore?: number): Promise<void> {
     const sessionId = uuidv4();
+    const matchId = uuidv4(); // Unique match ID for tracking
+    
     const sessionData = {
       id: sessionId,
+      matchId, // 🆕 For analytics
       peers: [user1.userId, user2.userId],
       createdAt: Date.now(),
       region: user1.region,
@@ -484,19 +490,38 @@ export class MatchmakingService {
     await this.redisService.addToRecentMatches(user1.userId, user2.userId);
     await this.redisService.addToRecentMatches(user2.userId, user1.userId);
 
+    // 🆕 Track match creation analytics
+    const commonInterests = user1.interests && user2.interests
+      ? user1.interests.filter(i => user2.interests?.includes(i))
+      : [];
+    
+    await this.analyticsService.trackMatchCreated({
+      matchId,
+      sessionId,
+      user1Id: user1.userId,
+      user2Id: user2.userId,
+      compatibilityScore: compatibilityScore || 0,
+      region: user1.region,
+      queueType: user1.queueType || 'casual',
+      commonInterests,
+    });
+
     // Notify both users
     await this.signalingGateway.notifyMatch(user1.userId, user2.userId, sessionId);
 
-    // Track analytics
+    // Track legacy analytics (keep for backwards compatibility)
     await this.redisService.incrementCounter('sessions:created');
     await this.redisService.incrementCounter(`sessions:region:${user1.region}`);
 
     this.logger.log('Session created', {
       sessionId,
+      matchId,
       user1: user1.userId,
       user2: user2.userId,
       region: user1.region,
       language: user1.language,
+      compatibilityScore,
+      commonInterests: commonInterests.length,
     });
   }
 
