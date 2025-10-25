@@ -20,7 +20,16 @@ export interface UseSignalingReturn {
   matched: MatchData | null;
   queueStatus: QueueStatus | null;
   error: string | null;
-  joinQueue: (region?: string, language?: string, gender?: string, genderPreference?: string) => void;
+  joinQueue: (
+    region?: string,
+    language?: string,
+    gender?: string,
+    genderPreference?: string,
+    interests?: string[],
+    queueType?: 'casual' | 'serious' | 'language' | 'gaming',
+    nativeLanguage?: string,
+    learningLanguage?: string
+  ) => void;
   leaveQueue: () => void;
   sendOffer: (sessionId: string, offer: RTCSessionDescriptionInit) => void;
   sendAnswer: (sessionId: string, answer: RTCSessionDescriptionInit) => void;
@@ -179,10 +188,28 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
   // Join matchmaking queue
   const joinQueue = useCallback(
-    (region: string = 'global', language: string = 'en', gender?: string, genderPreference?: string) => {
+    (
+      region: string = 'global',
+      language: string = 'en',
+      gender?: string,
+      genderPreference?: string,
+      interests?: string[],
+      queueType?: 'casual' | 'serious' | 'language' | 'gaming',
+      nativeLanguage?: string,
+      learningLanguage?: string
+    ) => {
       if (socket?.connected) {
-        console.log('Joining queue:', { region, language, gender, genderPreference });
-        socket.emit('join-queue', { region, language, gender, genderPreference });
+        console.log('Joining queue:', { region, language, gender, genderPreference, interests, queueType, nativeLanguage, learningLanguage });
+        socket.emit('join-queue', {
+          region,
+          language,
+          gender,
+          genderPreference,
+          interests, // 🆕
+          queueType, // 🆕
+          nativeLanguage, // 🆕
+          learningLanguage, // 🆕
+        });
       } else {
         console.warn('Cannot join queue: socket not connected');
       }

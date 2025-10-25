@@ -20,6 +20,10 @@ export interface JoinQueueDto {
   language?: string;
   gender?: string;
   genderPreference?: string;
+  interests?: string[]; // 🆕 Interest tags
+  queueType?: 'casual' | 'serious' | 'language' | 'gaming'; // 🆕 Queue type
+  nativeLanguage?: string; // 🆕 For language learning
+  learningLanguage?: string; // 🆕 For language learning
   preferences?: Record<string, unknown>;
 }
 
@@ -171,7 +175,11 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         age: user.age,
         isPremium,
         genderPreference: data.genderPreference || 'any',
-        reputation: reputation.rating, // 🆕 Include reputation score
+        reputation: reputation.rating,
+        interests: data.interests || [], // 🆕 Interest tags
+        queueType: data.queueType || 'casual', // 🆕 Queue type
+        nativeLanguage: data.nativeLanguage, // 🆕
+        learningLanguage: data.learningLanguage, // 🆕
         preferences: data.preferences || {},
       });
 

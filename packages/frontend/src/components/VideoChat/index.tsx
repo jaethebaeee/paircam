@@ -24,6 +24,10 @@ interface VideoChatProps {
   userName: string;
   userGender?: string;
   genderPreference?: string;
+  interests?: string[]; // 🆕 Interest tags
+  queueType?: 'casual' | 'serious' | 'language' | 'gaming'; // 🆕 Queue type
+  nativeLanguage?: string; // 🆕 Native language
+  learningLanguage?: string; // 🆕 Learning language
   isTextMode?: boolean;
   initialVideoEnabled?: boolean;
   showWaitingQueue?: boolean;
@@ -35,7 +39,11 @@ export default function VideoChat({
   onStopChatting, 
   userName, 
   userGender, 
-  genderPreference, 
+  genderPreference,
+  interests = [], // 🆕
+  queueType = 'casual', // 🆕
+  nativeLanguage, // 🆕
+  learningLanguage, // 🆕
   isTextMode = false,
   initialVideoEnabled = true,
   showWaitingQueue = false,
@@ -154,9 +162,9 @@ export default function VideoChat({
       : webrtc.localStream && signaling.connected && !signaling.matched;
       
     if (canJoinQueue) {
-      signaling.joinQueue('global', 'en', userGender, genderPreference);
+      signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage); // 🆕 Pass new params
     }
-  }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, isTextMode]);
+  }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage, isTextMode]);
 
   // Notify parent when matched
   useEffect(() => {
@@ -184,7 +192,7 @@ export default function VideoChat({
       signaling.endCall(signaling.matched.sessionId, true); // 🆕 Mark as skipped
     }
     setMessages([]);
-    signaling.joinQueue('global', 'en', userGender, genderPreference);
+    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage); // 🆕 Pass new params
     
     // Clear any existing timeout
     if (skipTimeoutRef.current) {
@@ -196,7 +204,7 @@ export default function VideoChat({
       setIsSkipping(false);
       skipTimeoutRef.current = null;
     }, 2000);
-  }, [isSkipping, signaling, userGender, genderPreference]);
+  }, [isSkipping, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage]);
   
   // Cleanup timeout on unmount
   useEffect(() => {

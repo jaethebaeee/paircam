@@ -23,6 +23,16 @@ export interface QueueUser {
   // 🆕 Reputation data
   reputation?: number; // 0-100 rating
   
+  // 🆕 Interest tags for better matching
+  interests?: string[]; // ['gaming', 'music', 'coding', etc.]
+  
+  // 🆕 Queue type for multi-queue system
+  queueType?: 'casual' | 'serious' | 'language' | 'gaming';
+  
+  // 🆕 Language learning (for language queue)
+  nativeLanguage?: string;
+  learningLanguage?: string;
+  
   preferences: Record<string, unknown>;
 }
 
@@ -44,7 +54,11 @@ export class MatchmakingService {
     age?: number;
     isPremium: boolean;
     genderPreference?: string;
-    reputation?: number; // 🆕 Include reputation
+    reputation?: number;
+    interests?: string[]; // 🆕 Interest tags
+    queueType?: 'casual' | 'serious' | 'language' | 'gaming'; // 🆕 Queue type
+    nativeLanguage?: string; // 🆕 For language learning
+    learningLanguage?: string; // 🆕 For language learning
     preferences?: Record<string, unknown>;
   }): Promise<void> {
     const queueData: QueueUser = {
@@ -58,7 +72,11 @@ export class MatchmakingService {
       age: metadata.age,
       isPremium: metadata.isPremium,
       genderPreference: metadata.genderPreference || 'any',
-      reputation: metadata.reputation, // 🆕 Pass through reputation
+      reputation: metadata.reputation,
+      interests: metadata.interests || [], // 🆕 Default to empty array
+      queueType: metadata.queueType || 'casual', // 🆕 Default to casual
+      nativeLanguage: metadata.nativeLanguage, // 🆕
+      learningLanguage: metadata.learningLanguage, // 🆕
       preferences: metadata.preferences || {},
     };
 
@@ -67,6 +85,9 @@ export class MatchmakingService {
       userId, 
       isPremium: queueData.isPremium,
       genderPreference: queueData.genderPreference,
+      queueType: queueData.queueType, // 🆕
+      interests: queueData.interests, // 🆕
+      reputation: queueData.reputation, // 🆕
     });
   }
 
@@ -87,15 +108,51 @@ export class MatchmakingService {
       const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
       const users: QueueUser[] = queueItems.map(item => JSON.parse(item));
 
-      // Try to find matches (now async)
-      const matches = await this.findMatches(users);
-      
-      for (const match of matches) {
-        await this.createSession(match.user1, match.user2);
+      // 🆕 Process multi-queue: Separate by queue type for better matching
+      const queuesByType: Record<string, QueueUser[]> = {
+        casual: [],
+        serious: [],
+        language: [],
+        gaming: [],
+      };
+
+      users.forEach(user => {
+        const type = user.queueType || 'casual';
+        queuesByType[type].push(user);
+      });
+
+      // Process each queue type separately
+      for (const [queueType, queueUsers] of Object.entries(queuesByType)) {
+        if (queueUsers.length < 2) continue;
+
+        this.logger.debug(`Processing ${queueType} queue`, { count: queueUsers.length });
+
+        // Try to find matches within this queue type
+        const matches = await this.findMatches(queueUsers);
         
-        // Remove matched users from queue
-        await this.redisService.removeFromQueue(match.user1.userId);
-        await this.redisService.removeFromQueue(match.user2.userId);
+        for (const match of matches) {
+          await this.createSession(match.user1, match.user2);
+          
+          // Remove matched users from queue
+          await this.redisService.removeFromQueue(match.user1.userId);
+          await this.redisService.removeFromQueue(match.user2.userId);
+        }
+      }
+
+      // 🆕 If some queues have only 1 user, allow cross-queue matching (except language queue)
+      const singleUsers = Object.entries(queuesByType)
+        .filter(([type, users]) => users.length === 1 && type !== 'language') // Language queue is special
+        .flatMap(([, users]) => users);
+
+      if (singleUsers.length >= 2) {
+        this.logger.debug('Cross-queue matching for single users', { count: singleUsers.length });
+        const crossMatches = await this.findMatches(singleUsers);
+        
+        for (const match of crossMatches) {
+          await this.createSession(match.user1, match.user2);
+          await this.redisService.removeFromQueue(match.user1.userId);
+          await this.redisService.removeFromQueue(match.user2.userId);
+        }
       }
 
     } catch (error) {
@@ -198,51 +255,121 @@ export class MatchmakingService {
   private async calculateCompatibilityScore(user1: QueueUser, user2: QueueUser, now: number): Promise<number> {
     let score = 0;
 
-    // 1. Location Match (25 points) - Same region = lower latency
+    // 1. Location Match (20 points) - Same region = lower latency
     if (user1.region === user2.region) {
-      score += 25;
-    } else if (user1.region === 'global' || user2.region === 'global') {
-      score += 12; // Partial credit for flexible region
-    }
-
-    // 2. Language Match (20 points)
-    if (user1.language === user2.language) {
       score += 20;
+    } else if (user1.region === 'global' || user2.region === 'global') {
+      score += 10; // Partial credit for flexible region
+    }
+    
+    // 🆕 1a. Geographic Latency Prediction (additional 5 points)
+    const latencyScore = this.calculateLatencyScore(user1, user2);
+    score += latencyScore;
+
+    // 2. Language Match (15 points)
+    if (user1.language === user2.language) {
+      score += 15;
     }
 
-    // 3. Reputation Score (30 points) - Match good users together
+    // 🆕 2a. Language Learning Match (special case for language queue)
+    if (user1.queueType === 'language' && user2.queueType === 'language') {
+      const langScore = this.calculateLanguageLearningScore(user1, user2);
+      score += langScore; // Up to 20 points
+    }
+
+    // 3. Reputation Score (25 points) - Match good users together
     const rep1 = user1.reputation || 70;
     const rep2 = user2.reputation || 70;
     
     // Both high reputation (70+)
     if (rep1 >= 70 && rep2 >= 70) {
-      score += 30;
+      score += 25;
     }
     // Both medium reputation (40-70)
     else if (rep1 >= 40 && rep2 >= 40) {
-      score += 20;
+      score += 18;
     }
     // Give low-rep users a chance with high-rep (rehab)
     else if ((rep1 >= 70 && rep2 >= 30) || (rep2 >= 70 && rep1 >= 30)) {
-      score += 15;
+      score += 12;
     }
     // Both low reputation
     else {
-      score += 10; // Still allow match but low priority
+      score += 8; // Still allow match but low priority
     }
 
-    // 4. Wait Time Bonus (15 points) - Reward longer waiters
-    const avgWaitTime = ((now - user1.timestamp) + (now - user2.timestamp)) / 2;
-    if (avgWaitTime > 45000) score += 15; // 45+ seconds
-    else if (avgWaitTime > 30000) score += 10; // 30+ seconds
-    else if (avgWaitTime > 15000) score += 5; // 15+ seconds
+    // 🆕 4. Interest Match (20 points) - Common interests
+    if (user1.interests && user2.interests && user1.interests.length > 0 && user2.interests.length > 0) {
+      const commonInterests = user1.interests.filter(i => user2.interests?.includes(i));
+      const interestScore = Math.min(commonInterests.length * 7, 20); // 7 points per common interest, max 20
+      score += interestScore;
+      
+      if (commonInterests.length > 0) {
+        this.logger.debug('Common interests found', {
+          user1: user1.userId,
+          user2: user2.userId,
+          common: commonInterests,
+          score: interestScore,
+        });
+      }
+    }
 
-    // 5. Premium Priority (10 points)
+    // 5. Wait Time Bonus (12 points) - Reward longer waiters
+    const avgWaitTime = ((now - user1.timestamp) + (now - user2.timestamp)) / 2;
+    if (avgWaitTime > 45000) score += 12; // 45+ seconds
+    else if (avgWaitTime > 30000) score += 8; // 30+ seconds
+    else if (avgWaitTime > 15000) score += 4; // 15+ seconds
+
+    // 6. Premium Priority (8 points)
     if (user1.isPremium || user2.isPremium) {
-      score += 10; // Premium users get slight boost
+      score += 8; // Premium users get slight boost
     }
 
     return Math.min(100, Math.max(0, score)); // Clamp to 0-100
+  }
+
+  // 🆕 Calculate latency score based on geographic location
+  private calculateLatencyScore(user1: QueueUser, user2: QueueUser): number {
+    // Simple continent-based estimation
+    // In production, you'd use actual GeoIP data
+    const regionLatencyMap: Record<string, Record<string, number>> = {
+      'us-east': { 'us-east': 5, 'us-west': 3, 'europe': 2, 'asia': 1, 'global': 3 },
+      'us-west': { 'us-west': 5, 'us-east': 3, 'europe': 2, 'asia': 2, 'global': 3 },
+      'europe': { 'europe': 5, 'us-east': 2, 'us-west': 2, 'asia': 1, 'global': 3 },
+      'asia': { 'asia': 5, 'us-west': 2, 'us-east': 1, 'europe': 1, 'global': 3 },
+      'global': { 'global': 3, 'us-east': 3, 'us-west': 3, 'europe': 3, 'asia': 3 },
+    };
+
+    const region1 = user1.region || 'global';
+    const region2 = user2.region || 'global';
+    
+    return regionLatencyMap[region1]?.[region2] || 2;
+  }
+
+  // 🆕 Calculate language learning compatibility score
+  private calculateLanguageLearningScore(user1: QueueUser, user2: QueueUser): number {
+    let score = 0;
+    
+    // Perfect match: User1 learning User2's native, and vice versa
+    if (
+      user1.learningLanguage === user2.nativeLanguage &&
+      user2.learningLanguage === user1.nativeLanguage
+    ) {
+      score += 20; // Perfect language exchange
+    }
+    // Good match: One teaches, one learns
+    else if (
+      user1.learningLanguage === user2.nativeLanguage ||
+      user2.learningLanguage === user1.nativeLanguage
+    ) {
+      score += 15; // One-way teaching
+    }
+    // Okay match: Both learning same language
+    else if (user1.learningLanguage === user2.learningLanguage) {
+      score += 10; // Practice together
+    }
+    
+    return score;
   }
 
   private async areCompatible(user1: QueueUser, user2: QueueUser): Promise<boolean> {
