@@ -52,11 +52,18 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
       <div className={`${isFullScreen ? 'flex-1' : 'h-72'} overflow-y-auto p-4 space-y-3 bg-gray-50/50`}>
         {messages.length === 0 ? (
           <div className="text-center text-gray-400 py-12">
-            <div className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-3 shadow-sm">
-              <ChatBubbleLeftIcon className="h-12 w-12 text-gray-300" />
+            <div className="bg-gradient-to-br from-pink-100 to-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 shadow-sm">
+              <span className="text-4xl block mt-1">👋</span>
             </div>
-            <p className="text-sm font-medium text-gray-600">No messages yet</p>
-            <p className="text-xs mt-1 text-gray-500">Say hi to start chatting! 👋</p>
+            <p className="text-base font-semibold text-gray-700">Break the ice!</p>
+            <p className="text-sm mt-2 text-gray-500 max-w-[200px] mx-auto">
+              Send a friendly message to start the conversation
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">Hey there!</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">Where are you from?</span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">Hi!</span>
+            </div>
           </div>
         ) : (
           <>

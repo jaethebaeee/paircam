@@ -12,6 +12,7 @@ import ChatPanel from './ChatPanel';
 import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
+import ReportModal from '../ReportModal';
 
 type TurnCredentials = {
   urls: string[];
@@ -60,6 +61,8 @@ export default function VideoChat({
   const [permissionError, setPermissionError] = useState<string | null>(null);
   const [isAudioOnlyMode, setIsAudioOnlyMode] = useState(false);
   const [currentQuality] = useState<'auto' | 'high' | 'low'>('auto'); // Future: allow user to manually override
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Network quality monitoring
@@ -273,11 +276,15 @@ export default function VideoChat({
     });
   }, [webrtc, isAudioOnlyMode]);
 
-  const handleReport = async () => {
+  const handleOpenReport = () => {
+    if (!accessToken || !signaling.matched) return;
+    setShowReportModal(true);
+  };
+
+  const handleSubmitReport = async (reason: string, comment?: string) => {
     try {
       if (!accessToken || !signaling.matched) return;
-      const reason = window.prompt('Report reason (e.g., harassment, inappropriate_content, spam, other):', 'other') || 'other';
-      const comment = window.prompt('Optional comment:', '') || undefined;
+      setIsReporting(true);
       const res = await fetch(`${API_URL}/reports`, {
         method: 'POST',
         headers: {
@@ -292,6 +299,7 @@ export default function VideoChat({
         }),
       });
       if (!res.ok) throw new Error('Failed to submit report');
+      setShowReportModal(false);
       toast.success('Report submitted', {
         description: 'Thank you for helping keep our community safe.',
       });
@@ -300,6 +308,8 @@ export default function VideoChat({
       toast.error('Failed to submit report', {
         description: 'Please try again or contact support.',
       });
+    } finally {
+      setIsReporting(false);
     }
   };
 
@@ -370,12 +380,21 @@ export default function VideoChat({
         onStopChatting={handleStopChatting}
         onNext={handleNext}
         onToggleChat={() => setShowChat(!showChat)}
-        onReport={handleReport}
+        onReport={handleOpenReport}
         isSkipping={isSkipping}
         isTextMode={isTextMode}
         isAudioOnlyMode={isAudioOnlyMode}
         onSwitchToAudioOnly={handleSwitchToAudioOnly}
       />
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <ReportModal
+          onSubmit={handleSubmitReport}
+          onClose={() => setShowReportModal(false)}
+          isLoading={isReporting}
+        />
+      )}
 
       {!isTextMode && showChat && (
         <ChatPanel
