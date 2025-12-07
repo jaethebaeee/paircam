@@ -45,16 +45,16 @@ export default function Footer() {
             <h3 className="text-gray-900 font-semibold text-sm uppercase tracking-wider mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">About Us</a>
+                <a href="/blog" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Blog</a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">How It Works</a>
+                <a href="/#faq" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">FAQ</a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Safety Guidelines</a>
+                <a href="/blog/how-to-stay-safe-video-chatting-strangers" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Safety Guidelines</a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">FAQ</a>
+                <a href="/blog/paircam-premium-features-guide" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Premium Features</a>
               </li>
             </ul>
           </div>

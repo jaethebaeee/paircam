@@ -455,6 +455,141 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         </div>
         </div>
 
+        {/* FAQ Section - For SEO */}
+        <div className="max-w-4xl mx-auto mt-16 mb-16">
+          <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">Frequently Asked Questions</h2>
+          <p className="text-center text-gray-600 mb-12 text-lg">Everything you need to know about PairCam</p>
+
+          <div className="space-y-4">
+            {/* FAQ Item 1 */}
+            <details className="group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                <h3 className="text-lg font-semibold text-gray-900">Is PairCam free to use?</h3>
+                <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-6 pb-6 text-gray-600">
+                <p>Yes! PairCam is completely free to use. You can start video chatting with strangers instantly without any signup or payment. We also offer a Premium subscription with extra features like gender filters, priority matching, and an ad-free experience.</p>
+              </div>
+            </details>
+
+            {/* FAQ Item 2 */}
+            <details className="group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                <h3 className="text-lg font-semibold text-gray-900">Is PairCam safe to use?</h3>
+                <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-6 pb-6 text-gray-600">
+                <p className="mb-3">We take safety seriously. PairCam includes several safety features:</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>24/7 AI and human moderation</li>
+                  <li>One-click report and block functionality</li>
+                  <li>18+ age verification for video chat</li>
+                  <li>Anonymous connections - no personal info required</li>
+                  <li>End-to-end encrypted video calls</li>
+                </ul>
+                <p className="mt-3">However, always remember to never share personal information with strangers online.</p>
+              </div>
+            </details>
+
+            {/* FAQ Item 3 */}
+            <details className="group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                <h3 className="text-lg font-semibold text-gray-900">Do I need to create an account?</h3>
+                <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-6 pb-6 text-gray-600">
+                <p>No account needed! Simply enter a nickname and start chatting. This keeps you completely anonymous. If you want premium features, you can optionally create an account, but it's never required for basic usage.</p>
+              </div>
+            </details>
+
+            {/* FAQ Item 4 */}
+            <details className="group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                <h3 className="text-lg font-semibold text-gray-900">How does the matching system work?</h3>
+                <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-6 pb-6 text-gray-600">
+                <p className="mb-3">PairCam uses an intelligent matching algorithm that considers:</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>Your selected interests and preferences</li>
+                  <li>Queue type (casual, serious conversations, language learning, gaming)</li>
+                  <li>Gender preferences (Premium feature)</li>
+                  <li>Language preferences for language exchange</li>
+                </ul>
+                <p className="mt-3">The system finds you a compatible partner in seconds!</p>
+              </div>
+            </details>
+
+            {/* FAQ Item 5 */}
+            <details className="group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                <h3 className="text-lg font-semibold text-gray-900">Are video chats recorded?</h3>
+                <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-6 pb-6 text-gray-600">
+                <p><strong>No, we never record your video or audio conversations.</strong> PairCam uses peer-to-peer (P2P) WebRTC technology, meaning your video streams directly between you and your chat partner without passing through our servers. Your conversations are private and encrypted.</p>
+              </div>
+            </details>
+
+            {/* FAQ Item 6 */}
+            <details className="group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                <h3 className="text-lg font-semibold text-gray-900">What are Premium features?</h3>
+                <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-6 pb-6 text-gray-600">
+                <p className="mb-3">Premium subscribers get exclusive features:</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li><strong>Gender Filter:</strong> Match only with your preferred gender</li>
+                  <li><strong>Priority Matching:</strong> Skip the queue and find matches faster</li>
+                  <li><strong>Ad-Free:</strong> No interruptions during your experience</li>
+                  <li><strong>Unlimited Matches:</strong> No daily limits on conversations</li>
+                  <li><strong>Rewind:</strong> Undo your last skip once per session</li>
+                </ul>
+                <p className="mt-3">Premium starts at just $2.99/week or $9.99/month.</p>
+              </div>
+            </details>
+
+            {/* FAQ Item 7 */}
+            <details className="group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                <h3 className="text-lg font-semibold text-gray-900">What devices can I use PairCam on?</h3>
+                <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-6 pb-6 text-gray-600">
+                <p>PairCam works on any device with a modern web browser! This includes desktop computers (Windows, Mac, Linux), laptops, tablets, and smartphones (iPhone, Android). No app download required - just visit our website and start chatting. For the best experience, we recommend using Chrome, Firefox, Safari, or Edge.</p>
+              </div>
+            </details>
+
+            {/* FAQ Item 8 */}
+            <details className="group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                <h3 className="text-lg font-semibold text-gray-900">How do I report inappropriate behavior?</h3>
+                <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-6 pb-6 text-gray-600">
+                <p>During any chat, you can click the "Report" button to flag inappropriate behavior. Our moderation team reviews all reports within 24 hours. Serious violations result in immediate permanent bans. You can also block any user instantly to prevent future matches with them.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
         {/* Additional Features Section */}
         <div className="max-w-5xl mx-auto mt-16 mb-12">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Why Choose Us?</h2>

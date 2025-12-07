@@ -32,5 +32,16 @@ export class SubscriptionsController {
     const subscription = await this.subscriptionsService.findActiveByUserId(user.id);
     return { subscription };
   }
+
+  @Get('status')
+  async getPremiumStatus(@Req() req: { user: { deviceId: string } }) {
+    const user = await this.usersService.findByDeviceId(req.user.deviceId);
+    if (!user) {
+      return { isPremium: false, userId: null };
+    }
+
+    const isPremium = await this.subscriptionsService.isUserPremium(user.id);
+    return { isPremium, userId: user.id };
+  }
 }
 
