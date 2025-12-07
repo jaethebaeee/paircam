@@ -8,12 +8,26 @@ const __dirname = dirname(__filename);
 
 const BASE_URL = 'https://paircam.live';
 
-// Define all routes with their properties
-const routes = [
+// Blog posts data - kept in sync with blogData.ts
+const blogPosts = [
+  { slug: 'how-to-stay-safe-video-chatting-strangers', updatedAt: '2024-12-01' },
+  { slug: 'best-conversation-starters-video-chat', updatedAt: '2024-11-28' },
+  { slug: 'language-learning-video-chat', updatedAt: '2024-11-25' },
+  { slug: 'paircam-premium-features-guide', updatedAt: '2024-12-01' },
+  { slug: 'making-friends-online-video-chat', updatedAt: '2024-11-15' },
+];
+
+// Define all static routes with their properties
+const staticRoutes = [
   {
     url: '/',
     changefreq: 'daily',
     priority: 1.0,
+  },
+  {
+    url: '/blog',
+    changefreq: 'daily',
+    priority: 0.9,
   },
   {
     url: '/terms-of-service',
@@ -32,6 +46,17 @@ const routes = [
   },
 ];
 
+// Generate blog post routes dynamically
+const blogRoutes = blogPosts.map((post) => ({
+  url: `/blog/${post.slug}`,
+  changefreq: 'weekly' as const,
+  priority: 0.8,
+  lastmod: post.updatedAt,
+}));
+
+// Combine all routes
+const routes = [...staticRoutes, ...blogRoutes];
+
 async function generateSitemap() {
   const sitemap = new SitemapStream({ hostname: BASE_URL });
   const outputPath = resolve(__dirname, '../public/sitemap.xml');
@@ -45,7 +70,7 @@ async function generateSitemap() {
       url: route.url,
       changefreq: route.changefreq as any,
       priority: route.priority,
-      lastmod: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD
+      lastmod: (route as any).lastmod || new Date().toISOString().split('T')[0],
     });
   });
 

@@ -1,19 +1,42 @@
 /**
  * Cookie Policy - Legal Page Component
- * 
+ *
  * Explains how cookies are used on the site for GDPR compliance
  */
 
+import { Link } from 'react-router-dom';
+import BackButton from '../BackButton';
+
 export default function CookiePolicy() {
   const lastUpdated = "October 24, 2025";
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl p-8 md:p-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Cookie Policy</h1>
-        <p className="text-gray-600 mb-8">Last Updated: {lastUpdated}</p>
-        
-        <div className="prose prose-lg max-w-none">
+      <div className="max-w-4xl mx-auto">
+        {/* Navigation */}
+        <div className="flex items-center justify-between mb-6">
+          <BackButton to="/" label="Back to Home" />
+          <div className="flex gap-3">
+            <Link
+              to="/terms-of-service"
+              className="text-sm text-gray-500 hover:text-pink-600 transition-colors"
+            >
+              Terms of Service
+            </Link>
+            <Link
+              to="/privacy-policy"
+              className="text-sm text-gray-500 hover:text-pink-600 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Cookie Policy</h1>
+          <p className="text-gray-600 mb-8">Last Updated: {lastUpdated}</p>
+
+          <div className="prose prose-lg max-w-none">
           {/* Introduction */}
           <section className="mb-8">
             <p className="text-gray-700 leading-relaxed mb-4">
@@ -203,9 +226,9 @@ export default function CookiePolicy() {
             <p className="text-gray-700 leading-relaxed mb-4">
               If you have questions about our use of cookies, please contact us:
             </p>
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-gray-800"><strong>Email:</strong> privacy@paircam.live</p>
-              <p className="text-gray-800 mt-1"><strong>Subject:</strong> Cookie Policy Inquiry</p>
+            <div className="bg-gray-50 rounded-xl p-6">
+              <p className="text-gray-800 mb-2"><strong>Email:</strong> privacy@paircam.live</p>
+              <p className="text-gray-800"><strong>Subject:</strong> Cookie Policy Inquiry</p>
             </div>
           </section>
 
@@ -222,17 +245,34 @@ export default function CookiePolicy() {
           </section>
         </div>
 
-        {/* Back Button */}
+        {/* Bottom Navigation */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <a 
-            href="/" 
-            className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Home
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Home
+            </Link>
+            <div className="flex gap-4">
+              <Link
+                to="/terms-of-service"
+                className="text-gray-500 hover:text-pink-600 transition-colors text-sm"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                to="/privacy-policy"
+                className="text-gray-500 hover:text-pink-600 transition-colors text-sm"
+              >
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
     </div>

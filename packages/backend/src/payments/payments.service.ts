@@ -4,6 +4,7 @@ import { env } from '../env';
 import { UsersService } from '../users/users.service';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { LoggerService } from '../services/logger.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class PaymentsService {
@@ -13,6 +14,7 @@ export class PaymentsService {
     private readonly usersService: UsersService,
     private readonly subscriptionsService: SubscriptionsService,
     private readonly logger: LoggerService,
+    private readonly emailService: EmailService,
   ) {
     if (!env.STRIPE_SECRET_KEY) {
       this.logger.warn('Stripe secret key not configured');
@@ -147,6 +149,8 @@ export class PaymentsService {
         session.subscription as string,
       );
 
+      const currentPeriodEnd = new Date((subscription as any).current_period_end * 1000);
+
       await this.subscriptionsService.create({
         userId,
         stripeCustomerId: subscription.customer as string,
@@ -155,7 +159,7 @@ export class PaymentsService {
         status: subscription.status,
         plan,
         currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+        currentPeriodEnd,
         trialEnd: (subscription as any).trial_end ? new Date((subscription as any).trial_end * 1000) : undefined,
       });
 
@@ -164,6 +168,20 @@ export class PaymentsService {
         subscriptionId: subscription.id,
         plan,
       });
+
+      // Send welcome email
+      const user = await this.usersService.findById(userId);
+      if (user?.email) {
+        await this.emailService.sendSubscriptionWelcome({
+          email: user.email,
+          plan,
+          nextBillingDate: currentPeriodEnd.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          }),
+        });
+      }
     } catch (error) {
       this.logger.error('Failed to handle checkout completed', error.stack);
       throw error;
@@ -190,6 +208,8 @@ export class PaymentsService {
 
   private async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     try {
+      const dbSubscription = await this.subscriptionsService.findByStripeSubscriptionId(subscription.id);
+
       await this.subscriptionsService.updateByStripeId(subscription.id, {
         status: 'canceled',
         canceledAt: new Date(),
@@ -198,6 +218,17 @@ export class PaymentsService {
       this.logger.log('Subscription deleted', {
         subscriptionId: subscription.id,
       });
+
+      // Send cancellation email
+      if (dbSubscription?.userId) {
+        const user = await this.usersService.findById(dbSubscription.userId);
+        if (user?.email) {
+          await this.emailService.sendSubscriptionCanceled({
+            email: user.email,
+            plan: dbSubscription.plan as 'weekly' | 'monthly',
+          });
+        }
+      }
     } catch (error) {
       this.logger.error('Failed to handle subscription deleted', error.stack);
     }
@@ -208,10 +239,42 @@ export class PaymentsService {
       invoiceId: invoice.id,
       amount: invoice.amount_paid,
     });
+
+    // Send payment success email for renewals (not first payment)
+    if (invoice.billing_reason === 'subscription_cycle' && invoice.customer_email) {
+      const dbSubscription = invoice.subscription
+        ? await this.subscriptionsService.findByStripeSubscriptionId(invoice.subscription as string)
+        : null;
+
+      if (dbSubscription) {
+        await this.emailService.sendPaymentSuccessful({
+          email: invoice.customer_email,
+          plan: dbSubscription.plan as 'weekly' | 'monthly',
+          amount: `$${(invoice.amount_paid / 100).toFixed(2)}`,
+          nextBillingDate: dbSubscription.currentPeriodEnd?.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          }),
+        });
+      }
+    }
   }
 
   private async handlePaymentFailed(invoice: Stripe.Invoice) {
     this.logger.error('Payment failed', invoice.id);
+
+    // Send payment failed email
+    if (invoice.customer_email) {
+      const dbSubscription = invoice.subscription
+        ? await this.subscriptionsService.findByStripeSubscriptionId(invoice.subscription as string)
+        : null;
+
+      await this.emailService.sendPaymentFailed({
+        email: invoice.customer_email,
+        plan: dbSubscription?.plan as 'weekly' | 'monthly' || 'monthly',
+      });
+    }
   }
 
   async cancelSubscription(deviceId: string) {

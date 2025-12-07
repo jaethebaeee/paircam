@@ -32,5 +32,29 @@ export class SubscriptionsController {
     const subscription = await this.subscriptionsService.findActiveByUserId(user.id);
     return { subscription };
   }
+
+  @Get('status')
+  async getPremiumStatus(@Req() req: { user: { deviceId: string } }) {
+    const user = await this.usersService.findByDeviceId(req.user.deviceId);
+    if (!user) {
+      return { isPremium: false, userId: null, subscription: null };
+    }
+
+    const subscription = await this.subscriptionsService.findActiveByUserId(user.id);
+    const isPremium = !!subscription && subscription.status === 'active';
+
+    return {
+      isPremium,
+      userId: user.id,
+      subscription: subscription
+        ? {
+            plan: subscription.plan,
+            status: subscription.status,
+            currentPeriodEnd: subscription.currentPeriodEnd,
+            cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+          }
+        : null,
+    };
+  }
 }
 

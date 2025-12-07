@@ -11,6 +11,8 @@ import SEO from './components/SEO';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useAuthContext } from './contexts/AuthContext';
 import PremiumModal from './components/PremiumModal';
+import FreemiumLimitModal from './components/FreemiumLimitModal';
+import { useFreemiumLimits } from './hooks/useFreemiumLimits';
 
 // Lazy load heavy components for better performance and SEO
 const LandingPage = lazy(() => import('./components/LandingPage'));
@@ -20,6 +22,13 @@ const VideoChat = lazy(() => import('./components/VideoChat/index'));
 const TermsOfService = lazy(() => import('./components/legal/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./components/legal/PrivacyPolicy'));
 const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
+
+// Lazy load blog pages (for SEO and ads)
+const BlogList = lazy(() => import('./components/blog/BlogList'));
+const BlogPost = lazy(() => import('./components/blog/BlogPost'));
+
+// Lazy load payment success page
+const SuccessPage = lazy(() => import('./components/SuccessPage'));
 
 // Schema.org structured data for homepage
 const softwareAppSchema = {
@@ -74,16 +83,24 @@ function AppRoutes({
   userName,
   userGender,
   genderPreference,
-  interests, // 🆕
-  queueType, // 🆕
-  nativeLanguage, // 🆕
-  learningLanguage, // 🆕
+  interests,
+  queueType,
+  nativeLanguage,
+  learningLanguage,
   isTextMode,
   initialVideoEnabled,
   isPremium,
 }: any) {
   const location = useLocation();
   const [currentRoute, setCurrentRoute] = useState<string>(location.pathname);
+
+  // Freemium limits tracking
+  const freemiumLimits = useFreemiumLimits(isPremium);
+  const [limitReachedType, setLimitReachedType] = useState<'matches' | 'skips' | 'session' | null>(null);
+
+  const handleLimitReached = (type: 'matches' | 'skips' | 'session') => {
+    setLimitReachedType(type);
+  };
 
   useEffect(() => {
     setCurrentRoute(location.pathname);
@@ -121,7 +138,20 @@ function AppRoutes({
           description: 'Understand how PairCam uses cookies to improve your experience. Manage your cookie preferences.',
           url: 'https://paircam.live/cookie-policy',
         };
+      case '/blog':
+        return {
+          title: 'Blog - Tips, Guides & Updates',
+          description: 'Read our latest articles on video chat tips, safety guides, language learning, and PairCam features.',
+          url: 'https://paircam.live/blog',
+        };
       default:
+        // Handle blog post pages
+        if (currentRoute.startsWith('/blog/')) {
+          return {
+            title: 'Blog Post',
+            description: 'Read this article on the PairCam blog.',
+          };
+        }
         return {};
     }
   };
@@ -144,20 +174,24 @@ function AppRoutes({
               path="/" 
               element={
                 (appState === 'chatting' || appState === 'waiting') ? (
-                  <VideoChat 
-                    onStopChatting={handleStopChatting} 
+                  <VideoChat
+                    onStopChatting={handleStopChatting}
                     userName={userName}
                     userGender={userGender}
                     genderPreference={genderPreference}
-                    interests={interests} // 🆕
-                    queueType={queueType} // 🆕
-                    nativeLanguage={nativeLanguage} // 🆕
-                    learningLanguage={learningLanguage} // 🆕
+                    interests={interests}
+                    queueType={queueType}
+                    nativeLanguage={nativeLanguage}
+                    learningLanguage={learningLanguage}
                     isTextMode={isTextMode}
                     initialVideoEnabled={initialVideoEnabled}
                     showWaitingQueue={appState === 'waiting'}
                     onMatched={() => {}}
                     onWaitingCancel={handleWaitingCancel}
+                    freemiumLimits={freemiumLimits}
+                    onLimitReached={handleLimitReached}
+                    isPremium={isPremium}
+                    onUpgrade={() => setShowPremiumModal(true)}
                   />
                 ) : (
                   <LandingPage onStartCall={handleStartCall} />
@@ -169,7 +203,14 @@ function AppRoutes({
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/cookie-policy" element={<CookiePolicy />} />
-            
+
+            {/* Blog Pages */}
+            <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+
+            {/* Payment Success Page */}
+            <Route path="/success" element={<SuccessPage />} />
+
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -207,6 +248,18 @@ function AppRoutes({
       {/* Premium Modal */}
       {showPremiumModal && (
         <PremiumModal onClose={() => setShowPremiumModal(false)} />
+      )}
+
+      {/* Freemium Limit Modal */}
+      {limitReachedType && (
+        <FreemiumLimitModal
+          limitType={limitReachedType}
+          onUpgrade={() => {
+            setLimitReachedType(null);
+            setShowPremiumModal(true);
+          }}
+          onClose={() => setLimitReachedType(null)}
+        />
       )}
     </div>
   );

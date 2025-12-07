@@ -13,6 +13,7 @@ import { AnalyticsModule } from './analytics/analytics.module'; // 🆕 Analytic
 import { UsersModule } from './users/users.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
+import { EmailModule } from './email/email.module';
 import { HealthController } from './health/health.controller';
 import { env } from './env';
 
@@ -38,6 +39,7 @@ import { Payment } from './payments/entities/payment.entity';
     }),
     LoggerModule,
     RedisModule,
+    EmailModule, // Global email service
     AuthModule, // AuthModule already provides JwtModule and PassportModule globally
     UsersModule,
     SubscriptionsModule,
