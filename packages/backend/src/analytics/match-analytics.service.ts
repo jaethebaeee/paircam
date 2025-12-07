@@ -337,9 +337,19 @@ export class MatchAnalyticsService {
           const queueSkips = await this.redisService.getCounter(`analytics:calls:skipped:${queueType}`);
           const queueSkipRate = queueMatches > 0 ? (queueSkips / queueMatches) * 100 : 0;
 
+          // Get average call duration per queue
+          const queueDurations = await this.redisService.getClient().lRange(
+            `analytics:callDuration:queue:${queueType}`,
+            0,
+            999
+          );
+          const avgQueueDuration = queueDurations.length > 0
+            ? queueDurations.reduce((sum, d) => sum + parseInt(d), 0) / queueDurations.length
+            : 0;
+
           queueTypeStats[queueType] = {
             totalMatches: queueMatches,
-            avgCallDuration: 0, // TODO: Track per queue
+            avgCallDuration: Math.round(avgQueueDuration),
             skipRate: Math.round(queueSkipRate * 10) / 10,
           };
         }
@@ -373,14 +383,71 @@ export class MatchAnalyticsService {
         }
       }
 
+      // Calculate global averages from all regions
+      let totalConnectionTime = 0;
+      let connectionTimeCount = 0;
+      let totalCallDuration = 0;
+      let callDurationCount = 0;
+
+      for (const region of regions) {
+        const connectionTimes = await this.redisService.getClient().lRange(
+          `analytics:connectionTime:${region}`,
+          0,
+          999
+        );
+        if (connectionTimes.length > 0) {
+          totalConnectionTime += connectionTimes.reduce((sum, t) => sum + parseInt(t), 0);
+          connectionTimeCount += connectionTimes.length;
+        }
+
+        const callDurations = await this.redisService.getClient().lRange(
+          `analytics:callDuration:${region}`,
+          0,
+          999
+        );
+        if (callDurations.length > 0) {
+          totalCallDuration += callDurations.reduce((sum, d) => sum + parseInt(d), 0);
+          callDurationCount += callDurations.length;
+        }
+      }
+
+      const averageConnectionTime = connectionTimeCount > 0
+        ? Math.round(totalConnectionTime / connectionTimeCount)
+        : 0;
+      const averageCallDuration = callDurationCount > 0
+        ? Math.round(totalCallDuration / callDurationCount)
+        : 0;
+
+      // Calculate average match quality from recent matches
+      const recentMatchKeys = await this.redisService.getClient().keys('match:*');
+      let totalQualityScore = 0;
+      let qualityScoreCount = 0;
+
+      // Sample up to 100 recent matches for quality calculation
+      const sampleKeys = recentMatchKeys.slice(0, 100);
+      for (const key of sampleKeys) {
+        const matchData = await this.redisService.getClient().get(key);
+        if (matchData) {
+          const match = JSON.parse(matchData);
+          if (match.matchQualityScore && match.matchQualityScore > 0) {
+            totalQualityScore += match.matchQualityScore;
+            qualityScoreCount++;
+          }
+        }
+      }
+
+      const averageMatchQuality = qualityScoreCount > 0
+        ? Math.round(totalQualityScore / qualityScoreCount)
+        : 0;
+
       return {
         totalMatches,
         successfulConnections,
         failedConnections,
-        averageConnectionTime: 0, // TODO: Calculate global average
-        averageCallDuration: 0, // TODO: Calculate global average
+        averageConnectionTime,
+        averageCallDuration,
         skipRate: Math.round(skipRate * 10) / 10,
-        averageMatchQuality: 0, // TODO: Calculate from match quality scores
+        averageMatchQuality,
         regionalStats,
         queueTypeStats,
         interestStats,

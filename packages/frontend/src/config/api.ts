@@ -1,19 +1,37 @@
 // Validate and export API URLs
 const getApiUrl = () => {
   const url = import.meta.env.VITE_API_URL || 'http://localhost:3333';
+
   // Warn in development if using default
   if (import.meta.env.DEV && url === 'http://localhost:3333') {
     console.warn('Using default API URL. Set VITE_API_URL in .env for production.');
   }
+
+  // SECURITY: Enforce HTTPS in production
+  if (import.meta.env.PROD && !url.startsWith('https://')) {
+    console.error('SECURITY WARNING: API_URL must use HTTPS in production!');
+    // Auto-upgrade to HTTPS in production
+    return url.replace('http://', 'https://');
+  }
+
   return url;
 };
 
 const getWsUrl = () => {
   const url = import.meta.env.VITE_WS_URL || 'ws://localhost:3333';
+
   // Warn in development if using default
   if (import.meta.env.DEV && url === 'ws://localhost:3333') {
     console.warn('Using default WebSocket URL. Set VITE_WS_URL in .env for production.');
   }
+
+  // SECURITY: Enforce WSS in production
+  if (import.meta.env.PROD && !url.startsWith('wss://')) {
+    console.error('SECURITY WARNING: WS_URL must use WSS in production!');
+    // Auto-upgrade to WSS in production
+    return url.replace('ws://', 'wss://');
+  }
+
   return url;
 };
 
