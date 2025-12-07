@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
 import { useAuthContext } from '../contexts/AuthContext';
 import AnimatedBackground from './ui/AnimatedBackground';
+import { AdBanner } from './ads';
 
 interface LandingPageProps {
   onStartCall: (data: {
@@ -165,6 +166,16 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Ad Banner - Below Hero */}
+        <div className="max-w-4xl mx-auto mb-10 sm:mb-16 px-4">
+          <AdBanner
+            adSlot="2345678901"
+            format="horizontal"
+            className="rounded-xl overflow-hidden"
+            testMode={import.meta.env.DEV}
+          />
         </div>
 
         {/* How It Works Section */}

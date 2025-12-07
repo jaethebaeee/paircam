@@ -13,7 +13,7 @@ import ChatPanel from './ChatPanel';
 import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
-import { InterstitialAd } from '../ads';
+import { InterstitialAd, AdBanner } from '../ads';
 
 type TurnCredentials = {
   urls: string[];
@@ -409,6 +409,19 @@ export default function VideoChat({
         isAudioOnlyMode={isAudioOnlyMode}
         onSwitchToAudioOnly={handleSwitchToAudioOnly}
       />
+
+      {/* Sidebar Ad - Desktop Only (hidden on mobile/tablet) */}
+      <div className="hidden xl:block absolute right-4 top-1/2 -translate-y-1/2 z-10">
+        <div className="bg-slate-800/90 backdrop-blur-sm rounded-xl p-3 shadow-xl">
+          <p className="text-xs text-slate-400 text-center mb-2">Ad</p>
+          <AdBanner
+            adSlot="4567890123"
+            size="160x600"
+            className="rounded-lg overflow-hidden"
+            testMode={import.meta.env.DEV}
+          />
+        </div>
+      </div>
 
       {!isTextMode && showChat && (
         <ChatPanel

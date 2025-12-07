@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SparklesIcon, UserGroupIcon, ClockIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { AdBanner } from './ads';
 
 interface WaitingQueueProps {
   queuePosition?: number;
@@ -154,6 +155,18 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
               Having trouble connecting? Check your internet connection or try again later.
             </p>
           </div>
+        </div>
+
+        {/* Ad Banner - While Waiting */}
+        <div className="mt-6 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+          <p className="text-xs text-gray-400 text-center mb-2">Advertisement</p>
+          <AdBanner
+            adSlot="3456789012"
+            format="horizontal"
+            size="728x90"
+            className="mx-auto"
+            testMode={import.meta.env.DEV}
+          />
         </div>
 
         {/* Fun Facts Below Card */}
