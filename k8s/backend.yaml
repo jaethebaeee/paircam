@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ghcr.io/your-org/connect-backend:latest
+          image: ghcr.io/jaethebaeee/connect-backend:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: NODE_ENV
@@ -75,33 +75,5 @@ spec:
           ports:
             - containerPort: 3333
             - containerPort: 9090
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: jwt-secret
-  namespace: connect-video-chat
-type: Opaque
-stringData:
-  secret: your-super-secret-jwt-key-change-in-production
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: redis-secret
-  namespace: connect-video-chat
-type: Opaque
-stringData:
-  url: rediss://default:AYsOAAIncDFjMDNjNTdlYmY0OWM0NzRjYTQ3NGRhZDE3Y2U2YmVlY3AxMzU1OTg@ideal-ladybug-35598.upstash.io:6379
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: turn-managed
-  namespace: connect-video-chat
-type: Opaque
-stringData:
-  username: 1123818efb1712ed74271bef
-  password: MrQnfOF7ufnSaPak
 
 

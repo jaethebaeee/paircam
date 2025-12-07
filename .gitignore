@@ -18,6 +18,10 @@ out/
 .env.production.local
 .env.*.local
 
+# Kubernetes secrets (NEVER commit these!)
+k8s/secrets.yaml
+**/secrets.yaml
+
 # IDE
 .vscode/
 .idea/

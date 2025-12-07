@@ -1,0 +1,56 @@
+╔═══════════════════════════════════════════════════════╗
+║         DEPLOYMENT CHECKLIST - PairCam                ║
+╚═══════════════════════════════════════════════════════╝
+
+✅ COMPLETED:
+  [✓] Frontend built successfully
+  [✓] Backend built successfully
+  [✓] Deployment configs created
+  [✓] Environment templates created
+
+📋 TO DO (15 minutes):
+
+1. GITHUB (2 min)
+   [ ] Push code to GitHub
+   
+2. RAILWAY - Backend (5 min)
+   [ ] Sign up at railway.app
+   [ ] Deploy from GitHub
+   [ ] Add Redis database
+   [ ] Set environment variables:
+       - JWT_SECRET
+       - NODE_ENV=production
+       - CORS_ORIGINS
+   [ ] Copy backend URL
+
+3. VERCEL - Frontend (3 min)
+   [ ] Sign up at vercel.com
+   [ ] Import GitHub repo
+   [ ] Set environment variables:
+       - VITE_API_URL
+       - VITE_WS_URL
+   [ ] Deploy
+   [ ] Copy frontend URL
+
+4. UPDATE CORS (1 min)
+   [ ] Update Railway CORS_ORIGINS with Vercel URL
+
+5. TURN SERVER (4 min)
+   [ ] Sign up at metered.ca
+   [ ] Create app
+   [ ] Add credentials to Railway:
+       - TURN_USERNAME
+       - TURN_CREDENTIAL
+
+6. TEST (2 min)
+   [ ] Visit Vercel URL
+   [ ] Test video chat
+   [ ] Test text mode
+   [ ] Test "next" button
+   [ ] Test chat messages
+
+🎉 DONE!
+
+📚 Detailed guide: START_HERE_DEPLOYMENT.md
+
+💰 Cost: $0-5/month to start

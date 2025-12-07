@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { verifyDTLSSRTP, monitorConnectionSecurity } from '../utils/security';
 
 export interface WebRTCConfig {
   iceServers: RTCIceServer[];
@@ -44,8 +45,25 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
         }
       };
 
-      pc.onconnectionstatechange = () => {
+      pc.onconnectionstatechange = async () => {
         setConnectionState(pc.connectionState);
+        
+        if (pc.connectionState === 'connected') {
+          // ✅ Verify DTLS-SRTP encryption is active
+          const isSecure = await verifyDTLSSRTP(pc);
+          if (!isSecure && import.meta.env.PROD) {
+            console.warn('⚠️  WebRTC connection security could not be verified');
+          }
+          
+          // Start monitoring connection security
+          const stopMonitoring = monitorConnectionSecurity(pc, () => {
+            console.error('🚨 WebRTC connection security compromised!');
+          });
+          
+          // Store cleanup function
+          (pc as any)._securityMonitorCleanup = stopMonitoring;
+        }
+        
         if (pc.connectionState === 'failed') {
           setError('Connection failed. Attempting to reconnect...');
         }
@@ -211,6 +229,11 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
     try {
       // Close peer connection properly
       if (peerRef.current) {
+        // Stop security monitoring
+        if ((peerRef.current as any)._securityMonitorCleanup) {
+          (peerRef.current as any)._securityMonitorCleanup();
+        }
+        
         // Stop all senders
         peerRef.current.getSenders().forEach(sender => {
           if (sender.track) {

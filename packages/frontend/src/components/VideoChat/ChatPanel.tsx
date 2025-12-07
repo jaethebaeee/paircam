@@ -5,9 +5,10 @@ interface ChatPanelProps {
   messages: Array<{ text: string; isMine: boolean; sender?: string }>;
   onSendMessage: (message: string) => void;
   onClose: () => void;
+  isFullScreen?: boolean;
 }
 
-export default function ChatPanel({ messages, onSendMessage, onClose }: ChatPanelProps) {
+export default function ChatPanel({ messages, onSendMessage, onClose, isFullScreen = false }: ChatPanelProps) {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -27,23 +28,28 @@ export default function ChatPanel({ messages, onSendMessage, onClose }: ChatPane
   };
 
   return (
-    <div className="absolute right-4 bottom-24 w-80 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-200">
+    <div className={isFullScreen 
+      ? "h-full bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col"
+      : "absolute right-4 bottom-24 w-80 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-200"
+    }>
       {/* Modern Header */}
       <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
           <h3 className="text-white font-semibold text-base">Chat</h3>
         </div>
-        <button
-          onClick={onClose}
-          className="text-white/90 hover:text-white hover:bg-white/20 p-1.5 rounded-full transition-all duration-200"
-        >
-          <XMarkIcon className="h-5 w-5" />
-        </button>
+        {!isFullScreen && (
+          <button
+            onClick={onClose}
+            className="text-white/90 hover:text-white hover:bg-white/20 p-1.5 rounded-full transition-all duration-200"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
+        )}
       </div>
       
       {/* Messages Area */}
-      <div className="h-72 overflow-y-auto p-4 space-y-3 bg-gray-50/50">
+      <div className={`${isFullScreen ? 'flex-1' : 'h-72'} overflow-y-auto p-4 space-y-3 bg-gray-50/50`}>
         {messages.length === 0 ? (
           <div className="text-center text-gray-400 py-12">
             <div className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-3 shadow-sm">
@@ -56,7 +62,7 @@ export default function ChatPanel({ messages, onSendMessage, onClose }: ChatPane
           <>
             {messages.map((msg, idx) => (
               <div
-                key={idx}
+                key={`${idx}-${msg.text.substring(0, 10)}-${msg.isMine}`}
                 className={`flex ${msg.isMine ? 'justify-end' : 'justify-start'} animate-fadeIn`}
               >
                 <div

@@ -116,6 +116,135 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  // Recent matches tracking (avoid rematching)
+  async addToRecentMatches(userId: string, matchedUserId: string): Promise<void> {
+    try {
+      const key = `recent-matches:${userId}`;
+      await this.client.sAdd(key, matchedUserId);
+      await this.client.expire(key, 3600); // Remember for 1 hour
+      this.logger.debug('Added to recent matches', { userId, matchedUserId });
+    } catch (error) {
+      this.logger.error(`Failed to add recent match for ${userId}`, error.stack);
+    }
+  }
+
+  async getRecentMatches(userId: string): Promise<string[]> {
+    try {
+      const key = `recent-matches:${userId}`;
+      return await this.client.sMembers(key);
+    } catch (error) {
+      this.logger.error(`Failed to get recent matches for ${userId}`, error.stack);
+      return [];
+    }
+  }
+
+  async clearRecentMatches(userId: string): Promise<void> {
+    try {
+      const key = `recent-matches:${userId}`;
+      await this.client.del(key);
+    } catch (error) {
+      this.logger.error(`Failed to clear recent matches for ${userId}`, error.stack);
+    }
+  }
+
+  // User reputation tracking
+  async getUserReputation(userId: string): Promise<{
+    rating: number;
+    totalRatings: number;
+    skipRate: number;
+    reportCount: number;
+    averageCallDuration: number;
+    lastUpdated: number;
+  }> {
+    try {
+      const key = `reputation:${userId}`;
+      const data = await this.client.get(key);
+      
+      if (!data) {
+        // Default reputation for new users
+        return {
+          rating: 70, // Neutral start (0-100 scale)
+          totalRatings: 0,
+          skipRate: 0,
+          reportCount: 0,
+          averageCallDuration: 0,
+          lastUpdated: Date.now(),
+        };
+      }
+      
+      return JSON.parse(data);
+    } catch (error) {
+      this.logger.error(`Failed to get reputation for ${userId}`, error.stack);
+      return {
+        rating: 70,
+        totalRatings: 0,
+        skipRate: 0,
+        reportCount: 0,
+        averageCallDuration: 0,
+        lastUpdated: Date.now(),
+      };
+    }
+  }
+
+  // Counter operations for analytics (removed duplicate - see below for main implementation)
+
+  async updateReputation(userId: string, update: {
+    wasSkipped?: boolean;
+    callDuration?: number;
+    wasReported?: boolean;
+  }): Promise<void> {
+    try {
+      const key = `reputation:${userId}`;
+      const rep = await this.getUserReputation(userId);
+      
+      // Update skip rate
+      if (update.wasSkipped !== undefined) {
+        rep.totalRatings++;
+        const skipValue = update.wasSkipped ? 100 : 0;
+        rep.skipRate = (rep.skipRate * (rep.totalRatings - 1) + skipValue) / rep.totalRatings;
+      }
+      
+      // Update call duration
+      if (update.callDuration !== undefined && update.callDuration > 0) {
+        const totalCalls = rep.totalRatings || 1;
+        rep.averageCallDuration = 
+          (rep.averageCallDuration * (totalCalls - 1) + update.callDuration) / totalCalls;
+      }
+      
+      // Update report count
+      if (update.wasReported) {
+        rep.reportCount++;
+      }
+      
+      // Calculate overall rating (0-100)
+      // Good call duration: +points, Low skip rate: +points, Few reports: +points
+      let rating = 70; // Base score
+      
+      // Call duration bonus (0-20 points): longer calls = better
+      if (rep.averageCallDuration > 120) rating += 20; // 2+ minutes
+      else if (rep.averageCallDuration > 60) rating += 10; // 1+ minute
+      else if (rep.averageCallDuration > 30) rating += 5; // 30+ seconds
+      
+      // Skip rate penalty (0-30 points): lower is better
+      if (rep.skipRate < 20) rating += 30; // <20% skip rate = excellent
+      else if (rep.skipRate < 50) rating += 15; // <50% = good
+      else rating -= 10; // >50% = poor
+      
+      // Report penalty (0-30 points)
+      rating -= Math.min(rep.reportCount * 10, 50); // -10 per report, cap at -50
+      
+      rep.rating = Math.max(0, Math.min(100, rating)); // Clamp 0-100
+      rep.lastUpdated = Date.now();
+      
+      // Store with 90 day TTL
+      await this.client.setEx(key, 86400 * 90, JSON.stringify(rep));
+      
+      this.logger.debug('Reputation updated', { userId, reputation: rep });
+    } catch (error) {
+      this.logger.error(`Failed to update reputation for ${userId}`, error.stack);
+    }
+  }
+
   // Session operations
   async createSession(sessionId: string, data: Record<string, unknown>, ttlSeconds = 300): Promise<void> {
     try {
@@ -338,6 +467,46 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       this.logger.error(`Failed to get report ${reportId}`, error.stack);
       return null;
+    }
+  }
+
+  // Client-to-Instance mapping for horizontal scaling
+  async registerClient(deviceId: string, instanceId: string, socketId: string): Promise<void> {
+    try {
+      const key = `client:${deviceId}`;
+      const data = JSON.stringify({ instanceId, socketId, timestamp: Date.now() });
+      await this.client.setEx(key, 600, data); // 10 minute TTL, refreshed on activity
+      this.logger.debug('Client registered', { deviceId, instanceId });
+    } catch (error) {
+      this.logger.error(`Failed to register client ${deviceId}`, error.stack);
+    }
+  }
+
+  async unregisterClient(deviceId: string): Promise<void> {
+    try {
+      await this.client.del(`client:${deviceId}`);
+      this.logger.debug('Client unregistered', { deviceId });
+    } catch (error) {
+      this.logger.error(`Failed to unregister client ${deviceId}`, error.stack);
+    }
+  }
+
+  async getClientInstance(deviceId: string): Promise<{ instanceId: string; socketId: string } | null> {
+    try {
+      const data = await this.client.get(`client:${deviceId}`);
+      if (!data) return null;
+      return JSON.parse(data);
+    } catch (error) {
+      this.logger.error(`Failed to get client instance for ${deviceId}`, error.stack);
+      return null;
+    }
+  }
+
+  async refreshClientTTL(deviceId: string): Promise<void> {
+    try {
+      await this.client.expire(`client:${deviceId}`, 600);
+    } catch (error) {
+      this.logger.error(`Failed to refresh client TTL for ${deviceId}`, error.stack);
     }
   }
 

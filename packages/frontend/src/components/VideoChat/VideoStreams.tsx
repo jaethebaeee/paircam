@@ -1,4 +1,5 @@
-import { VideoCameraIcon, VideoCameraSlashIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { VideoCameraIcon, VideoCameraSlashIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 interface VideoStreamsProps {
   localVideoRef: React.RefObject<HTMLVideoElement>;
@@ -15,19 +16,112 @@ export default function VideoStreams({
   isVideoEnabled,
   connectionState,
 }: VideoStreamsProps) {
+  const [wasConnecting, setWasConnecting] = useState(true);
+  const [showMatchedAnimation, setShowMatchedAnimation] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [remoteVideoReady, setRemoteVideoReady] = useState(false);
+
+  // Detect when we just matched (transition from connecting to connected)
+  useEffect(() => {
+    if (wasConnecting && !isConnecting && connectionState === 'connected') {
+      setShowMatchedAnimation(true);
+      setTimeout(() => setShowMatchedAnimation(false), 2000);
+    }
+    setWasConnecting(isConnecting);
+  }, [isConnecting, connectionState, wasConnecting]);
+
+  // Detect remote video stream
+  useEffect(() => {
+    const videoElement = remoteVideoRef.current;
+    if (!videoElement) return;
+
+    const handleLoadedMetadata = () => {
+      setRemoteVideoReady(true);
+      setIsDisconnecting(false);
+    };
+
+    const handleEmptied = () => {
+      if (remoteVideoReady) {
+        setIsDisconnecting(true);
+      }
+    };
+
+    videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+    videoElement.addEventListener('emptied', handleEmptied);
+
+    // Check initial state
+    if (videoElement.srcObject) {
+      setRemoteVideoReady(true);
+      setIsDisconnecting(false);
+    }
+
+    return () => {
+      videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      videoElement.removeEventListener('emptied', handleEmptied);
+    };
+  }, [remoteVideoReady]);
+
+  // Reset disconnecting state when reconnecting
+  useEffect(() => {
+    if (isConnecting) {
+      setIsDisconnecting(false);
+      setRemoteVideoReady(false);
+    }
+  }, [isConnecting]);
+
   return (
     <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-2 p-4">
       {/* Remote Video */}
       <div className="relative bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
         {isConnecting ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="animate-pulse-slow">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center mb-4">
-                <VideoCameraIcon className="h-10 w-10 text-white" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center animate-fadeIn">
+            {/* Pulsing Circle Animation */}
+            <div className="relative mb-8">
+              {/* Outer ripple */}
+              <div className="absolute inset-0 -m-8">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-pink-500/30 to-purple-500/30 animate-ping-slow"></div>
+              </div>
+              {/* Middle ripple */}
+              <div className="absolute inset-0 -m-4">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-pink-500/40 to-purple-500/40 animate-ping-slower"></div>
+              </div>
+              {/* Inner circle with icon */}
+              <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-pink-500/50 animate-pulse-gentle">
+                <VideoCameraIcon className="h-8 w-8 text-white animate-float" />
               </div>
             </div>
-            <p className="text-white text-lg font-medium">Connecting...</p>
-            <p className="text-slate-400 text-sm mt-2">Finding someone for you</p>
+            
+            <div className="text-center space-y-2 animate-fadeIn" style={{ animationDelay: '200ms' }}>
+              <p className="text-white text-xl font-semibold">Searching...</p>
+              <p className="text-slate-400 text-sm">Finding someone for you</p>
+              <div className="flex gap-1 justify-center mt-4">
+                <div className="w-2 h-2 rounded-full bg-pink-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            </div>
+          </div>
+        ) : isDisconnecting ? (
+          // Partner disconnected - show fade out with message
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-sm animate-fadeIn z-10">
+            <div className="text-center space-y-4">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center mx-auto mb-4 animate-scale-in">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="animate-fadeIn" style={{ animationDelay: '200ms' }}>
+                <p className="text-white text-xl font-semibold mb-2">Partner disconnected</p>
+                <p className="text-slate-400 text-sm">Finding someone new...</p>
+              </div>
+              <div className="flex gap-1 justify-center mt-4 animate-fadeIn" style={{ animationDelay: '400ms' }}>
+                <div className="w-2 h-2 rounded-full bg-pink-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            </div>
           </div>
         ) : (
           <>
@@ -35,14 +129,32 @@ export default function VideoStreams({
               ref={remoteVideoRef}
               autoPlay
               playsInline
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover transition-all duration-700 ${
+                remoteVideoReady ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+              }`}
             />
-            <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full">
+            
+            {/* Matched Animation Overlay */}
+            {showMatchedAnimation && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                <div className="animate-scale-fade-out">
+                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-3xl px-8 py-4 shadow-2xl">
+                    <div className="flex items-center gap-3">
+                      <SparklesIcon className="w-8 h-8 text-white animate-spin-slow" />
+                      <span className="text-white text-2xl font-bold">Matched!</span>
+                      <SparklesIcon className="w-8 h-8 text-white animate-spin-slow" style={{ animationDirection: 'reverse' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full animate-slideInLeft">
               <p className="text-white text-sm font-medium">Stranger</p>
             </div>
             {connectionState !== 'connected' && (
-              <div className="absolute bottom-4 left-4 bg-yellow-500/90 backdrop-blur-sm px-3 py-1 rounded-full">
-                <p className="text-white text-xs font-medium">{connectionState}</p>
+              <div className="absolute bottom-4 left-4 bg-yellow-500/90 backdrop-blur-sm px-3 py-1 rounded-full animate-pulse-gentle">
+                <p className="text-white text-xs font-medium capitalize">{connectionState}</p>
               </div>
             )}
           </>
@@ -56,27 +168,24 @@ export default function VideoStreams({
           autoPlay
           playsInline
           muted
-          className="w-full h-full object-cover mirror"
+          className="w-full h-full object-cover mirror transition-all duration-500"
         />
-        <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full">
+        <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full animate-slideInLeft" style={{ animationDelay: '100ms' }}>
           <p className="text-white text-sm font-medium">You</p>
         </div>
         
         {!isVideoEnabled && (
-          <div className="absolute inset-0 bg-slate-900 flex items-center justify-center">
-            <div className="text-center">
-              <VideoCameraSlashIcon className="h-16 w-16 text-slate-400 mx-auto mb-2" />
-              <p className="text-slate-400">Camera Off</p>
+          <div className="absolute inset-0 bg-slate-900 flex items-center justify-center animate-fadeIn">
+            <div className="text-center animate-scale-in">
+              <div className="relative">
+                <div className="absolute inset-0 -m-4 bg-slate-700/20 rounded-full animate-ping-slow"></div>
+                <VideoCameraSlashIcon className="h-16 w-16 text-slate-400 mx-auto mb-3 relative" />
+              </div>
+              <p className="text-slate-400 font-medium">Camera Off</p>
             </div>
           </div>
         )}
       </div>
-
-      <style>{`
-        .mirror {
-          transform: scaleX(-1);
-        }
-      `}</style>
     </div>
   );
 }

@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333';
-const DEVICE_ID_KEY = 'omegle_device_id';
-const TOKEN_KEY = 'omegle_access_token';
+const DEVICE_ID_KEY = 'paircam_device_id';
+const TOKEN_KEY = 'paircam_access_token';
 
 export interface AuthState {
   deviceId: string | null;

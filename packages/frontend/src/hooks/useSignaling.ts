@@ -14,20 +14,37 @@ export interface QueueStatus {
   timestamp: number;
 }
 
+export interface ConnectionState {
+  isConnected: boolean;
+  isReconnecting: boolean;
+  reconnectAttempt: number;
+  lastError: string | null;
+}
+
 export interface UseSignalingReturn {
   socket: Socket | null;
   connected: boolean;
+  connectionState: ConnectionState;
   matched: MatchData | null;
   queueStatus: QueueStatus | null;
   error: string | null;
-  joinQueue: (region?: string, language?: string) => void;
+  joinQueue: (
+    region?: string,
+    language?: string,
+    gender?: string,
+    genderPreference?: string,
+    interests?: string[],
+    queueType?: 'casual' | 'serious' | 'language' | 'gaming',
+    nativeLanguage?: string,
+    learningLanguage?: string
+  ) => void;
   leaveQueue: () => void;
   sendOffer: (sessionId: string, offer: RTCSessionDescriptionInit) => void;
   sendAnswer: (sessionId: string, answer: RTCSessionDescriptionInit) => void;
   sendCandidate: (sessionId: string, candidate: RTCIceCandidateInit) => void;
   sendMessage: (sessionId: string, message: string, sender?: string) => void;
   sendReaction: (sessionId: string, emoji: string) => void;
-  endCall: (sessionId: string) => void;
+  endCall: (sessionId: string, wasSkipped?: boolean) => void;
 }
 
 interface UseSignalingOptions {
@@ -48,6 +65,12 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   const [matched, setMatched] = useState<MatchData | null>(null);
   const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [connectionState, setConnectionState] = useState<ConnectionState>({
+    isConnected: false,
+    isReconnecting: false,
+    reconnectAttempt: 0,
+    lastError: null,
+  });
 
   // Use refs for callbacks to avoid recreating socket
   const callbacksRef = useRef(options);
@@ -70,22 +93,69 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
       auth: { token: `Bearer ${accessToken}` },
     });
 
-    // Connection events
+    // Connection events with enhanced state tracking
     newSocket.on('connect', () => {
       console.log('Socket connected');
       setConnected(true);
       setError(null);
+      setConnectionState({
+        isConnected: true,
+        isReconnecting: false,
+        reconnectAttempt: 0,
+        lastError: null,
+      });
     });
 
     newSocket.on('disconnect', (reason) => {
       console.log('Socket disconnected:', reason);
       setConnected(false);
+      setConnectionState(prev => ({
+        ...prev,
+        isConnected: false,
+        isReconnecting: reason !== 'io client disconnect', // Auto-reconnect unless manual disconnect
+      }));
     });
 
     newSocket.on('connect_error', (err) => {
       console.error('Socket connection error:', err);
-      setError(`Connection error: ${err.message}`);
+      const errorMessage = `Connection error: ${err.message}`;
+      setError(errorMessage);
       setConnected(false);
+      setConnectionState(prev => ({
+        ...prev,
+        isConnected: false,
+        lastError: errorMessage,
+      }));
+    });
+
+    // Track reconnection attempts
+    newSocket.io.on('reconnect_attempt', (attempt) => {
+      console.log(`Reconnection attempt ${attempt}`);
+      setConnectionState(prev => ({
+        ...prev,
+        isReconnecting: true,
+        reconnectAttempt: attempt,
+      }));
+    });
+
+    newSocket.io.on('reconnect', (attempt) => {
+      console.log(`Reconnected after ${attempt} attempts`);
+      setConnectionState({
+        isConnected: true,
+        isReconnecting: false,
+        reconnectAttempt: 0,
+        lastError: null,
+      });
+    });
+
+    newSocket.io.on('reconnect_failed', () => {
+      console.error('Reconnection failed after max attempts');
+      setConnectionState(prev => ({
+        ...prev,
+        isReconnecting: false,
+        lastError: 'Reconnection failed. Please refresh the page.',
+      }));
+      setError('Connection lost. Please refresh the page to reconnect.');
     });
 
     // Connection confirmed
@@ -97,6 +167,15 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
     newSocket.on('queue-joined', (data: QueueStatus) => {
       console.log('Joined queue:', data);
       setQueueStatus(data);
+    });
+
+    newSocket.on('queue-update', (data: { position: number; estimatedWaitTime: number }) => {
+      console.log('Queue position updated:', data);
+      setQueueStatus(prev => ({
+        ...prev,
+        position: data.position,
+        timestamp: Date.now(),
+      } as QueueStatus));
     });
 
     newSocket.on('queue-left', (data: { timestamp: number }) => {
@@ -170,10 +249,28 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
   // Join matchmaking queue
   const joinQueue = useCallback(
-    (region: string = 'global', language: string = 'en') => {
+    (
+      region: string = 'global',
+      language: string = 'en',
+      gender?: string,
+      genderPreference?: string,
+      interests?: string[],
+      queueType?: 'casual' | 'serious' | 'language' | 'gaming',
+      nativeLanguage?: string,
+      learningLanguage?: string
+    ) => {
       if (socket?.connected) {
-        console.log('Joining queue:', { region, language });
-        socket.emit('join-queue', { region, language });
+        console.log('Joining queue:', { region, language, gender, genderPreference, interests, queueType, nativeLanguage, learningLanguage });
+        socket.emit('join-queue', {
+          region,
+          language,
+          gender,
+          genderPreference,
+          interests, // 🆕
+          queueType, // 🆕
+          nativeLanguage, // 🆕
+          learningLanguage, // 🆕
+        });
       } else {
         console.warn('Cannot join queue: socket not connected');
       }
@@ -273,10 +370,10 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
   // End call
   const endCall = useCallback(
-    (sessionId: string) => {
+    (sessionId: string, wasSkipped: boolean = false) => {
       if (socket?.connected) {
-        console.log('Ending call for session:', sessionId);
-        socket.emit('end-call', { sessionId });
+        console.log('Ending call for session:', sessionId, { wasSkipped });
+        socket.emit('end-call', { sessionId, wasSkipped }); // 🆕 Send skip status
         setMatched(null);
         setQueueStatus(null);
       }
@@ -287,6 +384,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   return {
     socket,
     connected,
+    connectionState,
     matched,
     queueStatus,
     error,

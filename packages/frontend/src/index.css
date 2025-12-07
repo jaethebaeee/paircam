@@ -137,9 +137,120 @@
       background-position: 1000px 0;
     }
   }
+  
+  @keyframes bounce-subtle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+  
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(236, 72, 153, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(236, 72, 153, 0.6), 0 0 40px rgba(168, 85, 247, 0.4);
+    }
+  }
+
+  /* Video chat specific animations */
+  @keyframes scaleFadeOut {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    20% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    80% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes float-slow {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(10px, -15px) scale(1.02);
+    }
+    66% {
+      transform: translate(-8px, 8px) scale(0.98);
+    }
+  }
+
+  @keyframes pingSlow {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes pingSlower {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 0.2;
+    }
+    100% {
+      transform: scale(1.3);
+      opacity: 0;
+    }
+  }
+
+  @keyframes pulseGentle {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes spinSlow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-fadeIn-slow {
+    animation: fadeIn 0.5s ease-out forwards;
   }
 
   .animate-slideUp {
@@ -160,6 +271,52 @@
   
   .animate-pulse-soft {
     animation: pulse-soft 2s ease-in-out infinite;
+  }
+  
+  .animate-bounce-subtle {
+    animation: bounce-subtle 2s ease-in-out infinite;
+  }
+  
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  .animate-scale-fade-out {
+    animation: scaleFadeOut 2s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 20s ease-in-out infinite;
+  }
+
+  .animate-ping-slow {
+    animation: pingSlow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .animate-ping-slower {
+    animation: pingSlower 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    animation-delay: 0.5s;
+  }
+
+  .animate-pulse-gentle {
+    animation: pulseGentle 2s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spinSlow 3s linear infinite;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  /* Mirror effect for local video */
+  .mirror {
+    transform: scaleX(-1);
   }
 
   /* Custom scrollbar - Modern pink/purple theme */
@@ -203,5 +360,49 @@
     @apply animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded;
     background-size: 1000px 100%;
     animation: shimmer 2s infinite;
+  }
+  
+  /* Enhanced shadow utilities */
+  .shadow-luxury {
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.03),
+      0 2px 4px rgba(0, 0, 0, 0.03),
+      0 4px 8px rgba(0, 0, 0, 0.03),
+      0 8px 16px rgba(0, 0, 0, 0.03),
+      0 16px 32px rgba(0, 0, 0, 0.03);
+  }
+  
+  .shadow-luxury-hover {
+    box-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 4px 8px rgba(0, 0, 0, 0.04),
+      0 8px 16px rgba(0, 0, 0, 0.04),
+      0 12px 24px rgba(0, 0, 0, 0.04),
+      0 20px 40px rgba(0, 0, 0, 0.04);
+  }
+  
+  .shadow-inset-subtle {
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Gradient border effect */
+  .gradient-border {
+    position: relative;
+    background: white;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+  
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    margin: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #ec4899, #a855f7);
   }
 }
