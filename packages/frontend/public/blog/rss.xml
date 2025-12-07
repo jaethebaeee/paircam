@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>PairCam Blog</title>
+    <link>https://paircam.live/blog</link>
+    <description>Tips, guides, and insights about random video chat, online safety, and making connections worldwide.</description>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 07 Dec 2025 21:57:53 GMT</lastBuildDate>
+    <atom:link href="https://paircam.live/blog/rss.xml" rel="self" type="application/rss+xml"/>
+    <image>
+      <url>https://paircam.live/logo.png</url>
+      <title>PairCam Blog</title>
+      <link>https://paircam.live/blog</link>
+      <width>144</width>
+      <height>144</height>
+    </image>
+    <copyright>Copyright 2025 PairCam. All rights reserved.</copyright>
+    <managingEditor>support@paircam.live (PairCam Team)</managingEditor>
+    <webMaster>support@paircam.live (PairCam Team)</webMaster>
+    <ttl>60</ttl>
+    <item>
+      <title>Random Video Chat for Introverts: Overcoming Social Anxiety Online</title>
+      <link>https://paircam.live/blog/random-video-chat-for-introverts-social-anxiety-tips</link>
+      <guid isPermaLink="true">https://paircam.live/blog/random-video-chat-for-introverts-social-anxiety-tips</guid>
+      <description>Discover how random video chat can help introverts build social confidence. Tips for managing anxiety and enjoying online connections.</description>
+      <author>support@paircam.live (PairCam Wellness)</author>
+      <category>Wellness</category>
+      <pubDate>Sat, 22 Jun 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learn Languages Through Random Video Chat: Practice with Native Speakers</title>
+      <link>https://paircam.live/blog/learn-languages-random-video-chat-native-speakers</link>
+      <guid isPermaLink="true">https://paircam.live/blog/learn-languages-random-video-chat-native-speakers</guid>
+      <description>Discover how random video chat helps you learn languages faster. Practice speaking with native speakers from around the world for free.</description>
+      <author>support@paircam.live (PairCam Education)</author>
+      <category>Education</category>
+      <pubDate>Sat, 18 May 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Random Video Chat vs Dating Apps: Which Is Better for Meeting People?</title>
+      <link>https://paircam.live/blog/random-video-chat-vs-dating-apps-which-better</link>
+      <guid isPermaLink="true">https://paircam.live/blog/random-video-chat-vs-dating-apps-which-better</guid>
+      <description>Compare random video chat platforms like PairCam with traditional dating apps. Discover which method works best for meeting new people.</description>
+      <author>support@paircam.live (PairCam Team)</author>
+      <category>Comparison</category>
+      <pubDate>Fri, 05 Apr 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>How to Make Friends Online: A Complete Guide to Random Video Chat</title>
+      <link>https://paircam.live/blog/make-friends-online-random-video-chat-guide</link>
+      <guid isPermaLink="true">https://paircam.live/blog/make-friends-online-random-video-chat-guide</guid>
+      <description>Learn how to make genuine connections and friends through random video chat. Tips for great conversations and building lasting friendships online.</description>
+      <author>support@paircam.live (PairCam Community)</author>
+      <category>Community</category>
+      <pubDate>Sun, 10 Mar 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Video Chat Safety: 10 Essential Tips to Protect Yourself Online</title>
+      <link>https://paircam.live/blog/video-chat-safety-tips-protect-yourself-online</link>
+      <guid isPermaLink="true">https://paircam.live/blog/video-chat-safety-tips-protect-yourself-online</guid>
+      <description>Learn essential video chat safety tips. Protect your privacy, avoid scams, and stay secure while connecting with strangers online.</description>
+      <author>support@paircam.live (PairCam Safety Team)</author>
+      <category>Safety</category>
+      <pubDate>Tue, 20 Feb 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Top 10 Omegle Alternatives in 2024: Best Random Video Chat Sites</title>
+      <link>https://paircam.live/blog/omegle-alternatives-2024-best-random-video-chat-sites</link>
+      <guid isPermaLink="true">https://paircam.live/blog/omegle-alternatives-2024-best-random-video-chat-sites</guid>
+      <description>Discover the best Omegle alternatives for random video chat in 2024. Compare safety features, user experience, and find your perfect chat platform.</description>
+      <author>support@paircam.live (PairCam Team)</author>
+      <category>Guides</category>
+      <pubDate>Mon, 15 Jan 2024 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
