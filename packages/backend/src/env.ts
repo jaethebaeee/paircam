@@ -118,4 +118,13 @@ export const env = {
   ABUSE_DETECTION_ENABLED: process.env.ABUSE_DETECTION_ENABLED !== 'false',
   MAX_CALLS_PER_MINUTE: parseInt(process.env.MAX_CALLS_PER_MINUTE || '10', 10),
   MAX_SKIPS_PER_SESSION: parseInt(process.env.MAX_SKIPS_PER_SESSION || '5', 10),
+
+  // Email Configuration (Resend or SMTP)
+  EMAIL_PROVIDER: (process.env.EMAIL_PROVIDER as 'resend' | 'smtp' | undefined) || 'resend',
+  RESEND_API_KEY: process.env.RESEND_API_KEY || '',
+  SMTP_HOST: process.env.SMTP_HOST || '',
+  SMTP_PORT: parseInt(process.env.SMTP_PORT || '587', 10),
+  SMTP_USER: process.env.SMTP_USER || '',
+  SMTP_PASS: process.env.SMTP_PASS || '',
+  EMAIL_FROM: process.env.EMAIL_FROM || 'PairCam <noreply@paircam.live>',
 } as const;
