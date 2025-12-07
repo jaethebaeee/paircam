@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Toaster, toast } from 'sonner';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SafetyModal from './components/SafetyModal';
@@ -7,6 +8,7 @@ import PermissionModal from './components/PermissionModal';
 import PreferencesModal from './components/PreferencesModal';
 import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useAuthContext } from './contexts/AuthContext';
 import PremiumModal from './components/PremiumModal';
 
@@ -124,13 +126,16 @@ function AppRoutes({
     }
   };
 
+  // Hide nav/footer during active chat for fullscreen experience
+  const isInChat = appState === 'chatting' || appState === 'waiting';
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-white to-purple-50">
       {/* Dynamic SEO meta tags */}
       <SEO {...getSEOProps()} />
 
-      <Navbar />
-      
+      {!isInChat && <Navbar />}
+
       <main className="flex-1 relative">
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
@@ -170,8 +175,8 @@ function AppRoutes({
           </Routes>
         </Suspense>
       </main>
-      
-      <Footer />
+
+      {!isInChat && <Footer />}
 
       {/* Preferences Modal */}
       {appState === 'preferences' && (
@@ -270,7 +275,9 @@ function App() {
 
   const handleSafetyDecline = () => {
     setAppState('landing');
-    alert('You must accept the safety guidelines to use this service.');
+    toast.error('Safety guidelines required', {
+      description: 'You must accept the safety guidelines to use this service.',
+    });
   };
 
   const handlePermissionsGranted = () => {
@@ -279,7 +286,9 @@ function App() {
 
   const handlePermissionsDenied = () => {
     setAppState('landing');
-    alert('Camera and microphone access is required for video chat. Please allow access and try again.');
+    toast.error('Permissions required', {
+      description: 'Camera and microphone access is required for video chat. Please allow access and try again.',
+    });
   };
 
   const handleWaitingCancel = () => {
@@ -293,8 +302,18 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <AppRoutes
+    <ErrorBoundary>
+      <Toaster
+        position="top-center"
+        expand={false}
+        richColors
+        toastOptions={{
+          className: 'font-sans',
+          duration: 4000,
+        }}
+      />
+      <BrowserRouter>
+        <AppRoutes
         appState={appState}
         handleStartCall={handleStartCall}
         handleStopChatting={handleStopChatting}
@@ -317,8 +336,9 @@ function App() {
         isTextMode={isTextMode}
         initialVideoEnabled={initialVideoEnabled}
         isPremium={isPremium}
-      />
-    </BrowserRouter>
+        />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

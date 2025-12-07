@@ -14,9 +14,17 @@ export interface QueueStatus {
   timestamp: number;
 }
 
+export interface ConnectionState {
+  isConnected: boolean;
+  isReconnecting: boolean;
+  reconnectAttempt: number;
+  lastError: string | null;
+}
+
 export interface UseSignalingReturn {
   socket: Socket | null;
   connected: boolean;
+  connectionState: ConnectionState;
   matched: MatchData | null;
   queueStatus: QueueStatus | null;
   error: string | null;
@@ -57,6 +65,12 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   const [matched, setMatched] = useState<MatchData | null>(null);
   const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [connectionState, setConnectionState] = useState<ConnectionState>({
+    isConnected: false,
+    isReconnecting: false,
+    reconnectAttempt: 0,
+    lastError: null,
+  });
 
   // Use refs for callbacks to avoid recreating socket
   const callbacksRef = useRef(options);
@@ -79,22 +93,69 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
       auth: { token: `Bearer ${accessToken}` },
     });
 
-    // Connection events
+    // Connection events with enhanced state tracking
     newSocket.on('connect', () => {
       console.log('Socket connected');
       setConnected(true);
       setError(null);
+      setConnectionState({
+        isConnected: true,
+        isReconnecting: false,
+        reconnectAttempt: 0,
+        lastError: null,
+      });
     });
 
     newSocket.on('disconnect', (reason) => {
       console.log('Socket disconnected:', reason);
       setConnected(false);
+      setConnectionState(prev => ({
+        ...prev,
+        isConnected: false,
+        isReconnecting: reason !== 'io client disconnect', // Auto-reconnect unless manual disconnect
+      }));
     });
 
     newSocket.on('connect_error', (err) => {
       console.error('Socket connection error:', err);
-      setError(`Connection error: ${err.message}`);
+      const errorMessage = `Connection error: ${err.message}`;
+      setError(errorMessage);
       setConnected(false);
+      setConnectionState(prev => ({
+        ...prev,
+        isConnected: false,
+        lastError: errorMessage,
+      }));
+    });
+
+    // Track reconnection attempts
+    newSocket.io.on('reconnect_attempt', (attempt) => {
+      console.log(`Reconnection attempt ${attempt}`);
+      setConnectionState(prev => ({
+        ...prev,
+        isReconnecting: true,
+        reconnectAttempt: attempt,
+      }));
+    });
+
+    newSocket.io.on('reconnect', (attempt) => {
+      console.log(`Reconnected after ${attempt} attempts`);
+      setConnectionState({
+        isConnected: true,
+        isReconnecting: false,
+        reconnectAttempt: 0,
+        lastError: null,
+      });
+    });
+
+    newSocket.io.on('reconnect_failed', () => {
+      console.error('Reconnection failed after max attempts');
+      setConnectionState(prev => ({
+        ...prev,
+        isReconnecting: false,
+        lastError: 'Reconnection failed. Please refresh the page.',
+      }));
+      setError('Connection lost. Please refresh the page to reconnect.');
     });
 
     // Connection confirmed
@@ -323,6 +384,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   return {
     socket,
     connected,
+    connectionState,
     matched,
     queueStatus,
     error,
