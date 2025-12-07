@@ -17,6 +17,7 @@
     "generate:rss": "tsx scripts/generate-rss.ts"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.9.0",
     "axios": "^1.6.0",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
@@ -28,6 +29,7 @@
     "react-router-dom": "^6.30.1",
     "socket.io-client": "^4.7.0",
     "uuid": "^9.0.1",
+    "web-vitals": "^5.1.0",
     "zustand": "^4.4.0"
   },
   "devDependencies": {
@@ -62,6 +64,7 @@
     "tsx": "^4.20.6",
     "typescript": "^5.2.0",
     "vite": "^5.0.0",
+    "vite-plugin-compression": "^0.5.1",
     "vitest": "^1.0.0"
   },
   "reactSnap": {

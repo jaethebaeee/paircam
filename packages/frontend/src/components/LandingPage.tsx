@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import PremiumModal from './PremiumModal';
 
 // Simulated live user count hook (replace with real WebSocket data)
@@ -80,6 +81,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const liveUserCount = useLiveUserCount();
+
+  // Auto-animate for FAQ expand/collapse
+  const [faqParent] = useAutoAnimate();
 
   const handleStartChat = (textMode = false) => {
     if (!userName.trim()) {
@@ -569,7 +573,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <p className="text-lg text-gray-600">Everything you need to know about PairCam</p>
           </div>
 
-          <div className="space-y-4">
+          <div ref={faqParent} className="space-y-4">
             {faqData.map((faq, index) => (
               <div
                 key={index}

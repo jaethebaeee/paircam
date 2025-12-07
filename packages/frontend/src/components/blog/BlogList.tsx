@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { getAllBlogPosts, getAllCategories } from '../../data/blogPosts';
 import SEO from '../SEO';
 import { useState } from 'react';
@@ -8,6 +9,7 @@ export default function BlogList() {
   const categories = getAllCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [gridParent] = useAutoAnimate();
 
   const filteredPosts = posts.filter(post => {
     const matchesCategory = !selectedCategory || post.category === selectedCategory;
@@ -221,7 +223,7 @@ export default function BlogList() {
         )}
 
         {/* Blog Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div ref={gridParent} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {((selectedCategory || searchQuery) ? filteredPosts : filteredPosts.slice(1)).map(post => (
             <article key={post.id}>
               <Link
