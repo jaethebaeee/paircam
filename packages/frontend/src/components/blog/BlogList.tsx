@@ -7,10 +7,16 @@ export default function BlogList() {
   const posts = getAllBlogPosts();
   const categories = getAllCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredPosts = selectedCategory
-    ? posts.filter(post => post.category === selectedCategory)
-    : posts;
+  const filteredPosts = posts.filter(post => {
+    const matchesCategory = !selectedCategory || post.category === selectedCategory;
+    const matchesSearch = !searchQuery ||
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
 
   // Schema.org Blog structured data
   const blogSchema = {
@@ -62,12 +68,44 @@ export default function BlogList() {
           </p>
         </header>
 
+        {/* Search Bar */}
+        <div className="max-w-xl mx-auto mb-8">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search articles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-5 py-4 pl-12 rounded-2xl border-2 border-gray-200 bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-base transition-all placeholder:text-gray-400 shadow-sm"
+            />
+            <svg
+              className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Clear search"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Category Filter */}
         <nav className="mb-10" aria-label="Blog categories">
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-5 py-2 rounded-full font-medium transition-all ${
+              className={`px-4 sm:px-5 py-2 rounded-full font-medium text-sm sm:text-base transition-all ${
                 selectedCategory === null
                   ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
                   : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -79,7 +117,7 @@ export default function BlogList() {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-5 py-2 rounded-full font-medium transition-all ${
+                className={`px-4 sm:px-5 py-2 rounded-full font-medium text-sm sm:text-base transition-all ${
                   selectedCategory === category
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -91,8 +129,17 @@ export default function BlogList() {
           </div>
         </nav>
 
-        {/* Featured Post (First Post) */}
-        {filteredPosts.length > 0 && !selectedCategory && (
+        {/* Results count */}
+        {(searchQuery || selectedCategory) && (
+          <p className="text-center text-gray-500 mb-6">
+            {filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'} found
+            {searchQuery && <span> for "{searchQuery}"</span>}
+            {selectedCategory && <span> in {selectedCategory}</span>}
+          </p>
+        )}
+
+        {/* Featured Post (First Post) - Only show when no filters active */}
+        {filteredPosts.length > 0 && !selectedCategory && !searchQuery && (
           <article className="mb-12">
             <Link
               to={`/blog/${filteredPosts[0].slug}`}
@@ -158,9 +205,24 @@ export default function BlogList() {
           </article>
         )}
 
+        {/* No Results State */}
+        {filteredPosts.length === 0 && (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No articles found</h3>
+            <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
+            <button
+              onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
+              className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-full hover:shadow-lg transition-all"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+
         {/* Blog Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {(selectedCategory ? filteredPosts : filteredPosts.slice(1)).map(post => (
+          {((selectedCategory || searchQuery) ? filteredPosts : filteredPosts.slice(1)).map(post => (
             <article key={post.id}>
               <Link
                 to={`/blog/${post.slug}`}

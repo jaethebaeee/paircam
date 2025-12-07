@@ -1,6 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
 import { useAuthContext } from '../contexts/AuthContext';
+
+// Simulated live user count hook (replace with real WebSocket data)
+function useLiveUserCount() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    // Start with a base count
+    const baseCount = 2847;
+    setCount(baseCount + Math.floor(Math.random() * 500));
+
+    // Simulate fluctuations every 3-5 seconds
+    const interval = setInterval(() => {
+      setCount(prev => {
+        const change = Math.floor(Math.random() * 20) - 10; // -10 to +10
+        return Math.max(baseCount - 200, Math.min(baseCount + 800, prev + change));
+      });
+    }, 3000 + Math.random() * 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return count;
+}
 
 // FAQ data with Schema.org FAQPage structured data for SEO
 const faqData = [
@@ -57,6 +80,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const liveUserCount = useLiveUserCount();
 
   // Get premium status from auth context (used for premium button visibility)
   const { } = useAuthContext();
@@ -109,10 +133,24 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           <h2 className="text-2xl text-gray-800 mb-4 font-semibold max-w-3xl mx-auto">
             Meet new people instantly - No signup, 100% free
           </h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
             Anonymous, instant connections with people worldwide. Choose video, voice, or text chat.
           </p>
-          
+
+          {/* Live User Count Badge */}
+          {liveUserCount > 0 && (
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-full shadow-lg shadow-green-500/30 animate-pulse">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                </span>
+                <span className="font-bold text-lg">{liveUserCount.toLocaleString()}</span>
+                <span className="font-medium">users online now</span>
+              </div>
+            </div>
+          )}
+
           {/* Key Value Props */}
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-base text-gray-700 mb-12">
             <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
