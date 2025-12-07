@@ -10,7 +10,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 shadow-lg" role="navigation" aria-label="Main navigation">
+    <nav className="bg-gradient-to-r from-brand-500 via-violet-500 to-violet-600 shadow-lg shadow-brand-500/20" role="navigation" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 sm:h-20">
           <div className="flex items-center gap-2 sm:gap-3">

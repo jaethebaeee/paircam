@@ -59,13 +59,13 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-violet-50 to-brand-100 flex items-center justify-center px-4">
       <div className="max-w-2xl w-full">
         {/* Main Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-6 animate-pulse">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-brand-500 to-violet-600 rounded-full mb-6 shadow-xl shadow-brand-500/30 animate-pulse">
               <SparklesIcon className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
@@ -79,23 +79,23 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
           {/* Queue Stats */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             {/* Queue Position */}
-            <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-6 text-center">
-              <UserGroupIcon className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-purple-900 mb-1">
+            <div className="bg-gradient-to-br from-brand-100 to-violet-100 rounded-2xl p-6 text-center border border-brand-200/50">
+              <UserGroupIcon className="w-8 h-8 text-brand-600 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-brand-900 mb-1">
                 {queuePosition !== undefined ? queuePosition : '...'}
               </div>
-              <div className="text-sm text-purple-700 font-medium">
+              <div className="text-sm text-brand-700 font-medium">
                 {queuePosition === 1 ? 'person ahead' : 'people in queue'}
               </div>
             </div>
 
             {/* Wait Time */}
-            <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl p-6 text-center">
-              <ClockIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-blue-900 mb-1">
+            <div className="bg-gradient-to-br from-violet-100 to-brand-100 rounded-2xl p-6 text-center border border-violet-200/50">
+              <ClockIcon className="w-8 h-8 text-violet-600 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-violet-900 mb-1">
                 {estimatedWaitTime !== undefined ? formatTime(estimatedWaitTime) : '~15s'}
               </div>
-              <div className="text-sm text-blue-700 font-medium">
+              <div className="text-sm text-violet-700 font-medium">
                 estimated wait
               </div>
             </div>
@@ -103,29 +103,29 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
 
           {/* Progress Bar */}
           <div className="mb-8">
-            <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-500 ease-out relative"
+            <div className="bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+              <div
+                className="h-full bg-gradient-to-r from-brand-500 via-violet-500 to-brand-400 transition-all duration-500 ease-out relative shadow-lg"
                 style={{ width: `${progress}%` }}
               >
                 {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
               </div>
             </div>
             <div className="flex justify-between mt-2 text-sm text-gray-500">
-              <span>Searching...</span>
-              <span>{Math.round(progress)}%</span>
+              <span className="text-brand-600 font-medium">Searching...</span>
+              <span className="text-violet-600 font-medium">{Math.round(progress)}%</span>
             </div>
           </div>
 
           {/* Rotating Tips */}
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-orange-400 rounded-xl p-6 mb-8">
+          <div className="bg-gradient-to-r from-brand-50 to-violet-50 border-l-4 border-brand-400 rounded-xl p-6 mb-8">
             <div className="flex items-start gap-4">
               <div className="text-4xl mt-1 animate-bounce-subtle">
                 {tips[currentTipIndex].icon}
               </div>
               <div>
-                <div className="text-sm font-semibold text-orange-900 mb-1 uppercase tracking-wide">
+                <div className="text-sm font-semibold text-brand-700 mb-1 uppercase tracking-wide">
                   Quick Tip
                 </div>
                 <p className="text-gray-800 text-base leading-relaxed">
@@ -137,14 +137,14 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
 
           {/* Safety Badge */}
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-6">
-            <ShieldCheckIcon className="w-5 h-5 text-green-600" />
+            <ShieldCheckIcon className="w-5 h-5 text-success-500" />
             <span>Your safety is our priority • All chats are monitored</span>
           </div>
 
           {/* Cancel Button */}
           <button
             onClick={onCancel}
-            className="w-full py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 hover:shadow-lg active:scale-95"
+            className="w-full py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-2xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
           >
             Cancel and Go Back
           </button>
