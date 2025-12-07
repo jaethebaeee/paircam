@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { VideoCameraIcon, VideoCameraSlashIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import PartnerInfo from './PartnerInfo';
 
 interface VideoStreamsProps {
   localVideoRef: React.RefObject<HTMLVideoElement>;
@@ -7,6 +8,9 @@ interface VideoStreamsProps {
   isConnecting: boolean;
   isVideoEnabled: boolean;
   connectionState: RTCPeerConnectionState;
+  partnerCountry?: string;
+  partnerCountryCode?: string;
+  matchedAt?: Date;
 }
 
 export default function VideoStreams({
@@ -15,6 +19,9 @@ export default function VideoStreams({
   isConnecting,
   isVideoEnabled,
   connectionState,
+  partnerCountry,
+  partnerCountryCode,
+  matchedAt,
 }: VideoStreamsProps) {
   const [wasConnecting, setWasConnecting] = useState(true);
   const [showMatchedAnimation, setShowMatchedAnimation] = useState(false);
@@ -149,9 +156,12 @@ export default function VideoStreams({
               </div>
             )}
             
-            <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full animate-slideInLeft">
-              <p className="text-white text-sm font-medium">Stranger</p>
-            </div>
+            <PartnerInfo
+              country={partnerCountry}
+              countryCode={partnerCountryCode}
+              matchedAt={matchedAt}
+              className="absolute top-4 left-4"
+            />
             {connectionState !== 'connected' && (
               <div className="absolute bottom-4 left-4 bg-yellow-500/90 backdrop-blur-sm px-3 py-1 rounded-full animate-pulse-gentle">
                 <p className="text-white text-xs font-medium capitalize">{connectionState}</p>
