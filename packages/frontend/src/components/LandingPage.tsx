@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
 import { useAuthContext } from '../contexts/AuthContext';
 import AnimatedBackground from './ui/AnimatedBackground';
+import AdBanner from './ads/AdBanner';
 
 interface LandingPageProps {
   onStartCall: (data: {
@@ -167,6 +168,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           </div>
         </div>
 
+        {/* Ad Banner - Below Hero */}
+        <div className="max-w-4xl mx-auto mb-12 sm:mb-16 px-2">
+          <AdBanner format="responsive" className="rounded-xl overflow-hidden" />
+        </div>
+
         {/* How It Works Section */}
         <div id="features" className="mb-12 sm:mb-16 px-2 scroll-mt-24">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-2 sm:mb-4">How It Works</h2>
@@ -206,6 +212,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Ad Banner - Between Sections (Desktop Only) */}
+        <div className="hidden md:block max-w-4xl mx-auto mb-12 sm:mb-16 px-2">
+          <AdBanner format="horizontal" className="mx-auto" />
         </div>
 
         {/* Trust & Safety Section */}
@@ -532,6 +543,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               <p className="text-sm sm:text-base text-gray-600">Video, voice, or text – switch modes anytime.</p>
             </div>
           </div>
+        </div>
+
+        {/* Ad Banner - Bottom of Page */}
+        <div className="max-w-4xl mx-auto mt-8 sm:mt-12 mb-8 px-2">
+          <AdBanner format="responsive" className="rounded-xl overflow-hidden" />
         </div>
       </div>
 
