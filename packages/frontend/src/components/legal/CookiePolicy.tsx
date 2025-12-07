@@ -33,10 +33,10 @@ export default function CookiePolicy() {
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Cookie Policy</h1>
-        <p className="text-gray-600 mb-8">Last Updated: {lastUpdated}</p>
-        
-        <div className="prose prose-lg max-w-none">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Cookie Policy</h1>
+          <p className="text-gray-600 mb-8">Last Updated: {lastUpdated}</p>
+
+          <div className="prose prose-lg max-w-none">
           {/* Introduction */}
           <section className="mb-8">
             <p className="text-gray-700 leading-relaxed mb-4">
@@ -226,9 +226,9 @@ export default function CookiePolicy() {
             <p className="text-gray-700 leading-relaxed mb-4">
               If you have questions about our use of cookies, please contact us:
             </p>
-            <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-gray-800"><strong>Email:</strong> privacy@paircam.live</p>
-              <p className="text-gray-800 mt-1"><strong>Subject:</strong> Cookie Policy Inquiry</p>
+            <div className="bg-gray-50 rounded-xl p-6">
+              <p className="text-gray-800 mb-2"><strong>Email:</strong> privacy@paircam.live</p>
+              <p className="text-gray-800"><strong>Subject:</strong> Cookie Policy Inquiry</p>
             </div>
           </section>
 

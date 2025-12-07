@@ -35,9 +35,9 @@ export default function PrivacyPolicy() {
 
         <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
-        <p className="text-gray-600 mb-8">Last Updated: {lastUpdated}</p>
-        
-        <div className="prose prose-lg max-w-none">
+          <p className="text-gray-600 mb-8">Last Updated: {lastUpdated}</p>
+
+          <div className="prose prose-lg max-w-none">
           {/* Introduction */}
           <section className="mb-8">
             <p className="text-gray-700 leading-relaxed mb-4">
