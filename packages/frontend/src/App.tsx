@@ -144,20 +144,21 @@ function AppRoutes({
               path="/" 
               element={
                 (appState === 'chatting' || appState === 'waiting') ? (
-                  <VideoChat 
-                    onStopChatting={handleStopChatting} 
+                  <VideoChat
+                    onStopChatting={handleStopChatting}
                     userName={userName}
                     userGender={userGender}
                     genderPreference={genderPreference}
-                    interests={interests} // 🆕
-                    queueType={queueType} // 🆕
-                    nativeLanguage={nativeLanguage} // 🆕
-                    learningLanguage={learningLanguage} // 🆕
+                    interests={interests}
+                    queueType={queueType}
+                    nativeLanguage={nativeLanguage}
+                    learningLanguage={learningLanguage}
                     isTextMode={isTextMode}
                     initialVideoEnabled={initialVideoEnabled}
                     showWaitingQueue={appState === 'waiting'}
                     onMatched={() => {}}
                     onWaitingCancel={handleWaitingCancel}
+                    onUpgrade={() => setShowPremiumModal(true)}
                   />
                 ) : (
                   <LandingPage onStartCall={handleStartCall} />

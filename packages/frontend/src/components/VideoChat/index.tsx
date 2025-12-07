@@ -5,6 +5,7 @@ import { useSignaling } from '../../hooks/useSignaling';
 import { useWebRTC } from '../../hooks/useWebRTC';
 import { useNetworkQuality } from '../../hooks/useNetworkQuality';
 import { useAdaptiveMediaConstraints } from '../../hooks/useAdaptiveMediaConstraints';
+import { useAdFrequency } from '../../hooks/useAdFrequency';
 import { STUN_SERVERS, DEFAULT_MEDIA_CONSTRAINTS, AUDIO_ONLY_CONSTRAINTS, API_URL } from '../../config/api';
 import VideoControls from './VideoControls';
 import VideoStreams from './VideoStreams';
@@ -12,6 +13,7 @@ import ChatPanel from './ChatPanel';
 import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
+import { InterstitialAd } from '../ads';
 
 type TurnCredentials = {
   urls: string[];
@@ -34,12 +36,13 @@ interface VideoChatProps {
   showWaitingQueue?: boolean;
   onMatched?: () => void;
   onWaitingCancel?: () => void;
+  onUpgrade?: () => void; // Callback to show premium modal
 }
 
-export default function VideoChat({ 
-  onStopChatting, 
-  userName, 
-  userGender, 
+export default function VideoChat({
+  onStopChatting,
+  userName,
+  userGender,
   genderPreference,
   interests = [], // 🆕
   queueType = 'casual', // 🆕
@@ -49,7 +52,8 @@ export default function VideoChat({
   initialVideoEnabled = true,
   showWaitingQueue = false,
   onMatched,
-  onWaitingCancel
+  onWaitingCancel,
+  onUpgrade
 }: VideoChatProps) {
   const [isVideoEnabled, setIsVideoEnabled] = useState(isTextMode ? false : initialVideoEnabled);
   const [isAudioEnabled, setIsAudioEnabled] = useState(!isTextMode);
@@ -61,6 +65,14 @@ export default function VideoChat({
   const [isAudioOnlyMode, setIsAudioOnlyMode] = useState(false);
   const [currentQuality] = useState<'auto' | 'high' | 'low'>('auto'); // Future: allow user to manually override
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Interstitial ad state (frequency capped: every 3-5 matches)
+  const [showInterstitialAd, setShowInterstitialAd] = useState(false);
+  const adFrequency = useAdFrequency({
+    minMatchesBetweenAds: 3,
+    maxMatchesBetweenAds: 5,
+    minSecondsBetweenAds: 30,
+  });
 
   // Network quality monitoring
   const networkInfo = useNetworkQuality();
@@ -167,12 +179,13 @@ export default function VideoChat({
     }
   }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage, isTextMode]);
 
-  // Notify parent when matched
+  // Notify parent when matched and record for ad frequency
   useEffect(() => {
-    if (signaling.matched && onMatched) {
-      onMatched();
+    if (signaling.matched) {
+      onMatched?.();
+      adFrequency.recordMatch(); // Track match for ad frequency capping
     }
-  }, [signaling.matched, onMatched]);
+  }, [signaling.matched, onMatched, adFrequency]);
 
   // Create offer when matched (skip in text mode)
   useEffect(() => {
@@ -183,29 +196,49 @@ export default function VideoChat({
     }
   }, [signaling.matched, signaling, webrtc, isTextMode]);
 
-  const handleNext = useCallback(() => {
-    // Prevent rapid clicking (debounce)
-    if (isSkipping) return;
-    
-    setIsSkipping(true);
-    
-    if (signaling.matched) {
-      signaling.endCall(signaling.matched.sessionId, true); // 🆕 Mark as skipped
-    }
+  // Proceed to find next match (called after ad closes or if no ad needed)
+  const proceedToNextMatch = useCallback(() => {
     setMessages([]);
-    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage); // 🆕 Pass new params
-    
+    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage);
+
     // Clear any existing timeout
     if (skipTimeoutRef.current) {
       clearTimeout(skipTimeoutRef.current);
     }
-    
+
     // Re-enable after 2 seconds
     skipTimeoutRef.current = setTimeout(() => {
       setIsSkipping(false);
       skipTimeoutRef.current = null;
     }, 2000);
-  }, [isSkipping, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage]);
+  }, [signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage]);
+
+  const handleNext = useCallback(() => {
+    // Prevent rapid clicking (debounce)
+    if (isSkipping) return;
+
+    setIsSkipping(true);
+
+    if (signaling.matched) {
+      signaling.endCall(signaling.matched.sessionId, true); // Mark as skipped
+    }
+
+    // Check if we should show an interstitial ad (frequency capped: every 3-5 matches)
+    if (adFrequency.shouldShowInterstitial()) {
+      adFrequency.markAdShowing();
+      setShowInterstitialAd(true);
+      // Don't proceed yet - wait for ad to close
+    } else {
+      proceedToNextMatch();
+    }
+  }, [isSkipping, signaling, adFrequency, proceedToNextMatch]);
+
+  // Handle interstitial ad close
+  const handleInterstitialClose = useCallback(() => {
+    setShowInterstitialAd(false);
+    adFrequency.recordAdShown();
+    proceedToNextMatch();
+  }, [adFrequency, proceedToNextMatch]);
   
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -385,6 +418,16 @@ export default function VideoChat({
           isFullScreen={false}
         />
       )}
+
+      {/* Interstitial Ad (shown between matches, frequency capped every 3-5 matches) */}
+      <InterstitialAd
+        isVisible={showInterstitialAd}
+        onClose={handleInterstitialClose}
+        onUpgrade={onUpgrade}
+        minDisplaySeconds={5}
+        autoCloseSeconds={15}
+        testMode={import.meta.env.DEV} // Show placeholder in dev mode
+      />
     </div>
   );
 }
