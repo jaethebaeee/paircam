@@ -23,6 +23,7 @@
     "flowbite-react": "^0.12.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
     "react-router-dom": "^6.30.1",
     "socket.io-client": "^4.7.0",
     "uuid": "^9.0.1",
@@ -76,7 +77,14 @@
       "/",
       "/terms-of-service",
       "/privacy-policy",
-      "/cookie-policy"
+      "/cookie-policy",
+      "/blog",
+      "/blog/omegle-alternatives-2024-best-random-video-chat-sites",
+      "/blog/video-chat-safety-tips-protect-yourself-online",
+      "/blog/make-friends-online-random-video-chat-guide",
+      "/blog/random-video-chat-vs-dating-apps-which-better",
+      "/blog/learn-languages-random-video-chat-native-speakers",
+      "/blog/random-video-chat-for-introverts-social-anxiety-tips"
     ]
   }
 }

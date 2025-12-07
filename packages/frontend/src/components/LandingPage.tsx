@@ -2,6 +2,42 @@ import { useState } from 'react';
 import PremiumModal from './PremiumModal';
 import { useAuthContext } from '../contexts/AuthContext';
 
+// FAQ data with Schema.org FAQPage structured data for SEO
+const faqData = [
+  {
+    question: "Is PairCam free to use?",
+    answer: "Yes! PairCam is completely free for basic video, voice, and text chat. You can connect with strangers worldwide without paying anything. Premium features like gender filters and priority matching are available for users who want an enhanced experience."
+  },
+  {
+    question: "Is PairCam safe to use?",
+    answer: "Safety is our top priority. We use AI-powered moderation to detect and remove inappropriate content in real-time. You can report and block users instantly, and we require age verification for video chat. Never share personal information with strangers."
+  },
+  {
+    question: "Do I need to create an account to use PairCam?",
+    answer: "No account required! Simply enter a nickname and start chatting immediately. PairCam is designed for instant, anonymous connections. You can optionally create an account to save preferences and access premium features."
+  },
+  {
+    question: "How does the matching system work?",
+    answer: "Our smart matching algorithm pairs you with available users in seconds. Premium users can filter by gender preferences. We also consider factors like language and interests to improve match quality."
+  },
+  {
+    question: "Are video chats recorded or stored?",
+    answer: "No, we never record or store your video chats. All conversations are peer-to-peer and encrypted. Once you disconnect, the chat is gone forever. We only store minimal data for moderation and safety purposes."
+  },
+  {
+    question: "What premium features are available?",
+    answer: "Premium members enjoy gender filters, priority matching (shorter wait times), ad-free experience, verified badge, and exclusive chat rooms. Premium also includes real-time translation for connecting across language barriers."
+  },
+  {
+    question: "What devices and browsers work with PairCam?",
+    answer: "PairCam works on any modern device with a camera and microphone. We support Chrome, Firefox, Safari, and Edge browsers on desktop, as well as mobile browsers on iOS and Android. For the best experience, use the latest browser version."
+  },
+  {
+    question: "How do I report inappropriate behavior?",
+    answer: "Click the report button during any chat to flag a user. Our moderation team reviews reports 24/7 and takes swift action against violators. Serious offenses result in permanent bans. You can also block users to never be matched with them again."
+  }
+];
+
 interface LandingPageProps {
   onStartCall: (data: { 
     name: string; 
@@ -20,7 +56,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
   // Get premium status from auth context (used for premium button visibility)
   const { } = useAuthContext();
 
@@ -490,6 +527,60 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
           </div>
         </div>
+
+        {/* FAQ Section with Schema.org FAQPage structured data */}
+        <section id="faq" className="max-w-4xl mx-auto mt-16 mb-16" itemScope itemType="https://schema.org/FAQPage">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-lg text-gray-600">Everything you need to know about PairCam</p>
+          </div>
+
+          <div className="space-y-4">
+            {faqData.map((faq, index) => (
+              <div
+                key={index}
+                itemScope
+                itemProp="mainEntity"
+                itemType="https://schema.org/Question"
+                className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
+                  className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-inset"
+                  aria-expanded={expandedFaq === index}
+                  aria-controls={`faq-answer-${index}`}
+                >
+                  <h3 itemProp="name" className="text-lg font-semibold text-gray-900 pr-4">
+                    {faq.question}
+                  </h3>
+                  <span className={`flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center transition-transform duration-300 ${expandedFaq === index ? 'rotate-180' : ''}`}>
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </button>
+                <div
+                  id={`faq-answer-${index}`}
+                  itemScope
+                  itemProp="acceptedAnswer"
+                  itemType="https://schema.org/Answer"
+                  className={`overflow-hidden transition-all duration-300 ${expandedFaq === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+                >
+                  <p itemProp="text" className="px-6 pb-5 text-gray-600 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Additional SEO-friendly content */}
+          <div className="mt-10 text-center">
+            <p className="text-gray-500 text-sm">
+              Still have questions? <a href="mailto:support@paircam.live" className="text-pink-600 hover:text-purple-600 font-medium transition-colors">Contact our support team</a>
+            </p>
+          </div>
+        </section>
       </div>
 
       {/* Premium Modal */}
