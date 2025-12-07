@@ -140,13 +140,13 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           {/* Live User Count Badge */}
           {liveUserCount > 0 && (
             <div className="flex items-center justify-center gap-2 mb-8">
-              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-full shadow-lg shadow-green-500/30 animate-pulse">
+              <div className="inline-flex items-center gap-3 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-800 px-6 py-3 rounded-full shadow-lg">
                 <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                 </span>
-                <span className="font-bold text-lg">{liveUserCount.toLocaleString()}</span>
-                <span className="font-medium">users online now</span>
+                <span className="font-bold text-2xl text-gray-900">{liveUserCount.toLocaleString()}</span>
+                <span className="font-medium text-gray-600">users online now</span>
               </div>
             </div>
           )}
