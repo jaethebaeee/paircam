@@ -14,9 +14,14 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write src",
     "typecheck": "tsc --noEmit",
-    "smoke": "ts-node scripts/smoke.ts"
+    "smoke": "ts-node scripts/smoke.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d data-source.ts",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d data-source.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d data-source.ts",
+    "migration:show": "typeorm-ts-node-commonjs migration:show -d data-source.ts"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
     "@nestjs/common": "^10.2.0",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.2.0",

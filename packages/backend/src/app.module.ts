@@ -32,7 +32,9 @@ import { Payment } from './payments/entities/payment.entity';
       type: 'postgres',
       url: env.DATABASE_URL,
       entities: [User, Subscription, Payment],
-      synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
+      // Use migrations in production, synchronize in dev for convenience
+      synchronize: false, // Always use migrations for safety
+      migrationsRun: false, // Run migrations manually with npm run migration:run
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
     }),
