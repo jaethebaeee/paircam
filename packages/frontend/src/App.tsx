@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Toaster, toast } from 'sonner';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SafetyModal from './components/SafetyModal';
@@ -271,7 +272,9 @@ function App() {
 
   const handleSafetyDecline = () => {
     setAppState('landing');
-    alert('You must accept the safety guidelines to use this service.');
+    toast.error('Safety guidelines required', {
+      description: 'You must accept the safety guidelines to use this service.',
+    });
   };
 
   const handlePermissionsGranted = () => {
@@ -280,7 +283,9 @@ function App() {
 
   const handlePermissionsDenied = () => {
     setAppState('landing');
-    alert('Camera and microphone access is required for video chat. Please allow access and try again.');
+    toast.error('Permissions required', {
+      description: 'Camera and microphone access is required for video chat. Please allow access and try again.',
+    });
   };
 
   const handleWaitingCancel = () => {
@@ -295,6 +300,15 @@ function App() {
 
   return (
     <ErrorBoundary>
+      <Toaster
+        position="top-center"
+        expand={false}
+        richColors
+        toastOptions={{
+          className: 'font-sans',
+          duration: 4000,
+        }}
+      />
       <BrowserRouter>
         <AppRoutes
         appState={appState}
