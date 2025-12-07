@@ -1,0 +1,17 @@
+# Nixpacks configuration for Railway deployment
+# This file tells Nixpacks to use Node.js for the build
+
+[phases.setup]
+# Install Node.js and npm
+nixPkgs = ["nodejs_20", "npm"]
+
+[phases.install]
+# Install backend dependencies
+cmds = ["cd packages/backend && npm install"]
+
+[phases.build]
+# Build the backend
+cmds = ["cd packages/backend && npm run build"]
+
+[start]
+cmd = "cd packages/backend && npm start"
