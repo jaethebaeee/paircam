@@ -27,7 +27,7 @@ services:
       --realm=paircam.live
       --server-name=paircam.live
       --use-auth-secret
-      --static-auth-secret=your-turn-shared-secret
+      --static-auth-secret=${TURN_SHARED_SECRET:-changeme-in-production}
       --no-tlsv1
       --no-tlsv1_1
       --no-tlsv1_2
@@ -57,9 +57,9 @@ services:
       - REDIS_PORT=6379
       - TURN_HOST=coturn
       - TURN_PORT=3478
-      - TURN_SHARED_SECRET=your-turn-shared-secret
-      - TURN_REALM=paircam.live
-      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - TURN_SHARED_SECRET=${TURN_SHARED_SECRET:-changeme-in-production}
+      - TURN_REALM=${TURN_REALM:-paircam.live}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - CORS_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:4000
     depends_on:
       redis:

@@ -7,6 +7,7 @@ import PermissionModal from './components/PermissionModal';
 import PreferencesModal from './components/PreferencesModal';
 import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useAuthContext } from './contexts/AuthContext';
 import PremiumModal from './components/PremiumModal';
 
@@ -293,8 +294,9 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <AppRoutes
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppRoutes
         appState={appState}
         handleStartCall={handleStartCall}
         handleStopChatting={handleStopChatting}
@@ -317,8 +319,9 @@ function App() {
         isTextMode={isTextMode}
         initialVideoEnabled={initialVideoEnabled}
         isPremium={isPremium}
-      />
-    </BrowserRouter>
+        />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

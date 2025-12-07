@@ -470,6 +470,46 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  // Client-to-Instance mapping for horizontal scaling
+  async registerClient(deviceId: string, instanceId: string, socketId: string): Promise<void> {
+    try {
+      const key = `client:${deviceId}`;
+      const data = JSON.stringify({ instanceId, socketId, timestamp: Date.now() });
+      await this.client.setEx(key, 600, data); // 10 minute TTL, refreshed on activity
+      this.logger.debug('Client registered', { deviceId, instanceId });
+    } catch (error) {
+      this.logger.error(`Failed to register client ${deviceId}`, error.stack);
+    }
+  }
+
+  async unregisterClient(deviceId: string): Promise<void> {
+    try {
+      await this.client.del(`client:${deviceId}`);
+      this.logger.debug('Client unregistered', { deviceId });
+    } catch (error) {
+      this.logger.error(`Failed to unregister client ${deviceId}`, error.stack);
+    }
+  }
+
+  async getClientInstance(deviceId: string): Promise<{ instanceId: string; socketId: string } | null> {
+    try {
+      const data = await this.client.get(`client:${deviceId}`);
+      if (!data) return null;
+      return JSON.parse(data);
+    } catch (error) {
+      this.logger.error(`Failed to get client instance for ${deviceId}`, error.stack);
+      return null;
+    }
+  }
+
+  async refreshClientTTL(deviceId: string): Promise<void> {
+    try {
+      await this.client.expire(`client:${deviceId}`, 600);
+    } catch (error) {
+      this.logger.error(`Failed to refresh client TTL for ${deviceId}`, error.stack);
+    }
+  }
+
   // Analytics
   async incrementCounter(key: string, increment = 1): Promise<number> {
     try {
