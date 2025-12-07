@@ -25,6 +25,9 @@ const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
 const BlogList = lazy(() => import('./components/blog/BlogList'));
 const BlogPost = lazy(() => import('./components/blog/BlogPost'));
 
+// Lazy load payment success page
+const SuccessPage = lazy(() => import('./components/SuccessPage'));
+
 // Schema.org structured data for homepage
 const softwareAppSchema = {
   "@context": "https://schema.org",
@@ -199,6 +202,9 @@ function AppRoutes({
             {/* Blog Pages */}
             <Route path="/blog" element={<BlogList />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+
+            {/* Payment Success Page */}
+            <Route path="/success" element={<SuccessPage />} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

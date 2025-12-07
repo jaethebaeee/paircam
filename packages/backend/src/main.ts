@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import helmet from 'helmet';
+import express from 'express';
 import { AppModule } from './app.module';
 import { LoggerService } from './services/logger.service';
 import { env } from './env';
@@ -10,7 +11,13 @@ async function bootstrap() {
   const logger = new LoggerService();
   const app = await NestFactory.create(AppModule, {
     logger,
+    // Enable raw body for Stripe webhooks
+    rawBody: true,
   });
+
+  // CRITICAL: Raw body middleware for Stripe webhooks
+  // Must be BEFORE other body parsers to capture raw body for signature verification
+  app.use('/payments/webhook', express.raw({ type: 'application/json' }));
 
   // Security middleware
   app.use(helmet());
