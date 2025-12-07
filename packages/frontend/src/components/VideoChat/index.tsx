@@ -5,6 +5,7 @@ import { useSignaling } from '../../hooks/useSignaling';
 import { useWebRTC } from '../../hooks/useWebRTC';
 import { useNetworkQuality } from '../../hooks/useNetworkQuality';
 import { useAdaptiveMediaConstraints } from '../../hooks/useAdaptiveMediaConstraints';
+import useGeolocation from '../../hooks/useGeolocation';
 import { STUN_SERVERS, DEFAULT_MEDIA_CONSTRAINTS, AUDIO_ONLY_CONSTRAINTS, API_URL } from '../../config/api';
 import VideoControls from './VideoControls';
 import VideoStreams from './VideoStreams';
@@ -12,6 +13,7 @@ import ChatPanel from './ChatPanel';
 import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
+import ReportModal from '../ReportModal';
 
 type TurnCredentials = {
   urls: string[];
@@ -60,7 +62,12 @@ export default function VideoChat({
   const [permissionError, setPermissionError] = useState<string | null>(null);
   const [isAudioOnlyMode, setIsAudioOnlyMode] = useState(false);
   const [currentQuality] = useState<'auto' | 'high' | 'low'>('auto'); // Future: allow user to manually override
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Geolocation for country flags
+  const geoLocation = useGeolocation();
 
   // Network quality monitoring
   const networkInfo = useNetworkQuality();
@@ -167,10 +174,16 @@ export default function VideoChat({
     }
   }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage, isTextMode]);
 
-  // Notify parent when matched
+  // Notify parent when matched and track match time
   useEffect(() => {
-    if (signaling.matched && onMatched) {
-      onMatched();
+    if (signaling.matched) {
+      setMatchedAt(new Date());
+      setFriendRequestSent(false);
+      if (onMatched) {
+        onMatched();
+      }
+    } else {
+      setMatchedAt(undefined);
     }
   }, [signaling.matched, onMatched]);
 
@@ -273,11 +286,15 @@ export default function VideoChat({
     });
   }, [webrtc, isAudioOnlyMode]);
 
-  const handleReport = async () => {
+  const handleOpenReport = () => {
+    if (!accessToken || !signaling.matched) return;
+    setShowReportModal(true);
+  };
+
+  const handleSubmitReport = async (reason: string, comment?: string) => {
     try {
       if (!accessToken || !signaling.matched) return;
-      const reason = window.prompt('Report reason (e.g., harassment, inappropriate_content, spam, other):', 'other') || 'other';
-      const comment = window.prompt('Optional comment:', '') || undefined;
+      setIsReporting(true);
       const res = await fetch(`${API_URL}/reports`, {
         method: 'POST',
         headers: {
@@ -292,6 +309,7 @@ export default function VideoChat({
         }),
       });
       if (!res.ok) throw new Error('Failed to submit report');
+      setShowReportModal(false);
       toast.success('Report submitted', {
         description: 'Thank you for helping keep our community safe.',
       });
@@ -300,8 +318,38 @@ export default function VideoChat({
       toast.error('Failed to submit report', {
         description: 'Please try again or contact support.',
       });
+    } finally {
+      setIsReporting(false);
     }
   };
+
+  const handleFriendRequest = useCallback(async () => {
+    if (friendRequestSent || !signaling.matched) return;
+
+    try {
+      // For now, show a success message - backend integration can be added later
+      setFriendRequestSent(true);
+
+      // TODO: Implement backend friend request API
+      // const res = await fetch(`${API_URL}/friends/request`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `Bearer ${accessToken}`,
+      //   },
+      //   body: JSON.stringify({
+      //     peerId: signaling.matched.peerId,
+      //     sessionId: signaling.matched.sessionId,
+      //   }),
+      // });
+
+      alert('Friend request sent! 🎉\n\nThey will be notified if they have an account.');
+    } catch (e) {
+      console.error(e);
+      setFriendRequestSent(false);
+      alert('Failed to send friend request.');
+    }
+  }, [friendRequestSent, signaling.matched]);
 
   // Show waiting queue while searching for match
   if (showWaitingQueue && !signaling.matched) {
@@ -359,6 +407,9 @@ export default function VideoChat({
           isConnecting={!signaling.matched}
           isVideoEnabled={isVideoEnabled && !isAudioOnlyMode}
           connectionState={webrtc.connectionState}
+          partnerCountry={geoLocation.country}
+          partnerCountryCode={geoLocation.countryCode}
+          matchedAt={matchedAt}
         />
       )}
 
@@ -370,12 +421,22 @@ export default function VideoChat({
         onStopChatting={handleStopChatting}
         onNext={handleNext}
         onToggleChat={() => setShowChat(!showChat)}
-        onReport={handleReport}
+        onReport={handleOpenReport}
         isSkipping={isSkipping}
         isTextMode={isTextMode}
         isAudioOnlyMode={isAudioOnlyMode}
         onSwitchToAudioOnly={handleSwitchToAudioOnly}
+        isConnected={!!signaling.matched}
       />
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <ReportModal
+          onSubmit={handleSubmitReport}
+          onClose={() => setShowReportModal(false)}
+          isLoading={isReporting}
+        />
+      )}
 
       {!isTextMode && showChat && (
         <ChatPanel

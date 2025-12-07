@@ -7,6 +7,7 @@ import {
   FlagIcon,
   ChatBubbleLeftIcon,
   SpeakerWaveIcon,
+  UserPlusIcon,
 } from '@heroicons/react/24/solid';
 
 interface VideoControlsProps {
@@ -18,10 +19,12 @@ interface VideoControlsProps {
   onNext: () => void;
   onToggleChat: () => void;
   onReport: () => void;
+  onFriendRequest?: () => void;
   isSkipping?: boolean;
   isTextMode?: boolean;
   isAudioOnlyMode?: boolean;
   onSwitchToAudioOnly?: () => void;
+  isConnected?: boolean;
 }
 
 export default function VideoControls({
@@ -33,10 +36,12 @@ export default function VideoControls({
   onNext,
   onToggleChat,
   onReport,
+  onFriendRequest,
   isSkipping = false,
   isTextMode = false,
   isAudioOnlyMode = false,
   onSwitchToAudioOnly,
+  isConnected = false,
 }: VideoControlsProps) {
   return (
     <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
@@ -88,18 +93,29 @@ export default function VideoControls({
 
           {/* Audio Toggle - Hidden in text mode */}
           {!isTextMode && (
-            <button
-              onClick={onToggleAudio}
-              className={`group relative p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 ${
-                isAudioEnabled
-                  ? 'bg-gray-700 hover:bg-gray-600'
-                  : 'bg-red-500 hover:bg-red-600'
-              }`}
-              title={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
-            >
-              <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <MicrophoneIcon className="h-6 w-6 text-white relative z-10" />
-            </button>
+            <div className="relative group">
+              <button
+                onClick={onToggleAudio}
+                className={`relative p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 min-w-[48px] min-h-[48px] flex items-center justify-center ${
+                  isAudioEnabled
+                    ? 'bg-gray-700 hover:bg-gray-600'
+                    : 'bg-red-500 hover:bg-red-600'
+                }`}
+                aria-label={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+              >
+                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <MicrophoneIcon className="h-6 w-6 text-white relative z-10" />
+              </button>
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
+                  {isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-black/90"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Stop Chatting - Prominent red button */}
@@ -128,22 +144,35 @@ export default function VideoControls({
             <button
               onClick={onNext}
               disabled={isSkipping}
-              className={`relative p-4 rounded-full shadow-lg transition-all duration-300 transform ${
+              className={`relative p-4 sm:p-4 rounded-full shadow-lg transition-all duration-300 transform min-w-[48px] min-h-[48px] flex items-center justify-center ${
                 isSkipping
                   ? 'bg-gray-400 cursor-not-allowed opacity-50'
                   : 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 shadow-pink-500/50 hover:scale-110 active:scale-95 hover:shadow-pink-500/70'
               }`}
-              aria-label={isSkipping ? 'Finding new match...' : 'Next person'}
+              aria-label={isSkipping ? 'Finding new match, please wait...' : 'Skip to next person'}
             >
               <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
               <ArrowPathIcon className={`h-6 w-6 text-white relative z-10 transition-transform duration-300 ${
                 isSkipping ? 'animate-spin' : 'group-hover:rotate-180'
               }`} />
             </button>
-            {/* Tooltip */}
-            <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                {isSkipping ? 'Finding new match...' : 'Next person'}
+            {/* Tooltip with cooldown explanation */}
+            <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+              <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap text-center">
+                {isSkipping ? (
+                  <>
+                    <span className="flex items-center gap-1.5">
+                      <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Finding new match...
+                    </span>
+                    <span className="text-gray-400 text-[10px] block mt-0.5">2 sec cooldown</span>
+                  </>
+                ) : (
+                  'Next person'
+                )}
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                   <div className="border-4 border-transparent border-t-black/90"></div>
                 </div>
@@ -166,6 +195,29 @@ export default function VideoControls({
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
                   Chat
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-black/90"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Friend Request - Only show when connected */}
+          {isConnected && onFriendRequest && (
+            <div className="relative group">
+              <button
+                onClick={onFriendRequest}
+                className="relative p-4 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                aria-label="Send friend request"
+              >
+                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <UserPlusIcon className="h-6 w-6 text-white relative z-10" />
+              </button>
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
+                  Add as friend
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                     <div className="border-4 border-transparent border-t-black/90"></div>
                   </div>

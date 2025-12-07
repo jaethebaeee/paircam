@@ -6,7 +6,7 @@
  */
 
 export default function PrivacyPolicy() {
-  const lastUpdated = "October 24, 2025";
+  const lastUpdated = "December 7, 2025";
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
@@ -105,6 +105,7 @@ export default function PrivacyPolicy() {
             </p>
             <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
               <li><strong>Service Providers:</strong> Stripe (payments), Cloudflare (CDN), AWS/Digital Ocean (hosting)</li>
+              <li><strong>Advertising Partners:</strong> Google AdSense (to display relevant advertisements)</li>
               <li><strong>Analytics:</strong> Google Analytics (anonymized data only)</li>
               <li><strong>Law Enforcement:</strong> When required by law or to prevent harm</li>
               <li><strong>Business Transfers:</strong> In case of merger, acquisition, or asset sale</li>
@@ -205,9 +206,29 @@ export default function PrivacyPolicy() {
             </ul>
           </section>
 
+          {/* Advertising */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Advertising</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              We display advertisements on our Service using Google AdSense. This helps us keep the Service free for all users.
+            </p>
+            <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6 mb-4">
+              <p className="text-yellow-900 font-semibold mb-2">How Google AdSense Works:</p>
+              <ul className="list-disc list-inside text-yellow-900 space-y-1 ml-4">
+                <li>Google may use cookies to display personalized ads based on your browsing history</li>
+                <li>You can opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Google Ads Settings</a></li>
+                <li>Third-party vendors may also use cookies to serve ads based on your visits to this and other websites</li>
+                <li>You can opt out of third-party cookies at <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">aboutads.info</a></li>
+              </ul>
+            </div>
+            <p className="text-gray-700 leading-relaxed">
+              For more information on how Google uses your data, please review <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Google's Privacy & Terms</a>.
+            </p>
+          </section>
+
           {/* Cookies */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Cookies & Similar Technologies</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Cookies & Similar Technologies</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
               We use cookies and similar technologies to improve your experience:
             </p>
@@ -224,7 +245,7 @@ export default function PrivacyPolicy() {
 
           {/* Security */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Data Security</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Data Security</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
               We implement industry-standard security measures to protect your data:
             </p>
@@ -253,7 +274,7 @@ export default function PrivacyPolicy() {
 
           {/* Third-Party Links */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Third-Party Links</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Third-Party Links</h2>
             <p className="text-gray-700 leading-relaxed">
               Our Service may contain links to third-party websites. We are not responsible for the privacy practices of those sites. We encourage you to read their privacy policies.
             </p>
@@ -261,7 +282,7 @@ export default function PrivacyPolicy() {
 
           {/* Children's Privacy */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Children's Privacy</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Children's Privacy</h2>
             <div className="bg-red-50 border-2 border-red-300 rounded-xl p-6">
               <p className="text-red-900 font-bold mb-2">🚫 Our Service is NOT for children under 18.</p>
               <p className="text-red-800 leading-relaxed">
@@ -272,7 +293,7 @@ export default function PrivacyPolicy() {
 
           {/* International Transfers */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">12. International Data Transfers</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">13. International Data Transfers</h2>
             <p className="text-gray-700 leading-relaxed">
               Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place for international transfers, including Standard Contractual Clauses (SCCs) for EEA users.
             </p>
@@ -280,7 +301,7 @@ export default function PrivacyPolicy() {
 
           {/* Changes to Policy */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Changes to This Privacy Policy</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">14. Changes to This Privacy Policy</h2>
             <p className="text-gray-700 leading-relaxed">
               We may update this Privacy Policy from time to time. We will notify you of significant changes by posting the new policy on this page and updating the "Last Updated" date. Your continued use of the Service after changes constitutes acceptance of the updated policy.
             </p>
@@ -288,7 +309,7 @@ export default function PrivacyPolicy() {
 
           {/* Contact */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">14. Contact Us</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">15. Contact Us</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
               If you have questions about this Privacy Policy or want to exercise your rights, contact us:
             </p>

@@ -7,7 +7,7 @@ interface SEOProps {
   url?: string;
   type?: string;
   keywords?: string;
-  jsonLd?: object; // Schema.org structured data
+  jsonLd?: object | object[]; // Schema.org structured data (single or multiple)
 }
 
 /**
@@ -88,7 +88,7 @@ export default function SEO({
     // Add or update JSON-LD structured data
     const jsonLdId = 'jsonld-schema';
     let jsonLdScript = document.getElementById(jsonLdId) as HTMLScriptElement;
-    
+
     if (jsonLd) {
       if (!jsonLdScript) {
         jsonLdScript = document.createElement('script');
@@ -96,7 +96,12 @@ export default function SEO({
         jsonLdScript.type = 'application/ld+json';
         document.head.appendChild(jsonLdScript);
       }
-      jsonLdScript.textContent = JSON.stringify(jsonLd);
+      // Handle both single objects and arrays of schema objects
+      if (Array.isArray(jsonLd)) {
+        jsonLdScript.textContent = JSON.stringify(jsonLd);
+      } else {
+        jsonLdScript.textContent = JSON.stringify(jsonLd);
+      }
     } else if (jsonLdScript) {
       // Remove if no jsonLd prop provided
       jsonLdScript.remove();
