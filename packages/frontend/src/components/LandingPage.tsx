@@ -168,7 +168,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         </div>
 
         {/* How It Works Section */}
-        <div className="mb-12 sm:mb-16 px-2">
+        <div id="features" className="mb-12 sm:mb-16 px-2 scroll-mt-24">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-2 sm:mb-4">How It Works</h2>
           <p className="text-center text-gray-600 mb-8 sm:mb-12 text-base sm:text-lg">Get started in three simple steps</p>
 
@@ -209,7 +209,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         </div>
 
         {/* Trust & Safety Section */}
-        <div className="mb-12 sm:mb-16 max-w-4xl mx-auto px-2">
+        <div id="safety" className="mb-12 sm:mb-16 max-w-4xl mx-auto px-2 scroll-mt-24">
           <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl sm:rounded-3xl shadow-lg border-2 border-green-200 p-5 sm:p-8 md:p-10">
             <div className="text-center mb-6 sm:mb-8">
               <div className="inline-flex items-center justify-center w-12 sm:w-16 h-12 sm:h-16 bg-green-500 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg">
@@ -499,7 +499,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         </div>
 
         {/* Additional Features Section */}
-        <div className="max-w-5xl mx-auto mt-10 sm:mt-16 mb-8 sm:mb-12 px-2">
+        <div id="about" className="max-w-5xl mx-auto mt-10 sm:mt-16 mb-8 sm:mb-12 px-2 scroll-mt-24">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">Why Choose Us?</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
             <div className="text-center">

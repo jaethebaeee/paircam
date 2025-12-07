@@ -126,13 +126,16 @@ function AppRoutes({
     }
   };
 
+  // Hide nav/footer during active chat for fullscreen experience
+  const isInChat = appState === 'chatting' || appState === 'waiting';
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-white to-purple-50">
       {/* Dynamic SEO meta tags */}
       <SEO {...getSEOProps()} />
 
-      <Navbar />
-      
+      {!isInChat && <Navbar />}
+
       <main className="flex-1 relative">
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
@@ -172,8 +175,8 @@ function AppRoutes({
           </Routes>
         </Suspense>
       </main>
-      
-      <Footer />
+
+      {!isInChat && <Footer />}
 
       {/* Preferences Modal */}
       {appState === 'preferences' && (
