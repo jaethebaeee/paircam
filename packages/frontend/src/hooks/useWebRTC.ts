@@ -47,25 +47,38 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
 
       pc.onconnectionstatechange = async () => {
         setConnectionState(pc.connectionState);
-        
+
         if (pc.connectionState === 'connected') {
           // ✅ Verify DTLS-SRTP encryption is active
           const isSecure = await verifyDTLSSRTP(pc);
           if (!isSecure && import.meta.env.PROD) {
             console.warn('⚠️  WebRTC connection security could not be verified');
           }
-          
+
           // Start monitoring connection security
           const stopMonitoring = monitorConnectionSecurity(pc, () => {
             console.error('🚨 WebRTC connection security compromised!');
           });
-          
+
           // Store cleanup function
           (pc as any)._securityMonitorCleanup = stopMonitoring;
         }
-        
+
         if (pc.connectionState === 'failed') {
-          setError('Connection failed. Attempting to reconnect...');
+          setError('Connection failed. Please try again.');
+        }
+
+        if (pc.connectionState === 'disconnected') {
+          setError('Connection interrupted. Waiting for reconnection...');
+        }
+      };
+
+      // Monitor ICE connection state for early failure detection
+      pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === 'failed') {
+          setError('Network connection failed. Check your internet connection.');
+        } else if (pc.iceConnectionState === 'disconnected') {
+          setError('Connection temporarily lost. Reconnecting...');
         }
       };
 

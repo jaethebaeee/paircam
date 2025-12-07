@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 import { LoggerModule } from './services/logger.module';
 import { AuthModule } from './auth/auth.module';
@@ -27,6 +29,24 @@ import { Payment } from './payments/entities/payment.entity';
       isGlobal: true,
       load: [() => env],
     }),
+    // Rate limiting - prevent brute force attacks
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000, // 1 second
+        limit: 3, // 3 requests per second
+      },
+      {
+        name: 'medium',
+        ttl: 10000, // 10 seconds
+        limit: 20, // 20 requests per 10 seconds
+      },
+      {
+        name: 'long',
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
+      },
+    ]),
     // TypeORM Configuration
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -51,5 +71,11 @@ import { Payment } from './payments/entities/payment.entity';
     MonitoringModule,
   ],
   controllers: [HealthController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Get, UseGuards, Req, UnauthorizedException } from '@nestjs/common';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { AuthService, AuthTokens } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Public } from './public.decorator';
@@ -19,13 +20,17 @@ interface GoogleAuthResponse extends AuthTokens {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // Rate limit: 5 requests per 60 seconds per IP for token generation
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('token')
   async generateToken(@Body() body: GenerateTokenDto): Promise<AuthTokens> {
     return this.authService.generateToken(body.deviceId);
   }
 
+  // Rate limit: 3 requests per 60 seconds per IP for Google auth (stricter)
   @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('google')
   async googleAuth(@Body() body: GoogleAuthDto): Promise<GoogleAuthResponse> {
     try {

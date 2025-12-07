@@ -93,8 +93,30 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
     newSocket.on('connect_error', (err) => {
       console.error('Socket connection error:', err);
-      setError(`Connection error: ${err.message}`);
+      // Provide user-friendly error messages
+      let message = 'Connection error. Please try again.';
+      if (err.message.includes('timeout')) {
+        message = 'Connection timed out. Check your internet connection.';
+      } else if (err.message.includes('unauthorized') || err.message.includes('401')) {
+        message = 'Authentication failed. Please refresh the page.';
+      } else if (err.message.includes('xhr poll error')) {
+        message = 'Unable to reach server. Check your internet connection.';
+      }
+      setError(message);
       setConnected(false);
+    });
+
+    // Handle reconnection attempts
+    newSocket.on('reconnect_attempt', (attemptNumber) => {
+      setError(`Reconnecting... (attempt ${attemptNumber}/5)`);
+    });
+
+    newSocket.on('reconnect_failed', () => {
+      setError('Failed to reconnect. Please refresh the page.');
+    });
+
+    newSocket.on('reconnect', () => {
+      setError(null);
     });
 
     // Connection confirmed
