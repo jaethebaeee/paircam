@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { OAuth2Client } from 'google-auth-library';
 import { LoggerService } from '../services/logger.service';
 import { UsersService } from '../users/users.service';
 import { GoogleUserInfo } from './dto/google-auth.dto';
@@ -30,12 +31,17 @@ export interface GoogleAuthResult extends AuthTokens {
 
 @Injectable()
 export class AuthService {
+  private readonly googleClient: OAuth2Client;
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly logger: LoggerService,
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
-  ) {}
+  ) {
+    // Initialize Google OAuth client
+    this.googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+  }
 
   async generateToken(deviceId: string): Promise<AuthTokens> {
     const payload: JwtPayload = {
@@ -117,32 +123,49 @@ export class AuthService {
   }
 
   private async verifyGoogleToken(credential: string): Promise<GoogleUserInfo> {
-    // Use Google's tokeninfo endpoint to verify the ID token
-    // This is simpler than using the google-auth-library and works for our use case
-    const response = await fetch(
-      `https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`
-    );
+    try {
+      // Use official google-auth-library for secure token verification
+      // This validates the token signature and expiration cryptographically
+      const ticket = await this.googleClient.verifyIdToken({
+        idToken: credential,
+        audience: env.GOOGLE_CLIENT_ID,
+      });
 
-    if (!response.ok) {
-      this.logger.warn('Google token verification failed', { status: response.status });
+      const payload = ticket.getPayload();
+
+      if (!payload) {
+        this.logger.warn('Google token verification returned no payload');
+        throw new UnauthorizedException('Invalid Google token');
+      }
+
+      // Verify email is verified
+      if (!payload.email_verified) {
+        this.logger.warn('Google email not verified', { email: payload.email });
+        throw new UnauthorizedException('Google email not verified');
+      }
+
+      if (!payload.email || !payload.sub) {
+        this.logger.warn('Google token missing required fields');
+        throw new UnauthorizedException('Invalid Google token: missing required fields');
+      }
+
+      return {
+        sub: payload.sub,
+        email: payload.email,
+        email_verified: payload.email_verified,
+        name: payload.name || '',
+        picture: payload.picture,
+        given_name: payload.given_name,
+        family_name: payload.family_name,
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      this.logger.warn('Google token verification failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
       throw new UnauthorizedException('Invalid Google token');
     }
-
-    const payload = await response.json() as GoogleUserInfo & { aud?: string };
-
-    // Verify the token was issued for our app
-    if (env.GOOGLE_CLIENT_ID && payload.aud !== env.GOOGLE_CLIENT_ID) {
-      this.logger.warn('Google token audience mismatch', {
-        expected: env.GOOGLE_CLIENT_ID,
-        received: payload.aud
-      });
-      throw new UnauthorizedException('Invalid Google token audience');
-    }
-
-    if (!payload.email_verified) {
-      throw new UnauthorizedException('Google email not verified');
-    }
-
-    return payload;
   }
 }

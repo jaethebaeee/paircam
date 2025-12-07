@@ -7,6 +7,7 @@ import PermissionModal from './components/PermissionModal';
 import PreferencesModal from './components/PreferencesModal';
 import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useAuthContext } from './contexts/AuthContext';
 import PremiumModal from './components/PremiumModal';
 
@@ -55,6 +56,52 @@ const softwareAppSchema = {
   }
 };
 
+// Types for app state
+type AppState = 'landing' | 'preferences' | 'safety' | 'permissions' | 'waiting' | 'chatting';
+type QueueType = 'casual' | 'serious' | 'language' | 'gaming';
+
+interface StartCallData {
+  name: string;
+  gender?: string;
+  genderPreference?: string;
+  isTextMode?: boolean;
+  isVideoEnabled?: boolean;
+}
+
+interface PreferencesData {
+  gender?: string;
+  genderPreference: string;
+  interests?: string[];
+  queueType?: QueueType;
+  nativeLanguage?: string;
+  learningLanguage?: string;
+}
+
+interface AppRoutesProps {
+  appState: AppState;
+  handleStartCall: (data: StartCallData) => void;
+  handleStopChatting: () => void;
+  handlePreferencesSet: (preferences: PreferencesData) => void;
+  handlePreferencesCancel: () => void;
+  handleSafetyAccept: () => void;
+  handleSafetyDecline: () => void;
+  handlePermissionsGranted: () => void;
+  handlePermissionsDenied: () => void;
+  handleWaitingCancel: () => void;
+  showPremiumModal: boolean;
+  setShowPremiumModal: (show: boolean) => void;
+  userName: string;
+  userGender: string;
+  genderPreference: string;
+  interests: string[];
+  queueType: QueueType;
+  nativeLanguage: string;
+  learningLanguage: string;
+  isTextMode: boolean;
+  initialVideoEnabled: boolean;
+  isPremium: boolean;
+}
+
 // Inner component to access useLocation
 function AppRoutes({
   appState,
@@ -72,14 +119,14 @@ function AppRoutes({
   userName,
   userGender,
   genderPreference,
-  interests, // 🆕
-  queueType, // 🆕
-  nativeLanguage, // 🆕
-  learningLanguage, // 🆕
+  interests,
+  queueType,
+  nativeLanguage,
+  learningLanguage,
   isTextMode,
   initialVideoEnabled,
   isPremium,
-}: any) {
+}: AppRoutesProps) {
   const location = useLocation();
   const [currentRoute, setCurrentRoute] = useState<string>(location.pathname);
 
@@ -293,8 +340,9 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <AppRoutes
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppRoutes
         appState={appState}
         handleStartCall={handleStartCall}
         handleStopChatting={handleStopChatting}
@@ -317,8 +365,9 @@ function App() {
         isTextMode={isTextMode}
         initialVideoEnabled={initialVideoEnabled}
         isPremium={isPremium}
-      />
-    </BrowserRouter>
+        />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
