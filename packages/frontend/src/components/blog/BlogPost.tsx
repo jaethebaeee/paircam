@@ -5,6 +5,7 @@
 
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { getBlogPostBySlug, getRecentPosts, categories } from './blogData';
+import SEO from '../SEO';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -14,6 +15,38 @@ export default function BlogPost() {
   if (!post) {
     return <Navigate to="/blog" replace />;
   }
+
+  // Build Article schema for SEO
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt,
+    image: `https://paircam.live/blog/${post.slug}-og.jpg`,
+    author: {
+      '@type': 'Organization',
+      name: post.author,
+      url: 'https://paircam.live',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'PairCam',
+      url: 'https://paircam.live',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://paircam.live/logo.png',
+      },
+    },
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://paircam.live/blog/${post.slug}`,
+    },
+    articleSection: categories[post.category].name,
+    keywords: post.tags.join(', '),
+    wordCount: post.content.split(/\s+/).length,
+  };
 
   // Convert markdown-like content to HTML
   const formatContent = (content: string) => {
@@ -82,6 +115,17 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
+      {/* SEO with Article Schema */}
+      <SEO
+        title={post.title}
+        description={post.excerpt}
+        url={`https://paircam.live/blog/${post.slug}`}
+        image={`https://paircam.live/blog/${post.slug}-og.jpg`}
+        type="article"
+        keywords={post.tags.join(', ')}
+        jsonLd={articleSchema}
+      />
+
       <article className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">

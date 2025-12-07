@@ -5,10 +5,47 @@
 
 import { Link } from 'react-router-dom';
 import { blogPosts, categories } from './blogData';
+import SEO from '../SEO';
 
 export default function BlogList() {
+  // Blog listing schema for SEO
+  const blogListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'PairCam Blog - Video Chat Tips, Safety & Guides',
+    description: 'Tips, guides, and insights for better video chat experiences. Learn about safety, conversation starters, language learning, and more.',
+    url: 'https://paircam.live/blog',
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: blogPosts.map((post, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        item: {
+          '@type': 'Article',
+          headline: post.title,
+          description: post.excerpt,
+          url: `https://paircam.live/blog/${post.slug}`,
+          datePublished: post.publishedAt,
+          author: {
+            '@type': 'Organization',
+            name: post.author,
+          },
+        },
+      })),
+    },
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
+      {/* SEO for Blog Listing */}
+      <SEO
+        title="Blog - Video Chat Tips, Safety & Guides"
+        description="Tips, guides, and insights for better video chat experiences. Learn about safety, conversation starters, language learning, and making friends online."
+        url="https://paircam.live/blog"
+        keywords="video chat tips, online safety, conversation starters, language learning, random chat guide, paircam blog"
+        jsonLd={blogListSchema}
+      />
+
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
