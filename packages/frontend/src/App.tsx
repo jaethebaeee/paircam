@@ -9,6 +9,8 @@ import LoadingSpinner from './components/LoadingSpinner';
 import SEO from './components/SEO';
 import { useAuthContext } from './contexts/AuthContext';
 import PremiumModal from './components/PremiumModal';
+import FreemiumLimitModal from './components/FreemiumLimitModal';
+import { useFreemiumLimits } from './hooks/useFreemiumLimits';
 
 // Lazy load heavy components for better performance and SEO
 const LandingPage = lazy(() => import('./components/LandingPage'));
@@ -76,16 +78,24 @@ function AppRoutes({
   userName,
   userGender,
   genderPreference,
-  interests, // 🆕
-  queueType, // 🆕
-  nativeLanguage, // 🆕
-  learningLanguage, // 🆕
+  interests,
+  queueType,
+  nativeLanguage,
+  learningLanguage,
   isTextMode,
   initialVideoEnabled,
   isPremium,
 }: any) {
   const location = useLocation();
   const [currentRoute, setCurrentRoute] = useState<string>(location.pathname);
+
+  // Freemium limits tracking
+  const freemiumLimits = useFreemiumLimits(isPremium);
+  const [limitReachedType, setLimitReachedType] = useState<'matches' | 'skips' | 'session' | null>(null);
+
+  const handleLimitReached = (type: 'matches' | 'skips' | 'session') => {
+    setLimitReachedType(type);
+  };
 
   useEffect(() => {
     setCurrentRoute(location.pathname);
@@ -156,20 +166,24 @@ function AppRoutes({
               path="/" 
               element={
                 (appState === 'chatting' || appState === 'waiting') ? (
-                  <VideoChat 
-                    onStopChatting={handleStopChatting} 
+                  <VideoChat
+                    onStopChatting={handleStopChatting}
                     userName={userName}
                     userGender={userGender}
                     genderPreference={genderPreference}
-                    interests={interests} // 🆕
-                    queueType={queueType} // 🆕
-                    nativeLanguage={nativeLanguage} // 🆕
-                    learningLanguage={learningLanguage} // 🆕
+                    interests={interests}
+                    queueType={queueType}
+                    nativeLanguage={nativeLanguage}
+                    learningLanguage={learningLanguage}
                     isTextMode={isTextMode}
                     initialVideoEnabled={initialVideoEnabled}
                     showWaitingQueue={appState === 'waiting'}
                     onMatched={() => {}}
                     onWaitingCancel={handleWaitingCancel}
+                    freemiumLimits={freemiumLimits}
+                    onLimitReached={handleLimitReached}
+                    isPremium={isPremium}
+                    onUpgrade={() => setShowPremiumModal(true)}
                   />
                 ) : (
                   <LandingPage onStartCall={handleStartCall} />
@@ -223,6 +237,18 @@ function AppRoutes({
       {/* Premium Modal */}
       {showPremiumModal && (
         <PremiumModal onClose={() => setShowPremiumModal(false)} />
+      )}
+
+      {/* Freemium Limit Modal */}
+      {limitReachedType && (
+        <FreemiumLimitModal
+          limitType={limitReachedType}
+          onUpgrade={() => {
+            setLimitReachedType(null);
+            setShowPremiumModal(true);
+          }}
+          onClose={() => setLimitReachedType(null)}
+        />
       )}
     </div>
   );

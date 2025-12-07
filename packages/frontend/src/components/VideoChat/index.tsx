@@ -11,6 +11,8 @@ import ChatPanel from './ChatPanel';
 import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
+import UsageIndicator from '../UsageIndicator';
+import { FreemiumLimitsResult } from '../../hooks/useFreemiumLimits';
 
 type TurnCredentials = {
   urls: string[];
@@ -24,31 +26,40 @@ interface VideoChatProps {
   userName: string;
   userGender?: string;
   genderPreference?: string;
-  interests?: string[]; // 🆕 Interest tags
-  queueType?: 'casual' | 'serious' | 'language' | 'gaming'; // 🆕 Queue type
-  nativeLanguage?: string; // 🆕 Native language
-  learningLanguage?: string; // 🆕 Learning language
+  interests?: string[];
+  queueType?: 'casual' | 'serious' | 'language' | 'gaming';
+  nativeLanguage?: string;
+  learningLanguage?: string;
   isTextMode?: boolean;
   initialVideoEnabled?: boolean;
   showWaitingQueue?: boolean;
   onMatched?: () => void;
   onWaitingCancel?: () => void;
+  // Freemium props
+  freemiumLimits?: FreemiumLimitsResult;
+  onLimitReached?: (type: 'matches' | 'skips' | 'session') => void;
+  isPremium?: boolean;
+  onUpgrade?: () => void;
 }
 
-export default function VideoChat({ 
-  onStopChatting, 
-  userName, 
-  userGender, 
+export default function VideoChat({
+  onStopChatting,
+  userName,
+  userGender,
   genderPreference,
-  interests = [], // 🆕
-  queueType = 'casual', // 🆕
-  nativeLanguage, // 🆕
-  learningLanguage, // 🆕
+  interests = [],
+  queueType = 'casual',
+  nativeLanguage,
+  learningLanguage,
   isTextMode = false,
   initialVideoEnabled = true,
   showWaitingQueue = false,
   onMatched,
-  onWaitingCancel
+  onWaitingCancel,
+  freemiumLimits,
+  onLimitReached,
+  isPremium = false,
+  onUpgrade,
 }: VideoChatProps) {
   const [isVideoEnabled, setIsVideoEnabled] = useState(isTextMode ? false : initialVideoEnabled);
   const [isAudioEnabled, setIsAudioEnabled] = useState(!isTextMode);
@@ -60,6 +71,7 @@ export default function VideoChat({
   const [isAudioOnlyMode, setIsAudioOnlyMode] = useState(false);
   const [currentQuality] = useState<'auto' | 'high' | 'low'>('auto'); // Future: allow user to manually override
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasCountedMatchRef = useRef(false); // Track if we've counted this session's initial match
 
   // Network quality monitoring
   const networkInfo = useNetworkQuality();
@@ -157,14 +169,25 @@ export default function VideoChat({
 
   // Join queue when ready (in text mode, skip waiting for local stream)
   useEffect(() => {
-    const canJoinQueue = isTextMode 
+    const canJoinQueue = isTextMode
       ? signaling.connected && !signaling.matched
       : webrtc.localStream && signaling.connected && !signaling.matched;
-      
+
     if (canJoinQueue) {
-      signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage); // 🆕 Pass new params
+      // Check freemium limits before joining queue (only on initial join)
+      if (freemiumLimits && !hasCountedMatchRef.current) {
+        if (!freemiumLimits.canMatch) {
+          onLimitReached?.('matches');
+          return;
+        }
+        // Increment match count and mark as counted
+        freemiumLimits.incrementMatch();
+        hasCountedMatchRef.current = true;
+      }
+
+      signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage);
     }
-  }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage, isTextMode]);
+  }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage, isTextMode, freemiumLimits, onLimitReached]);
 
   // Notify parent when matched
   useEffect(() => {
@@ -185,26 +208,38 @@ export default function VideoChat({
   const handleNext = useCallback(() => {
     // Prevent rapid clicking (debounce)
     if (isSkipping) return;
-    
+
+    // Check freemium skip limits
+    if (freemiumLimits) {
+      if (!freemiumLimits.canSkip) {
+        onLimitReached?.('skips');
+        return;
+      }
+      if (!freemiumLimits.incrementSkip()) {
+        onLimitReached?.('skips');
+        return;
+      }
+    }
+
     setIsSkipping(true);
-    
+
     if (signaling.matched) {
-      signaling.endCall(signaling.matched.sessionId, true); // 🆕 Mark as skipped
+      signaling.endCall(signaling.matched.sessionId, true);
     }
     setMessages([]);
-    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage); // 🆕 Pass new params
-    
+    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage);
+
     // Clear any existing timeout
     if (skipTimeoutRef.current) {
       clearTimeout(skipTimeoutRef.current);
     }
-    
+
     // Re-enable after 2 seconds
     skipTimeoutRef.current = setTimeout(() => {
       setIsSkipping(false);
       skipTimeoutRef.current = null;
     }, 2000);
-  }, [isSkipping, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage]);
+  }, [isSkipping, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage, freemiumLimits, onLimitReached]);
   
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -214,6 +249,23 @@ export default function VideoChat({
       }
     };
   }, []);
+
+  // Start/end freemium session tracking
+  useEffect(() => {
+    if (freemiumLimits) {
+      freemiumLimits.startSession();
+      return () => {
+        freemiumLimits.endSession();
+      };
+    }
+  }, [freemiumLimits]);
+
+  // Check for session expiry
+  useEffect(() => {
+    if (freemiumLimits?.isSessionExpired) {
+      onLimitReached?.('session');
+    }
+  }, [freemiumLimits?.isSessionExpired, onLimitReached]);
 
   const handleStopChatting = () => {
     if (signaling.matched) {
@@ -303,8 +355,12 @@ export default function VideoChat({
     return (
       <WaitingQueue
         queuePosition={signaling.queueStatus?.position}
-        estimatedWaitTime={undefined} // Backend calculates this now
+        estimatedWaitTime={undefined}
         onCancel={onWaitingCancel || onStopChatting}
+        matchesRemaining={freemiumLimits?.matchesRemaining}
+        maxMatches={freemiumLimits?.maxMatches}
+        isPremium={isPremium}
+        onUpgrade={onUpgrade}
       />
     );
   }
@@ -321,6 +377,21 @@ export default function VideoChat({
           onDegradeToAudio={handleSwitchToAudioOnly}
           showRecommendation={!isAudioOnlyMode}
         />
+      )}
+
+      {/* Freemium Usage Indicator */}
+      {freemiumLimits && (
+        <div className="absolute top-4 right-4 z-40">
+          <UsageIndicator
+            matchesRemaining={freemiumLimits.matchesRemaining}
+            maxMatches={freemiumLimits.maxMatches}
+            skipsRemaining={freemiumLimits.skipsRemaining}
+            maxSkips={freemiumLimits.maxSkips}
+            sessionTimeRemaining={freemiumLimits.sessionTimeRemaining}
+            isPremium={isPremium}
+            onUpgrade={onUpgrade || (() => {})}
+          />
+        </div>
       )}
 
       {/* Permission Error Modal */}

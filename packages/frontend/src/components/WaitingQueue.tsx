@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
-import { SparklesIcon, UserGroupIcon, ClockIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, UserGroupIcon, ClockIcon, ShieldCheckIcon, StarIcon } from '@heroicons/react/24/outline';
 
 interface WaitingQueueProps {
   queuePosition?: number;
   estimatedWaitTime?: number; // seconds
   onCancel: () => void;
+  // Freemium props
+  matchesRemaining?: number;
+  maxMatches?: number;
+  isPremium?: boolean;
+  onUpgrade?: () => void;
 }
 
-export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCancel }: WaitingQueueProps) {
+export default function WaitingQueue({
+  queuePosition,
+  estimatedWaitTime,
+  onCancel,
+  matchesRemaining,
+  maxMatches,
+  isPremium = false,
+  onUpgrade,
+}: WaitingQueueProps) {
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -99,6 +112,60 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
               </div>
             </div>
           </div>
+
+          {/* Freemium Usage Info */}
+          {!isPremium && matchesRemaining !== undefined && maxMatches !== undefined && (
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-orange-200 rounded-2xl p-4 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl">🎯</div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-800">
+                      {matchesRemaining} of {maxMatches} matches remaining today
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Upgrade to Premium for unlimited matches
+                    </div>
+                  </div>
+                </div>
+                {onUpgrade && (
+                  <button
+                    onClick={onUpgrade}
+                    className="flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 rounded-full text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all"
+                  >
+                    <StarIcon className="w-4 h-4" />
+                    Upgrade
+                  </button>
+                )}
+              </div>
+              {/* Progress bar */}
+              <div className="mt-3 bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    matchesRemaining <= 3 ? 'bg-red-500' : 'bg-green-500'
+                  }`}
+                  style={{ width: `${(matchesRemaining / maxMatches) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Premium Badge */}
+          {isPremium && (
+            <div className="bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 rounded-2xl p-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">⭐</div>
+                <div>
+                  <div className="text-sm font-semibold text-purple-800">
+                    Premium Member
+                  </div>
+                  <div className="text-xs text-purple-600">
+                    Unlimited matches, priority queue, and more!
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Progress Bar */}
           <div className="mb-8">
