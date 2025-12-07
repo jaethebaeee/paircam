@@ -41,7 +41,19 @@ export interface QueueUpdateEvent {
   timestamp: number;
 }
 
-export type PubSubEvent = MatchNotifyEvent | SessionEndEvent | QueueUpdateEvent;
+// WebRTC signal forwarding for horizontal scaling
+export interface SignalForwardEvent {
+  type: 'signal:forward';
+  targetDeviceId: string;
+  signalType: 'offer' | 'answer' | 'candidate' | 'message' | 'reaction';
+  sessionId: string;
+  data: unknown;
+  from: string;
+  timestamp: number;
+  instanceId: string;
+}
+
+export type PubSubEvent = MatchNotifyEvent | SessionEndEvent | QueueUpdateEvent | SignalForwardEvent;
 
 @Injectable()
 export class RedisPubSubService implements OnModuleInit, OnModuleDestroy {
@@ -303,6 +315,28 @@ export class RedisPubSubService implements OnModuleInit, OnModuleDestroy {
       position,
       estimatedWaitTime,
       timestamp: Date.now(),
+    });
+  }
+
+  /**
+   * Forward WebRTC signal to peer on another instance
+   */
+  async publishSignalForward(
+    targetDeviceId: string,
+    signalType: 'offer' | 'answer' | 'candidate' | 'message' | 'reaction',
+    sessionId: string,
+    data: unknown,
+    from: string,
+  ): Promise<void> {
+    await this.publish('signal:forward', {
+      type: 'signal:forward',
+      targetDeviceId,
+      signalType,
+      sessionId,
+      data,
+      from,
+      timestamp: Date.now(),
+      instanceId: this.instanceId,
     });
   }
 

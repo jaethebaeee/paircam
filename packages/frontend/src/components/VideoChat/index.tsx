@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { useSignaling } from '../../hooks/useSignaling';
 import { useWebRTC } from '../../hooks/useWebRTC';
@@ -343,10 +344,14 @@ export default function VideoChat({
         }),
       });
       if (!res.ok) throw new Error('Failed to submit report');
-      alert('Report submitted. Thank you.');
+      toast.success('Report submitted', {
+        description: 'Thank you for helping keep our community safe.',
+      });
     } catch (e) {
       console.error(e);
-      alert('Failed to submit report.');
+      toast.error('Failed to submit report', {
+        description: 'Please try again or contact support.',
+      });
     }
   };
 

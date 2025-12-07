@@ -11,7 +11,7 @@ import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { LoggerService } from '../services/logger.service';
 import { RedisService } from '../redis/redis.service';
-import { RedisPubSubService, MatchNotifyEvent, SessionEndEvent } from '../redis/redis-pubsub.service';
+import { RedisPubSubService, MatchNotifyEvent, SessionEndEvent, SignalForwardEvent } from '../redis/redis-pubsub.service';
 import { MatchmakingService } from './matchmaking.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { AuthService } from '../auth/auth.service';
@@ -84,6 +84,11 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       this.handleRemoteSessionEnd(event as SessionEndEvent);
     });
 
+    // Subscribe to signal forwarding for horizontal scaling
+    await this.redisPubSub.subscribe('signal:forward', (event) => {
+      this.handleRemoteSignalForward(event as SignalForwardEvent);
+    });
+
     this.logger.log(`🌐 SignalingGateway subscribed to Pub/Sub (instance: ${this.redisPubSub.getInstanceId()})`);
   }
 
@@ -114,10 +119,15 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       client.data.peerId = null;
       this.connectedClients.set(deviceId, client);
 
-      this.logger.log('Client connected', { 
-        deviceId, 
+      // Register client in Redis for horizontal scaling
+      const instanceId = this.redisPubSub.getInstanceId();
+      await this.redisService.registerClient(deviceId, instanceId, client.id);
+
+      this.logger.log('Client connected', {
+        deviceId,
         socketId: client.id,
-        totalConnections: this.connectedClients.size 
+        instanceId,
+        totalConnections: this.connectedClients.size
       });
 
       // Send connection confirmation
@@ -148,10 +158,13 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       }
 
       this.connectedClients.delete(deviceId);
-      
-      this.logger.log('Client disconnected', { 
-        deviceId, 
-        totalConnections: this.connectedClients.size 
+
+      // Unregister client from Redis
+      await this.redisService.unregisterClient(deviceId);
+
+      this.logger.log('Client disconnected', {
+        deviceId,
+        totalConnections: this.connectedClients.size
       });
     }
   }
@@ -277,15 +290,8 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         return;
       }
 
-      // Send offer to peer
-      const peerClient = this.connectedClients.get(peerId);
-      if (peerClient) {
-        peerClient.emit('offer', {
-          sessionId: data.sessionId,
-          offer: data.data,
-          from: deviceId,
-        });
-      }
+      // Send offer to peer (local or via Pub/Sub)
+      await this.sendToPeer(peerId, 'offer', data.sessionId, data.data, deviceId);
 
     } catch (error) {
       this.logger.error('Send offer error', error.stack);
@@ -312,15 +318,8 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       const peerId = session.peers.find((p: string) => p !== deviceId);
       if (!peerId) return;
 
-      // Send answer to peer
-      const peerClient = this.connectedClients.get(peerId);
-      if (peerClient) {
-        peerClient.emit('answer', {
-          sessionId: data.sessionId,
-          answer: data.data,
-          from: deviceId,
-        });
-      }
+      // Send answer to peer (local or via Pub/Sub)
+      await this.sendToPeer(peerId, 'answer', data.sessionId, data.data, deviceId);
 
     } catch (error) {
       this.logger.error('Send answer error', error.stack);
@@ -346,15 +345,8 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       const peerId = session.peers.find((p: string) => p !== deviceId);
       if (!peerId) return;
 
-      // Send candidate to peer
-      const peerClient = this.connectedClients.get(peerId);
-      if (peerClient) {
-        peerClient.emit('candidate', {
-          sessionId: data.sessionId,
-          candidate: data.data,
-          from: deviceId,
-        });
-      }
+      // Send candidate to peer (local or via Pub/Sub)
+      await this.sendToPeer(peerId, 'candidate', data.sessionId, data.data, deviceId);
 
     } catch (error) {
       this.logger.error('Send candidate error', error.stack);
@@ -378,17 +370,12 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       const peerId = session.peers.find((p: string) => p !== deviceId);
       if (!peerId) return;
 
-      // Send message to peer
-      const peerClient = this.connectedClients.get(peerId);
-      if (peerClient) {
-        peerClient.emit('message', {
-          sessionId: data.sessionId,
-          message: data.message,
-          from: deviceId,
-          sender: data.sender,  // ✅ Forward sender name
-          timestamp: data.timestamp,
-        });
-      }
+      // Send message to peer (local or via Pub/Sub)
+      await this.sendToPeer(peerId, 'message', data.sessionId, {
+        message: data.message,
+        sender: data.sender,
+        timestamp: data.timestamp,
+      }, deviceId);
 
     } catch (error) {
       this.logger.error('Send message error', error.stack);
@@ -412,16 +399,11 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       const peerId = session.peers.find((p: string) => p !== deviceId);
       if (!peerId) return;
 
-      // Send reaction to peer
-      const peerClient = this.connectedClients.get(peerId);
-      if (peerClient) {
-        peerClient.emit('reaction', {
-          sessionId: data.sessionId,
-          emoji: data.emoji,
-          from: deviceId,
-          timestamp: data.timestamp,
-        });
-      }
+      // Send reaction to peer (local or via Pub/Sub)
+      await this.sendToPeer(peerId, 'reaction', data.sessionId, {
+        emoji: data.emoji,
+        timestamp: data.timestamp,
+      }, deviceId);
 
     } catch (error) {
       this.logger.error('Send reaction error', error.stack);
@@ -687,15 +669,95 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         if (client.data.sessionId === sessionId && clientDeviceId !== deviceId) {
           // This client's peer ended the session from another instance
           client.emit('peer-disconnected', { sessionId });
-          this.logger.log('📥 Remote session end notification delivered', { 
-            deviceId: clientDeviceId, 
+          this.logger.log('📥 Remote session end notification delivered', {
+            deviceId: clientDeviceId,
             sessionId,
-            fromInstance: event.instanceId 
+            fromInstance: event.instanceId
           });
         }
       }
     } catch (error) {
       this.logger.error('Error handling remote session end', error.stack);
     }
+  }
+
+  // 🌐 Handle signal forwarding from other instances
+  private handleRemoteSignalForward(event: SignalForwardEvent) {
+    try {
+      const { targetDeviceId, signalType, sessionId, data, from } = event;
+
+      // Check if target client is on this instance
+      const targetClient = this.connectedClients.get(targetDeviceId);
+      if (!targetClient) {
+        // Not our client, ignore
+        return;
+      }
+
+      // Forward the signal to the local client
+      switch (signalType) {
+        case 'offer':
+          targetClient.emit('offer', { sessionId, offer: data, from });
+          break;
+        case 'answer':
+          targetClient.emit('answer', { sessionId, answer: data, from });
+          break;
+        case 'candidate':
+          targetClient.emit('candidate', { sessionId, candidate: data, from });
+          break;
+        case 'message':
+          targetClient.emit('message', { sessionId, ...(data as object), from });
+          break;
+        case 'reaction':
+          targetClient.emit('reaction', { sessionId, ...(data as object), from });
+          break;
+      }
+
+      this.logger.debug('📥 Remote signal forwarded', {
+        targetDeviceId,
+        signalType,
+        sessionId,
+        fromInstance: event.instanceId,
+      });
+    } catch (error) {
+      this.logger.error('Error handling remote signal forward', error.stack);
+    }
+  }
+
+  // 🌐 Helper: Send signal to peer (local or via Pub/Sub)
+  private async sendToPeer(
+    peerId: string,
+    signalType: 'offer' | 'answer' | 'candidate' | 'message' | 'reaction',
+    sessionId: string,
+    data: unknown,
+    from: string,
+  ): Promise<boolean> {
+    // Try local first
+    const localPeer = this.connectedClients.get(peerId);
+    if (localPeer) {
+      // Client is on this instance
+      switch (signalType) {
+        case 'offer':
+          localPeer.emit('offer', { sessionId, offer: data, from });
+          break;
+        case 'answer':
+          localPeer.emit('answer', { sessionId, answer: data, from });
+          break;
+        case 'candidate':
+          localPeer.emit('candidate', { sessionId, candidate: data, from });
+          break;
+        case 'message':
+          localPeer.emit('message', { sessionId, ...(data as object), from });
+          break;
+        case 'reaction':
+          localPeer.emit('reaction', { sessionId, ...(data as object), from });
+          break;
+      }
+      return true;
+    }
+
+    // Client not on this instance - publish via Pub/Sub
+    await this.redisPubSub.publishSignalForward(peerId, signalType, sessionId, data, from);
+    this.logger.debug('📤 Signal forwarded via Pub/Sub', { peerId, signalType, sessionId });
+    return true;
   }
 }

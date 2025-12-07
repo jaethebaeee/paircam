@@ -156,8 +156,101 @@
     }
   }
 
+  /* Video chat specific animations */
+  @keyframes scaleFadeOut {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    20% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    80% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes float-slow {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(10px, -15px) scale(1.02);
+    }
+    66% {
+      transform: translate(-8px, 8px) scale(0.98);
+    }
+  }
+
+  @keyframes pingSlow {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    50% {
+      opacity: 0.3;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes pingSlower {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 0.2;
+    }
+    100% {
+      transform: scale(1.3);
+      opacity: 0;
+    }
+  }
+
+  @keyframes pulseGentle {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes spinSlow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   .animate-fadeIn {
     animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-fadeIn-slow {
+    animation: fadeIn 0.5s ease-out forwards;
   }
 
   .animate-slideUp {
@@ -186,6 +279,44 @@
   
   .animate-glow-pulse {
     animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  .animate-scale-fade-out {
+    animation: scaleFadeOut 2s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 20s ease-in-out infinite;
+  }
+
+  .animate-ping-slow {
+    animation: pingSlow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .animate-ping-slower {
+    animation: pingSlower 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    animation-delay: 0.5s;
+  }
+
+  .animate-pulse-gentle {
+    animation: pulseGentle 2s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spinSlow 3s linear infinite;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  /* Mirror effect for local video */
+  .mirror {
+    transform: scaleX(-1);
   }
 
   /* Custom scrollbar - Modern pink/purple theme */
