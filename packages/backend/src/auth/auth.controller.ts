@@ -1,8 +1,19 @@
-import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Req, UnauthorizedException } from '@nestjs/common';
 import { AuthService, AuthTokens } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Public } from './public.decorator';
 import { GenerateTokenDto } from './dto/generate-token.dto';
+import { GoogleAuthDto } from './dto/google-auth.dto';
+
+interface GoogleAuthResponse extends AuthTokens {
+  user: {
+    id: string;
+    email: string;
+    username?: string;
+    avatarUrl?: string;
+    isPremium: boolean;
+  };
+}
 
 @Controller('auth')
 export class AuthController {
@@ -12,6 +23,16 @@ export class AuthController {
   @Post('token')
   async generateToken(@Body() body: GenerateTokenDto): Promise<AuthTokens> {
     return this.authService.generateToken(body.deviceId);
+  }
+
+  @Public()
+  @Post('google')
+  async googleAuth(@Body() body: GoogleAuthDto): Promise<GoogleAuthResponse> {
+    try {
+      return await this.authService.authenticateWithGoogle(body.credential, body.deviceId);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid Google credentials');
+    }
   }
 
   @UseGuards(JwtAuthGuard)

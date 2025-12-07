@@ -129,7 +129,7 @@ function AppRoutes({
       {/* Dynamic SEO meta tags */}
       <SEO {...getSEOProps()} />
 
-      <Navbar />
+      <Navbar onOpenPremium={() => setShowPremiumModal(true)} />
       
       <main className="flex-1 relative">
         <Suspense fallback={<LoadingSpinner />}>

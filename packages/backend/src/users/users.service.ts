@@ -47,10 +47,79 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.usersRepository.findOne({ 
+    return this.usersRepository.findOne({
       where: { email },
       relations: ['subscriptions'],
     });
+  }
+
+  async findOrCreateByGoogle(googleUserInfo: {
+    googleId: string;
+    email: string;
+    name?: string;
+    avatarUrl?: string;
+  }, deviceId?: string): Promise<User> {
+    // First, try to find by Google ID
+    let user = await this.findByGoogleId(googleUserInfo.googleId);
+
+    if (user) {
+      // User exists with this Google account
+      if (deviceId && user.deviceId !== deviceId) {
+        this.logger.log('Google user logging in from different device', {
+          userId: user.id,
+          oldDeviceId: user.deviceId,
+          newDeviceId: deviceId
+        });
+      }
+      return user;
+    }
+
+    // Try to find by email
+    user = await this.findByEmail(googleUserInfo.email);
+    if (user) {
+      // Link Google to existing email account
+      user.googleId = googleUserInfo.googleId;
+      if (googleUserInfo.avatarUrl && !user.avatarUrl) {
+        user.avatarUrl = googleUserInfo.avatarUrl;
+      }
+      await this.usersRepository.save(user);
+      this.logger.log('Linked Google account to existing user', { userId: user.id });
+      return user;
+    }
+
+    // If deviceId provided, try to find by device and link Google
+    if (deviceId) {
+      user = await this.findByDeviceId(deviceId);
+      if (user) {
+        // Link Google to existing device-based account
+        user.googleId = googleUserInfo.googleId;
+        user.email = googleUserInfo.email;
+        if (googleUserInfo.name && !user.username) {
+          user.username = googleUserInfo.name;
+        }
+        if (googleUserInfo.avatarUrl) {
+          user.avatarUrl = googleUserInfo.avatarUrl;
+        }
+        await this.usersRepository.save(user);
+        this.logger.log('Linked Google account to device user', { userId: user.id, deviceId });
+        return user;
+      }
+    }
+
+    // Create new user with Google info
+    const newDeviceId = deviceId || `google_${googleUserInfo.googleId}`;
+    user = this.usersRepository.create({
+      deviceId: newDeviceId,
+      googleId: googleUserInfo.googleId,
+      email: googleUserInfo.email,
+      username: googleUserInfo.name,
+      avatarUrl: googleUserInfo.avatarUrl,
+      isProfileComplete: true,
+    });
+    await this.usersRepository.save(user);
+    this.logger.log('Created new user via Google OAuth', { userId: user.id, googleId: googleUserInfo.googleId });
+
+    return user;
   }
 
   async create(data: Partial<User>): Promise<User> {
