@@ -131,7 +131,7 @@ export default function VideoControls({
               className={`relative p-4 rounded-full shadow-lg transition-all duration-300 transform ${
                 isSkipping
                   ? 'bg-gray-400 cursor-not-allowed opacity-50'
-                  : 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 shadow-pink-500/50 hover:scale-110 active:scale-95 hover:shadow-pink-500/70'
+                  : 'bg-gradient-to-r from-brand-500 to-violet-600 hover:from-brand-600 hover:to-violet-700 shadow-brand-500/50 hover:scale-110 active:scale-95 hover:shadow-brand-500/70'
               }`}
               aria-label={isSkipping ? 'Finding new match...' : 'Next person'}
             >

@@ -88,11 +88,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       {/* Premium Button - Fixed Top Right */}
       <button
         onClick={() => setShowPremiumModal(true)}
-        className="group fixed top-20 sm:top-24 right-4 z-10 bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden text-sm sm:text-base"
+        className="group fixed top-20 sm:top-24 right-4 z-10 bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 hover:from-gold-500 hover:via-gold-600 hover:to-gold-700 text-gray-900 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-lg shadow-gold-500/30 hover:shadow-xl hover:shadow-gold-500/40 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 active:scale-95 overflow-hidden text-sm sm:text-base"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <span className="relative flex items-center gap-1.5 sm:gap-2">
-          <span className="text-base sm:text-lg animate-bounce-subtle">⭐</span>
+          <span className="text-base sm:text-lg animate-bounce-subtle">👑</span>
           <span className="hidden sm:inline">Get Premium</span>
           <span className="sm:hidden">Premium</span>
         </span>
@@ -102,14 +102,14 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         {/* Hero Section */}
         <div className="text-center mb-12 sm:mb-16 pt-12 sm:pt-8">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-4 rounded-3xl shadow-xl">
+            <div className="bg-gradient-to-br from-brand-500 to-violet-600 p-4 rounded-3xl shadow-xl shadow-brand-500/25">
               <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="PairCam logo - Global video chat network">
                 <title>PairCam - Connect with people worldwide</title>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight px-2">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-brand-600 via-violet-600 to-violet-500 bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight px-2">
             Instant Video Chat
             <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-1 sm:mt-2">with Strangers</span>
           </h1>
@@ -309,7 +309,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             {/* Name Input */}
             <div className="space-y-2 sm:space-y-3">
               <label className="block text-sm font-semibold text-gray-900">
-                What's your name? <span className="text-pink-600">*</span>
+                What's your name? <span className="text-brand-600">*</span>
               </label>
               <div className="relative group">
                 <input
@@ -322,9 +322,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   placeholder="Enter your name or nickname"
                   className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 ${
                     showNameError
-                      ? 'border-red-400 bg-red-50/30 focus:border-red-500'
-                      : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 focus:border-pink-500'
-                  } focus:ring-4 focus:ring-pink-100 outline-none text-sm sm:text-base transition-all duration-200 placeholder:text-gray-400 shadow-sm hover:shadow-md`}
+                      ? 'border-danger-500 bg-danger-50/30 focus:border-danger-500'
+                      : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 focus:border-brand-500'
+                  } focus:ring-4 focus:ring-brand-100 outline-none text-sm sm:text-base transition-all duration-200 placeholder:text-gray-400 shadow-sm hover:shadow-md`}
                   maxLength={30}
                 />
                 {userName && !showNameError && (
@@ -346,12 +346,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
 
             {/* Modern Toggle Switch for Video */}
-            <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl shadow-inner border border-gray-100 hover:shadow-md transition-all duration-200 group">
+            <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl shadow-inner-soft border border-gray-100 hover:shadow-md transition-all duration-200 group">
               <label className="flex items-center cursor-pointer flex-1" onClick={() => setIsVideoEnabled(!isVideoEnabled)}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
                     <span className="text-sm sm:text-base font-semibold text-gray-900">Enable video</span>
-                    <svg className={`w-4 h-4 transition-colors ${isVideoEnabled ? 'text-pink-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-4 h-4 transition-colors ${isVideoEnabled ? 'text-brand-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                   </div>
@@ -360,8 +360,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </label>
               <button
                 onClick={() => setIsVideoEnabled(!isVideoEnabled)}
-                className={`relative inline-flex h-7 sm:h-9 w-12 sm:w-16 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-pink-100 shadow-sm flex-shrink-0 ml-3 ${
-                  isVideoEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-500 shadow-pink-200' : 'bg-gray-300 hover:bg-gray-400'
+                className={`relative inline-flex h-7 sm:h-9 w-12 sm:w-16 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-brand-100 shadow-sm flex-shrink-0 ml-3 ${
+                  isVideoEnabled ? 'bg-gradient-to-r from-brand-500 to-violet-500 shadow-brand-200' : 'bg-gray-300 hover:bg-gray-400'
                 }`}
               >
                 <span
@@ -381,12 +381,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   setShowAgeError(false);
                 }
               }}
-              className="flex items-start p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl cursor-pointer hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200/50 transition-all duration-200 shadow-inner border border-gray-100 group hover:shadow-md"
+              className="flex items-start p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl cursor-pointer hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200/50 transition-all duration-200 shadow-inner-soft border border-gray-100 group hover:shadow-md"
             >
               <div className="flex items-center h-5 sm:h-6 mt-0.5 sm:mt-1">
                 <div className={`h-6 sm:h-7 w-6 sm:w-7 rounded-lg sm:rounded-xl border-2 flex items-center justify-center transition-all duration-300 shadow-sm ${
                   isAdultConfirmed
-                    ? 'bg-gradient-to-br from-pink-500 to-purple-600 border-pink-500 shadow-pink-200 scale-105'
+                    ? 'bg-gradient-to-br from-brand-500 to-violet-600 border-brand-500 shadow-brand-200 scale-105'
                     : 'border-gray-300 bg-white group-hover:border-gray-400'
                 }`}>
                   {isAdultConfirmed && (
@@ -406,7 +406,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             {isAdultConfirmed && (
               <div className="space-y-2 sm:space-y-3 animate-slideUp">
                 <label className="block text-sm font-semibold text-gray-900">
-                  What's your age? <span className="text-pink-600">*</span>
+                  What's your age? <span className="text-brand-600">*</span>
                 </label>
                 <div className="relative group">
                   <input
@@ -421,9 +421,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                     max="120"
                     className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 ${
                       showAgeError
-                        ? 'border-red-400 bg-red-50/30 focus:border-red-500'
-                        : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 focus:border-pink-500'
-                    } focus:ring-4 focus:ring-pink-100 outline-none text-sm sm:text-base transition-all duration-200 placeholder:text-gray-400 shadow-sm hover:shadow-md`}
+                        ? 'border-danger-500 bg-danger-50/30 focus:border-danger-500'
+                        : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 focus:border-brand-500'
+                    } focus:ring-4 focus:ring-brand-100 outline-none text-sm sm:text-base transition-all duration-200 placeholder:text-gray-400 shadow-sm hover:shadow-md`}
                   />
                   {userAge && parseInt(userAge) >= 18 && !showAgeError && (
                     <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-green-500 animate-scaleIn">
@@ -449,10 +449,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <div className="pt-4 sm:pt-6">
               <button
                 onClick={() => handleStartChat(false)}
-                className="group relative w-full py-4 sm:py-5 px-6 sm:px-8 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 hover:from-pink-600 hover:via-purple-600 hover:to-purple-700 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-xl shadow-pink-500/40 hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.97] focus:outline-none focus:ring-4 focus:ring-pink-300 overflow-hidden"
+                className="group relative w-full py-4 sm:py-5 px-6 sm:px-8 bg-gradient-to-r from-brand-500 via-brand-600 to-violet-600 hover:from-brand-600 hover:via-violet-600 hover:to-violet-700 text-white font-bold text-base sm:text-lg rounded-2xl shadow-xl shadow-brand-500/30 hover:shadow-2xl hover:shadow-brand-500/40 transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-brand-200 overflow-hidden"
               >
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:animate-pulse" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <span className="relative flex items-center justify-center gap-2 sm:gap-3">
                   <svg className="w-5 sm:w-6 h-5 sm:h-6 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -469,12 +468,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <div className="text-center pt-1 sm:pt-2">
               <button
                 onClick={() => handleStartChat(true)}
-                className="group inline-flex items-center gap-2 text-pink-600 hover:text-purple-700 font-semibold text-sm sm:text-base transition-all duration-200 hover:gap-3 px-4 py-2 rounded-xl hover:bg-pink-50"
+                className="group inline-flex items-center gap-2 text-brand-600 hover:text-violet-700 font-semibold text-sm sm:text-base transition-all duration-200 hover:gap-3 px-4 py-2 rounded-xl hover:bg-brand-50"
               >
                 <span className="text-lg sm:text-xl">💬</span>
                 <span className="relative">
                   Text only mode
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-600 to-purple-700 group-hover:w-full transition-all duration-300"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-600 to-violet-700 group-hover:w-full transition-all duration-300"></span>
                 </span>
               </button>
             </div>
