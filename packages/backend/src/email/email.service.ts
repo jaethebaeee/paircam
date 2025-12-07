@@ -283,37 +283,98 @@ export class EmailService {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PairCam</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td {font-family: Arial, sans-serif !important;}
+  </style>
+  <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f3f4f6; padding: 40px 20px;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <!-- Header -->
+        <!-- Preheader text (hidden) -->
+        <div style="display: none; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #f3f4f6;">
+          PairCam - Connect with people worldwide through video chat
+        </div>
+
+        <table width="600" cellpadding="0" cellspacing="0" role="presentation" style="max-width: 600px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
+          <!-- Header with Logo -->
           <tr>
-            <td style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); padding: 24px; text-align: center;">
-              <h1 style="margin: 0; color: white; font-size: 28px; font-weight: bold;">PairCam</h1>
+            <td style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%); padding: 32px; text-align: center;">
+              <table cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto;">
+                <tr>
+                  <td style="background: rgba(255,255,255,0.2); border-radius: 16px; padding: 12px 24px;">
+                    <h1 style="margin: 0; color: white; font-size: 32px; font-weight: 800; letter-spacing: -1px;">
+                      Pair<span style="font-weight: 400;">Cam</span>
+                    </h1>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
+                Random Video Chat
+              </p>
             </td>
           </tr>
+
           <!-- Content -->
           <tr>
-            <td style="padding: 40px;">
+            <td style="padding: 48px 40px;">
               ${content}
             </td>
           </tr>
+
+          <!-- Social Links -->
+          <tr>
+            <td style="padding: 0 40px 32px 40px; text-align: center;">
+              <table cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto;">
+                <tr>
+                  <td style="padding: 0 8px;">
+                    <a href="https://twitter.com/paircam" style="display: inline-block; width: 36px; height: 36px; background: #f3f4f6; border-radius: 50%; text-align: center; line-height: 36px; text-decoration: none;">
+                      <img src="https://paircam.live/email/twitter.png" alt="Twitter" width="18" height="18" style="vertical-align: middle;" />
+                    </a>
+                  </td>
+                  <td style="padding: 0 8px;">
+                    <a href="https://instagram.com/paircam" style="display: inline-block; width: 36px; height: 36px; background: #f3f4f6; border-radius: 50%; text-align: center; line-height: 36px; text-decoration: none;">
+                      <img src="https://paircam.live/email/instagram.png" alt="Instagram" width="18" height="18" style="vertical-align: middle;" />
+                    </a>
+                  </td>
+                  <td style="padding: 0 8px;">
+                    <a href="https://discord.gg/paircam" style="display: inline-block; width: 36px; height: 36px; background: #f3f4f6; border-radius: 50%; text-align: center; line-height: 36px; text-decoration: none;">
+                      <img src="https://paircam.live/email/discord.png" alt="Discord" width="18" height="18" style="vertical-align: middle;" />
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
           <!-- Footer -->
           <tr>
-            <td style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">
-                PairCam - Random Video Chat
+            <td style="background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%); padding: 32px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 14px; font-weight: 500;">
+                PairCam - Meet New People
               </p>
-              <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                <a href="${env.FRONTEND_URL}/privacy-policy" style="color: #9ca3af; text-decoration: underline;">Privacy Policy</a> •
+              <p style="margin: 0 0 16px 0; color: #9ca3af; font-size: 12px; line-height: 1.6;">
+                <a href="${env.FRONTEND_URL}/privacy-policy" style="color: #9ca3af; text-decoration: underline;">Privacy Policy</a>
+                <span style="padding: 0 8px;">•</span>
                 <a href="${env.FRONTEND_URL}/terms-of-service" style="color: #9ca3af; text-decoration: underline;">Terms of Service</a>
+                <span style="padding: 0 8px;">•</span>
+                <a href="${env.FRONTEND_URL}/blog" style="color: #9ca3af; text-decoration: underline;">Blog</a>
+              </p>
+              <p style="margin: 0; color: #d1d5db; font-size: 11px;">
+                © ${new Date().getFullYear()} PairCam. All rights reserved.
               </p>
             </td>
           </tr>
         </table>
+
+        <!-- Unsubscribe -->
+        <p style="margin: 24px 0 0 0; color: #9ca3af; font-size: 11px; text-align: center;">
+          You're receiving this email because you have a PairCam account.<br/>
+          <a href="${env.FRONTEND_URL}/unsubscribe" style="color: #9ca3af; text-decoration: underline;">Unsubscribe from emails</a>
+        </p>
       </td>
     </tr>
   </table>
