@@ -102,11 +102,11 @@ export function useAdFrequency(config: Partial<AdFrequencyConfig> = {}) {
    */
   const recordAdShown = useCallback(() => {
     isShowingAdRef.current = false;
-    setState(prev => ({
+    setState({
       matchCount: 0,
       lastAdShownAt: Date.now(),
       nextAdAtMatch: getRandomMatchInterval(),
-    }));
+    });
   }, [getRandomMatchInterval]);
 
   /**
