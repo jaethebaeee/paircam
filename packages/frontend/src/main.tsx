@@ -4,6 +4,7 @@ import App from './App';
 import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { enforceSecureConnection, validateSecurityConfig } from './utils/security';
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 // ═══════════════════════════════════════════════════════════════════
 // 🔒 SECURITY: Enforce HTTPS in production
@@ -55,4 +56,29 @@ if (rootElement.hasChildNodes()) {
   );
 }
 
-// Cache bust Fri Oct 24 14:32:13 EDT 2025
+// ═══════════════════════════════════════════════════════════════════
+// 📊 WEB VITALS: Track Core Web Vitals for SEO & Performance
+// ═══════════════════════════════════════════════════════════════════
+const reportWebVitals = (metric: { name: string; value: number; id: string }) => {
+  // Send to Google Analytics if available
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', metric.name, {
+      event_category: 'Web Vitals',
+      event_label: metric.id,
+      value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+      non_interaction: true,
+    });
+  }
+
+  // Log in development for debugging
+  if (import.meta.env.DEV) {
+    console.log(`[Web Vitals] ${metric.name}:`, metric.value);
+  }
+};
+
+// Track all Core Web Vitals
+onCLS(reportWebVitals);  // Cumulative Layout Shift
+onFCP(reportWebVitals);  // First Contentful Paint
+onINP(reportWebVitals);  // Interaction to Next Paint
+onLCP(reportWebVitals);  // Largest Contentful Paint
+onTTFB(reportWebVitals); // Time to First Byte

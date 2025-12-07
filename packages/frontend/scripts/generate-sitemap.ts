@@ -8,6 +8,16 @@ const __dirname = dirname(__filename);
 
 const BASE_URL = 'https://paircam.live';
 
+// Blog posts data for sitemap (update when adding new posts)
+const blogPosts = [
+  { slug: 'omegle-alternatives-2024-best-random-video-chat-sites', lastmod: '2024-12-01' },
+  { slug: 'video-chat-safety-tips-protect-yourself-online', lastmod: '2024-12-01' },
+  { slug: 'make-friends-online-random-video-chat-guide', lastmod: '2024-12-01' },
+  { slug: 'random-video-chat-vs-dating-apps-which-better', lastmod: '2024-12-01' },
+  { slug: 'learn-languages-random-video-chat-native-speakers', lastmod: '2024-12-01' },
+  { slug: 'random-video-chat-for-introverts-social-anxiety-tips', lastmod: '2024-12-01' },
+];
+
 // Define all routes with their properties
 const routes = [
   {
@@ -15,6 +25,22 @@ const routes = [
     changefreq: 'daily',
     priority: 1.0,
   },
+  {
+    url: '/#faq',
+    changefreq: 'weekly',
+    priority: 0.8,
+  },
+  {
+    url: '/blog',
+    changefreq: 'daily',
+    priority: 0.9,
+  },
+  ...blogPosts.map(post => ({
+    url: `/blog/${post.slug}`,
+    changefreq: 'weekly',
+    priority: 0.7,
+    lastmod: post.lastmod,
+  })),
   {
     url: '/terms-of-service',
     changefreq: 'monthly',

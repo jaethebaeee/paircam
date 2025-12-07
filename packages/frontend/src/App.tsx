@@ -21,6 +21,10 @@ const TermsOfService = lazy(() => import('./components/legal/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./components/legal/PrivacyPolicy'));
 const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
 
+// Lazy load blog pages
+const BlogList = lazy(() => import('./components/blog/BlogList'));
+const BlogPost = lazy(() => import('./components/blog/BlogPost'));
+
 // Schema.org structured data for homepage
 const softwareAppSchema = {
   "@context": "https://schema.org",
@@ -169,7 +173,11 @@ function AppRoutes({
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/cookie-policy" element={<CookiePolicy />} />
-            
+
+            {/* Blog Pages */}
+            <Route path="/blog" element={<BlogList />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

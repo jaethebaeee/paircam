@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { ChatBubbleLeftIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
 
 interface ChatPanelProps {
@@ -11,6 +12,7 @@ interface ChatPanelProps {
 export default function ChatPanel({ messages, onSendMessage, onClose, isFullScreen = false }: ChatPanelProps) {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [messagesParent] = useAutoAnimate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -49,7 +51,7 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
       </div>
       
       {/* Messages Area */}
-      <div className={`${isFullScreen ? 'flex-1' : 'h-72'} overflow-y-auto p-4 space-y-3 bg-gray-50/50`}>
+      <div ref={messagesParent} className={`${isFullScreen ? 'flex-1' : 'h-72'} overflow-y-auto p-4 space-y-3 bg-gray-50/50`}>
         {messages.length === 0 ? (
           <div className="text-center text-gray-400 py-12">
             <div className="bg-gradient-to-br from-pink-100 to-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 shadow-sm">

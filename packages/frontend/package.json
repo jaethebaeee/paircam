@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate:sitemap && tsc && vite build",
-    "build:prerender": "npm run generate:sitemap && tsc && vite build && npm run postbuild",
+    "build": "npm run generate:sitemap && npm run generate:rss && tsc && vite build",
+    "build:prerender": "npm run generate:sitemap && npm run generate:rss && tsc && vite build && npm run postbuild",
     "postbuild": "react-snap",
     "preview": "vite preview",
     "test": "vitest",
@@ -13,9 +13,11 @@
     "test:cov": "vitest --coverage",
     "lint": "eslint src --ext .ts,.tsx",
     "format": "prettier --write src",
-    "generate:sitemap": "tsx scripts/generate-sitemap.ts"
+    "generate:sitemap": "tsx scripts/generate-sitemap.ts",
+    "generate:rss": "tsx scripts/generate-rss.ts"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.9.0",
     "axios": "^1.6.0",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
@@ -25,10 +27,12 @@
     "lucide-react": "^0.400.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-markdown": "^9.0.1",
     "react-router-dom": "^6.30.1",
     "socket.io-client": "^4.7.0",
     "sonner": "^1.4.0",
     "uuid": "^9.0.1",
+    "web-vitals": "^5.1.0",
     "zustand": "^4.4.0"
   },
   "devDependencies": {
@@ -63,6 +67,7 @@
     "tsx": "^4.20.6",
     "typescript": "^5.2.0",
     "vite": "^5.0.0",
+    "vite-plugin-compression": "^0.5.1",
     "vitest": "^1.0.0"
   },
   "reactSnap": {
@@ -79,7 +84,14 @@
       "/",
       "/terms-of-service",
       "/privacy-policy",
-      "/cookie-policy"
+      "/cookie-policy",
+      "/blog",
+      "/blog/omegle-alternatives-2024-best-random-video-chat-sites",
+      "/blog/video-chat-safety-tips-protect-yourself-online",
+      "/blog/make-friends-online-random-video-chat-guide",
+      "/blog/random-video-chat-vs-dating-apps-which-better",
+      "/blog/learn-languages-random-video-chat-native-speakers",
+      "/blog/random-video-chat-for-introverts-social-anxiety-tips"
     ]
   }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import PremiumModal from './PremiumModal';
 import { useAuthContext } from '../contexts/AuthContext';
 import AnimatedBackground from './ui/AnimatedBackground';
@@ -45,10 +46,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const liveUsers = useLiveUserCount();
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const liveUserCount = useLiveUserCount();
 
-  // Get premium status from auth context (used for premium button visibility)
-  const { } = useAuthContext();
+  // Auto-animate for FAQ expand/collapse
+  const [faqParent] = useAutoAnimate();
 
   const handleStartChat = (textMode = false) => {
     if (!userName.trim()) {
@@ -116,9 +118,23 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           <h2 className="text-lg sm:text-xl md:text-2xl text-gray-800 mb-3 sm:mb-4 font-semibold max-w-3xl mx-auto px-4">
             Meet new people instantly - No signup, 100% free
           </h2>
-          <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
             Anonymous, instant connections with people worldwide. Choose video, voice, or text chat.
           </p>
+
+          {/* Live User Count Badge */}
+          {liveUserCount > 0 && (
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <div className="inline-flex items-center gap-3 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-800 px-6 py-3 rounded-full shadow-lg">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                <span className="font-bold text-2xl text-gray-900">{liveUserCount.toLocaleString()}</span>
+                <span className="font-medium text-gray-600">users online now</span>
+              </div>
+            </div>
+          )}
 
           {/* Key Value Props */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-sm sm:text-base text-gray-700 mb-8 sm:mb-12 px-2">
