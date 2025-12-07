@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
-import { useAuthContext } from '../contexts/AuthContext';
 
 // Simulated live user count hook (replace with real WebSocket data)
 function useLiveUserCount() {
@@ -81,9 +80,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const liveUserCount = useLiveUserCount();
-
-  // Get premium status from auth context (used for premium button visibility)
-  const { } = useAuthContext();
 
   const handleStartChat = (textMode = false) => {
     if (!userName.trim()) {
