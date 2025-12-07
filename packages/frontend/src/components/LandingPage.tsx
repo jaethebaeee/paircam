@@ -1,6 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
 import { useAuthContext } from '../contexts/AuthContext';
+
+// FAQPage schema for Google rich results
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Is PairCam free to use?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes! PairCam is completely free to use. You can start video chatting with strangers instantly without any signup or payment. We also offer a Premium subscription with extra features like gender filters, priority matching, and an ad-free experience.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is PairCam safe to use?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'We take safety seriously. PairCam includes 24/7 AI and human moderation, one-click report and block functionality, 18+ age verification for video chat, anonymous connections with no personal info required, and end-to-end encrypted video calls. However, always remember to never share personal information with strangers online.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I need to create an account?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No account needed! Simply enter a nickname and start chatting. This keeps you completely anonymous. If you want premium features, you can optionally create an account, but it\'s never required for basic usage.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How does the matching system work?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'PairCam uses an intelligent matching algorithm that considers your selected interests and preferences, queue type (casual, serious conversations, language learning, gaming), gender preferences (Premium feature), and language preferences for language exchange. The system finds you a compatible partner in seconds!',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Are video chats recorded?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No, we never record your video or audio conversations. PairCam uses peer-to-peer (P2P) WebRTC technology, meaning your video streams directly between you and your chat partner without passing through our servers. Your conversations are private and encrypted.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What are Premium features?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Premium subscribers get exclusive features including Gender Filter (match only with your preferred gender), Priority Matching (skip the queue and find matches faster), Ad-Free experience, Unlimited Matches (no daily limits), and Rewind (undo your last skip). Premium starts at just $2.99/week or $9.99/month.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What devices can I use PairCam on?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'PairCam works on any device with a modern web browser including desktop computers (Windows, Mac, Linux), laptops, tablets, and smartphones (iPhone, Android). No app download required - just visit our website and start chatting. For the best experience, we recommend using Chrome, Firefox, Safari, or Edge.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How do I report inappropriate behavior?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'During any chat, you can click the "Report" button to flag inappropriate behavior. Our moderation team reviews all reports within 24 hours. Serious violations result in immediate permanent bans. You can also block any user instantly to prevent future matches with them.',
+      },
+    },
+  ],
+};
 
 interface LandingPageProps {
   onStartCall: (data: { 
@@ -23,6 +95,27 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   
   // Get premium status from auth context (used for premium button visibility)
   const { } = useAuthContext();
+
+  // Inject FAQPage schema for SEO
+  useEffect(() => {
+    const scriptId = 'faq-schema';
+    let script = document.getElementById(scriptId) as HTMLScriptElement;
+
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(faqSchema);
+
+    return () => {
+      const existingScript = document.getElementById(scriptId);
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, []);
 
   const handleStartChat = (textMode = false) => {
     if (!userName.trim()) {
