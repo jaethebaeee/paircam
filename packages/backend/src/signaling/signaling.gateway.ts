@@ -143,9 +143,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       }
 
       // Clear queue update interval if active
-      if (client.data.queueUpdateInterval) {
-        clearInterval(client.data.queueUpdateInterval);
-      }
+      this.clearQueueInterval(client);
 
       this.connectedClients.delete(deviceId);
       
@@ -240,11 +238,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
 
   @SubscribeMessage('leave-queue')
   async handleLeaveQueue(@ConnectedSocket() client: Socket) {
-    // Clear queue update interval
-    if (client.data.queueUpdateInterval) {
-      clearInterval(client.data.queueUpdateInterval);
-      client.data.queueUpdateInterval = null;
-    }
+    this.clearQueueInterval(client);
     const deviceId = client.data.deviceId;
     if (!deviceId) return;
 
@@ -442,6 +436,13 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
   }
 
   // Helper methods
+  private clearQueueInterval(client: Socket) {
+    if (client.data.queueUpdateInterval) {
+      clearInterval(client.data.queueUpdateInterval);
+      client.data.queueUpdateInterval = null;
+    }
+  }
+
   private extractToken(client: Socket): string | null {
     const fromAuth = (client.handshake.auth as any)?.token;
     if (typeof fromAuth === 'string' && fromAuth.startsWith('Bearer ')) {
@@ -590,6 +591,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     const client2 = this.connectedClients.get(deviceId2);
 
     if (client1) {
+      this.clearQueueInterval(client1); // Stop queue updates - user is matched
       client1.data.sessionId = sessionId;
       client1.data.peerId = deviceId2;
       client1.data.sessionStartTime = startTime;
@@ -602,6 +604,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
 
     if (client2) {
+      this.clearQueueInterval(client2); // Stop queue updates - user is matched
       client2.data.sessionId = sessionId;
       client2.data.peerId = deviceId1;
       client2.data.sessionStartTime = startTime;
@@ -635,6 +638,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       const client2 = this.connectedClients.get(deviceId2);
 
       if (client1) {
+        this.clearQueueInterval(client1); // Stop queue updates - user is matched
         client1.data.sessionId = sessionId;
         client1.data.peerId = deviceId2;
         client1.data.sessionStartTime = timestamp;
@@ -643,13 +647,14 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
           peerId: deviceId2,
           timestamp,
         });
-        this.logger.log('📥 Remote match notification delivered', { 
-          deviceId: deviceId1, 
-          fromInstance: event.instanceId 
+        this.logger.log('📥 Remote match notification delivered', {
+          deviceId: deviceId1,
+          fromInstance: event.instanceId
         });
       }
 
       if (client2) {
+        this.clearQueueInterval(client2); // Stop queue updates - user is matched
         client2.data.sessionId = sessionId;
         client2.data.peerId = deviceId1;
         client2.data.sessionStartTime = timestamp;
@@ -658,9 +663,9 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
           peerId: deviceId1,
           timestamp,
         });
-        this.logger.log('📥 Remote match notification delivered', { 
-          deviceId: deviceId2, 
-          fromInstance: event.instanceId 
+        this.logger.log('📥 Remote match notification delivered', {
+          deviceId: deviceId2,
+          fromInstance: event.instanceId
         });
       }
 
