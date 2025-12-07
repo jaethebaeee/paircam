@@ -5,7 +5,7 @@
  */
 
 export default function CookiePolicy() {
-  const lastUpdated = "October 24, 2025";
+  const lastUpdated = "December 7, 2025";
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
@@ -130,6 +130,49 @@ export default function CookiePolicy() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Advertising Cookies */}
+              <div className="bg-orange-50 border-l-4 border-orange-500 p-6 rounded-r-xl">
+                <h3 className="text-xl font-bold text-orange-900 mb-3">📢 Advertising Cookies (Optional)</h3>
+                <p className="text-orange-800 mb-3">
+                  These cookies are used by Google AdSense to display relevant advertisements based on your interests.
+                </p>
+                <table className="w-full text-sm">
+                  <thead className="bg-orange-100">
+                    <tr>
+                      <th className="p-2 text-left font-semibold">Cookie Name</th>
+                      <th className="p-2 text-left font-semibold">Purpose</th>
+                      <th className="p-2 text-left font-semibold">Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-orange-900">
+                    <tr className="border-t border-orange-200">
+                      <td className="p-2 font-mono text-xs">__gads</td>
+                      <td className="p-2">Google Ads - measures ad interactions</td>
+                      <td className="p-2">13 months</td>
+                    </tr>
+                    <tr className="border-t border-orange-200">
+                      <td className="p-2 font-mono text-xs">__gpi</td>
+                      <td className="p-2">Google Ads - personalization identifier</td>
+                      <td className="p-2">13 months</td>
+                    </tr>
+                    <tr className="border-t border-orange-200">
+                      <td className="p-2 font-mono text-xs">IDE</td>
+                      <td className="p-2">DoubleClick - ad targeting</td>
+                      <td className="p-2">13 months</td>
+                    </tr>
+                    <tr className="border-t border-orange-200">
+                      <td className="p-2 font-mono text-xs">NID</td>
+                      <td className="p-2">Google - stores preferences</td>
+                      <td className="p-2">6 months</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="text-orange-800 mt-3 text-sm">
+                  <strong>Opt-out:</strong> You can opt out of personalized ads at{' '}
+                  <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Google Ads Settings</a>
+                </p>
+              </div>
             </div>
           </section>
 
@@ -140,6 +183,7 @@ export default function CookiePolicy() {
               We use services from trusted third parties that may set their own cookies:
             </p>
             <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
+              <li><strong>Google AdSense:</strong> To display relevant advertisements and measure ad performance</li>
               <li><strong>Google Analytics:</strong> To analyze website traffic and usage patterns</li>
               <li><strong>Stripe:</strong> To process payments for premium features (if you purchase)</li>
               <li><strong>Cloudflare:</strong> For security and performance optimization</li>
