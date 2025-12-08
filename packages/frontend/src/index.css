@@ -406,3 +406,86 @@
     background: linear-gradient(135deg, #ec4899, #a855f7);
   }
 }
+
+/* Dark mode base styles */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* Common dark mode component overrides */
+.dark .bg-white {
+  @apply bg-gray-800;
+}
+
+.dark .bg-gray-50 {
+  @apply bg-gray-800;
+}
+
+.dark .text-gray-900 {
+  @apply text-gray-100;
+}
+
+.dark .text-gray-800 {
+  @apply text-gray-200;
+}
+
+.dark .text-gray-700 {
+  @apply text-gray-300;
+}
+
+.dark .text-gray-600 {
+  @apply text-gray-400;
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  @apply border-gray-700;
+}
+
+.dark .shadow-lg,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  --tw-shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Reduced motion preference - respect user accessibility settings */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential UI feedback but remove decorative animations */
+  .animate-fadeIn,
+  .animate-fadeIn-slow,
+  .animate-slideUp,
+  .animate-scaleIn,
+  .animate-slideInLeft,
+  .animate-slideInRight,
+  .animate-pulse-soft,
+  .animate-bounce-subtle,
+  .animate-glow-pulse,
+  .animate-scale-fade-out,
+  .animate-float,
+  .animate-float-slow,
+  .animate-ping-slow,
+  .animate-ping-slower,
+  .animate-pulse-gentle,
+  .animate-spin-slow,
+  .animate-scale-in {
+    animation: none !important;
+  }
+
+  /* Disable background animations */
+  .animate-ping {
+    animation: none !important;
+  }
+}

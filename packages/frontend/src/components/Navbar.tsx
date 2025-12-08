@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DarkModeToggle from './ui/DarkModeToggle';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -29,7 +30,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-6" role="menubar">
+          <div className="hidden md:flex items-center gap-4" role="menubar">
             {navLinks.map(link => (
               <a
                 key={link.href}
@@ -43,10 +44,13 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
+            {/* Dark Mode Toggle */}
+            <DarkModeToggle className="ml-2" />
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center">
+          {/* Mobile Menu Button + Dark Mode Toggle */}
+          <div className="flex md:hidden items-center gap-2">
+            <DarkModeToggle />
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
