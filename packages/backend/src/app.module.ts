@@ -18,6 +18,8 @@ import { PaymentsModule } from './payments/payments.module';
 import { BlockingModule } from './blocking/blocking.module';
 import { MatchesModule } from './matches/matches.module';
 import { ReputationModule } from './reputation/reputation.module';
+import { AdminModule } from './admin/admin.module'; // 🆕 Admin dashboard & moderation
+import { FraudModule } from './fraud/fraud.module'; // 🆕 Fraud detection
 import { HealthController } from './health/health.controller';
 import { env } from './env';
 
@@ -56,6 +58,8 @@ import { ReputationEvent } from './reputation/entities/reputation-event.entity';
     BlockingModule,
     MatchesModule, // 🆕 Match persistence for analytics
     ReputationModule, // 🆕 Reputation persistence for long-term tracking
+    AdminModule, // 🆕 Admin dashboard & moderation tools
+    FraudModule, // 🆕 Fraud detection & prevention
     AnalyticsModule,
     SignalingModule,
     TurnModule,

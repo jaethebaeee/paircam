@@ -60,6 +60,371 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   // ========================================
+  // DISTRIBUTED LOCKING
+  // ========================================
+
+  /**
+   * Acquire a distributed lock using Redis SET NX
+   * Returns true if lock acquired, false if already locked
+   */
+  async acquireLock(lockKey: string, ttlMs = 5000): Promise<boolean> {
+    try {
+      const lockValue = `${Date.now()}:${Math.random().toString(36).slice(2)}`;
+      const result = await this.client.set(`lock:${lockKey}`, lockValue, {
+        NX: true,
+        PX: ttlMs,
+      });
+      return result === 'OK';
+    } catch (error) {
+      this.logger.error(`Failed to acquire lock ${lockKey}`, error.stack);
+      return false;
+    }
+  }
+
+  /**
+   * Release a distributed lock
+   */
+  async releaseLock(lockKey: string): Promise<void> {
+    try {
+      await this.client.del(`lock:${lockKey}`);
+    } catch (error) {
+      this.logger.error(`Failed to release lock ${lockKey}`, error.stack);
+    }
+  }
+
+  /**
+   * Execute operation with lock (auto-release)
+   */
+  async withLock<T>(
+    lockKey: string,
+    operation: () => Promise<T>,
+    ttlMs = 5000,
+    retries = 3,
+    retryDelayMs = 100,
+  ): Promise<T | null> {
+    for (let attempt = 0; attempt < retries; attempt++) {
+      const acquired = await this.acquireLock(lockKey, ttlMs);
+      if (acquired) {
+        try {
+          return await operation();
+        } finally {
+          await this.releaseLock(lockKey);
+        }
+      }
+      // Wait before retry with exponential backoff
+      await new Promise(resolve => setTimeout(resolve, retryDelayMs * Math.pow(2, attempt)));
+    }
+    this.logger.warn(`Failed to acquire lock after ${retries} attempts`, { lockKey });
+    return null;
+  }
+
+  /**
+   * Acquire lock for matching two users (prevents race conditions)
+   */
+  async acquireMatchLock(user1Id: string, user2Id: string, ttlMs = 3000): Promise<boolean> {
+    // Sort IDs to ensure consistent lock key regardless of order
+    const [first, second] = [user1Id, user2Id].sort();
+    return this.acquireLock(`match:${first}:${second}`, ttlMs);
+  }
+
+  /**
+   * Release match lock
+   */
+  async releaseMatchLock(user1Id: string, user2Id: string): Promise<void> {
+    const [first, second] = [user1Id, user2Id].sort();
+    await this.releaseLock(`match:${first}:${second}`);
+  }
+
+  // ========================================
+  // SESSION STATE MANAGEMENT
+  // ========================================
+
+  /**
+   * Session states for state machine
+   */
+  static readonly SESSION_STATES = {
+    PENDING: 'pending',       // Match created, waiting for connection
+    CONNECTING: 'connecting', // WebRTC negotiation in progress
+    CONNECTED: 'connected',   // Call active
+    ENDING: 'ending',         // One user disconnected, waiting for cleanup
+    ENDED: 'ended',           // Session fully terminated
+  } as const;
+
+  /**
+   * Create session with state machine
+   */
+  async createSessionWithState(
+    sessionId: string,
+    data: Record<string, unknown>,
+    ttlSeconds = 300,
+  ): Promise<boolean> {
+    try {
+      const sessionData = {
+        ...data,
+        state: RedisService.SESSION_STATES.PENDING,
+        stateHistory: [{ state: RedisService.SESSION_STATES.PENDING, timestamp: Date.now() }],
+        createdAt: Date.now(),
+      };
+
+      // Use NX to prevent overwriting existing session
+      const result = await this.client.set(
+        `session:${sessionId}`,
+        JSON.stringify(sessionData),
+        { NX: true, EX: ttlSeconds }
+      );
+
+      if (result === 'OK') {
+        this.logger.debug('Session created with state', { sessionId, state: 'pending' });
+        return true;
+      }
+
+      this.logger.warn('Session already exists', { sessionId });
+      return false;
+    } catch (error) {
+      this.logger.error(`Failed to create session ${sessionId}`, error.stack);
+      throw new Error('Session creation failed');
+    }
+  }
+
+  /**
+   * Transition session state (with validation)
+   */
+  async transitionSessionState(
+    sessionId: string,
+    newState: string,
+    allowedFromStates: string[],
+  ): Promise<boolean> {
+    const session = await this.getSession<{ state: string; stateHistory: Array<{ state: string; timestamp: number }> }>(sessionId);
+    if (!session) {
+      this.logger.warn('Cannot transition state: session not found', { sessionId });
+      return false;
+    }
+
+    if (!allowedFromStates.includes(session.state)) {
+      this.logger.warn('Invalid state transition', {
+        sessionId,
+        currentState: session.state,
+        requestedState: newState,
+        allowedFromStates,
+      });
+      return false;
+    }
+
+    // Update state
+    session.state = newState;
+    session.stateHistory = session.stateHistory || [];
+    session.stateHistory.push({ state: newState, timestamp: Date.now() });
+
+    // Determine TTL based on state
+    let ttl = 300; // Default 5 minutes
+    if (newState === RedisService.SESSION_STATES.CONNECTED) {
+      ttl = 3600; // 1 hour for active calls
+    } else if (newState === RedisService.SESSION_STATES.ENDING) {
+      ttl = 60; // 1 minute for cleanup
+    } else if (newState === RedisService.SESSION_STATES.ENDED) {
+      ttl = 30; // 30 seconds before deletion
+    }
+
+    await this.client.setEx(`session:${sessionId}`, ttl, JSON.stringify(session));
+    this.logger.debug('Session state transitioned', { sessionId, newState });
+    return true;
+  }
+
+  /**
+   * Get session state
+   */
+  async getSessionState(sessionId: string): Promise<string | null> {
+    const session = await this.getSession<{ state: string }>(sessionId);
+    return session?.state || null;
+  }
+
+  /**
+   * Refresh session TTL (for active calls)
+   */
+  async refreshSessionTTL(sessionId: string, ttlSeconds = 3600): Promise<void> {
+    try {
+      await this.client.expire(`session:${sessionId}`, ttlSeconds);
+    } catch (error) {
+      this.logger.error(`Failed to refresh session TTL for ${sessionId}`, error.stack);
+    }
+  }
+
+  // ========================================
+  // ATOMIC OPERATIONS
+  // ========================================
+
+  /**
+   * Atomically create a match (prevents duplicates)
+   */
+  async createMatchAtomic(
+    user1Id: string,
+    user2Id: string,
+    sessionId: string,
+    matchData: Record<string, unknown>,
+  ): Promise<boolean> {
+    const lockAcquired = await this.acquireMatchLock(user1Id, user2Id);
+    if (!lockAcquired) {
+      this.logger.warn('Failed to acquire match lock', { user1Id, user2Id });
+      return false;
+    }
+
+    try {
+      // Check if either user is already in a session
+      const [user1Session, user2Session] = await Promise.all([
+        this.client.get(`user:session:${user1Id}`),
+        this.client.get(`user:session:${user2Id}`),
+      ]);
+
+      if (user1Session || user2Session) {
+        this.logger.warn('User already in session', {
+          user1Id,
+          user2Id,
+          user1Session,
+          user2Session,
+        });
+        return false;
+      }
+
+      // Atomically create session and mark users as matched
+      const pipeline = this.client.multi();
+
+      // Create session
+      pipeline.setEx(`session:${sessionId}`, 300, JSON.stringify({
+        ...matchData,
+        state: RedisService.SESSION_STATES.PENDING,
+        createdAt: Date.now(),
+      }));
+
+      // Mark users as in session
+      pipeline.setEx(`user:session:${user1Id}`, 300, sessionId);
+      pipeline.setEx(`user:session:${user2Id}`, 300, sessionId);
+
+      // Remove from queue
+      pipeline.zRem(this.QUEUE_ZSET_KEY, user1Id);
+      pipeline.zRem(this.QUEUE_ZSET_KEY, user2Id);
+      pipeline.del(`${this.QUEUE_DATA_PREFIX}${user1Id}`);
+      pipeline.del(`${this.QUEUE_DATA_PREFIX}${user2Id}`);
+
+      await pipeline.exec();
+
+      this.logger.debug('Match created atomically', { sessionId, user1Id, user2Id });
+      return true;
+    } finally {
+      await this.releaseMatchLock(user1Id, user2Id);
+    }
+  }
+
+  /**
+   * Check if user is currently in a session
+   */
+  async isUserInSession(userId: string): Promise<boolean> {
+    try {
+      const session = await this.client.get(`user:session:${userId}`);
+      return session !== null;
+    } catch (error) {
+      this.logger.error(`Failed to check user session for ${userId}`, error.stack);
+      return false;
+    }
+  }
+
+  /**
+   * Get user's current session ID
+   */
+  async getUserSessionId(userId: string): Promise<string | null> {
+    try {
+      return await this.client.get(`user:session:${userId}`);
+    } catch (error) {
+      this.logger.error(`Failed to get session for ${userId}`, error.stack);
+      return null;
+    }
+  }
+
+  /**
+   * Clear user session mapping
+   */
+  async clearUserSession(userId: string): Promise<void> {
+    try {
+      await this.client.del(`user:session:${userId}`);
+    } catch (error) {
+      this.logger.error(`Failed to clear session for ${userId}`, error.stack);
+    }
+  }
+
+  // ========================================
+  // FRAUD DETECTION HELPERS
+  // ========================================
+
+  /**
+   * Track user activity for fraud detection
+   */
+  async trackUserActivity(userId: string, activityType: string): Promise<void> {
+    try {
+      const key = `activity:${userId}:${activityType}`;
+      const pipeline = this.client.multi();
+      pipeline.incr(key);
+      pipeline.expire(key, 3600); // 1 hour window
+      await pipeline.exec();
+    } catch (error) {
+      this.logger.error(`Failed to track activity for ${userId}`, error.stack);
+    }
+  }
+
+  /**
+   * Get user activity count
+   */
+  async getUserActivityCount(userId: string, activityType: string): Promise<number> {
+    try {
+      const count = await this.client.get(`activity:${userId}:${activityType}`);
+      return count ? parseInt(count, 10) : 0;
+    } catch (error) {
+      this.logger.error(`Failed to get activity count for ${userId}`, error.stack);
+      return 0;
+    }
+  }
+
+  /**
+   * Flag user as suspicious
+   */
+  async flagSuspiciousUser(userId: string, reason: string): Promise<void> {
+    try {
+      const key = `suspicious:${userId}`;
+      const existing = await this.client.get(key);
+      const flags = existing ? JSON.parse(existing) : [];
+      flags.push({ reason, timestamp: Date.now() });
+      await this.client.setEx(key, 86400 * 7, JSON.stringify(flags)); // 7 day TTL
+      this.logger.warn('User flagged as suspicious', { userId, reason });
+    } catch (error) {
+      this.logger.error(`Failed to flag user ${userId}`, error.stack);
+    }
+  }
+
+  /**
+   * Check if user is flagged
+   */
+  async isUserFlagged(userId: string): Promise<boolean> {
+    try {
+      const flags = await this.client.get(`suspicious:${userId}`);
+      return flags !== null;
+    } catch (error) {
+      this.logger.error(`Failed to check flags for ${userId}`, error.stack);
+      return false;
+    }
+  }
+
+  /**
+   * Get user flags
+   */
+  async getUserFlags(userId: string): Promise<Array<{ reason: string; timestamp: number }>> {
+    try {
+      const flags = await this.client.get(`suspicious:${userId}`);
+      return flags ? JSON.parse(flags) : [];
+    } catch (error) {
+      this.logger.error(`Failed to get flags for ${userId}`, error.stack);
+      return [];
+    }
+  }
+
+  // ========================================
   // QUEUE OPERATIONS (Using ZSET for O(log n))
   // ========================================
 
