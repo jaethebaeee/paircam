@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { XMarkIcon, ChatBubbleLeftRightIcon, UserGroupIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, ChatBubbleLeftRightIcon, UserGroupIcon, MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333';
@@ -29,6 +29,58 @@ interface FriendsListProps {
   onClose: () => void;
   onSelectConversation: (conversationId: string, friend: Friend) => void;
   totalUnread?: number;
+}
+
+// Avatar component with gradient fallback
+function Avatar({ user, size = 'md', showOnline = false, isOnline = false }: {
+  user: { username: string; avatarUrl?: string };
+  size?: 'sm' | 'md' | 'lg';
+  showOnline?: boolean;
+  isOnline?: boolean;
+}) {
+  const sizeClasses = {
+    sm: 'w-10 h-10 text-sm',
+    md: 'w-12 h-12 sm:w-14 sm:h-14 text-base sm:text-lg',
+    lg: 'w-16 h-16 text-xl',
+  };
+
+  const onlineDotClasses = {
+    sm: 'w-2.5 h-2.5 border-[1.5px]',
+    md: 'w-3 h-3 sm:w-3.5 sm:h-3.5 border-2',
+    lg: 'w-4 h-4 border-2',
+  };
+
+  return (
+    <div className="relative">
+      <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-purple-500/20`}>
+        {user.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt={user.username}
+            className="w-full h-full rounded-full object-cover"
+          />
+        ) : (
+          <span className="drop-shadow-sm">{user.username.charAt(0).toUpperCase()}</span>
+        )}
+      </div>
+      {showOnline && isOnline && (
+        <div className={`absolute bottom-0 right-0 ${onlineDotClasses[size]} bg-emerald-500 rounded-full border-white animate-pulse`} />
+      )}
+    </div>
+  );
+}
+
+// Skeleton loader for conversations
+function ConversationSkeleton() {
+  return (
+    <div className="flex items-center gap-3 p-4">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full skeleton" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 w-24 skeleton rounded" />
+        <div className="h-3 w-36 skeleton rounded" />
+      </div>
+    </div>
+  );
 }
 
 export default function FriendsList({ onClose, onSelectConversation, totalUnread = 0 }: FriendsListProps) {
@@ -94,12 +146,15 @@ export default function FriendsList({ onClose, onSelectConversation, totalUnread
     const date = new Date(dateString);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    return 'Just now';
+    if (minutes < 1) return 'now';
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+    if (days < 7) return `${days}d`;
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
   const filteredConversations = conversations.filter((conv) =>
@@ -111,181 +166,200 @@ export default function FriendsList({ onClose, onSelectConversation, totalUnread
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slideUp max-h-[85vh] flex flex-col">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-4 sm:px-6 py-4 sm:py-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl">
-                <ChatBubbleLeftRightIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-white font-bold text-lg sm:text-xl">Messages</h2>
-                {totalUnread > 0 && (
-                  <p className="text-white/80 text-xs sm:text-sm">{totalUnread} unread</p>
-                )}
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-white/90 hover:text-white hover:bg-white/20 p-2 rounded-xl transition-all touch-target"
-            >
-              <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-fadeIn">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-scaleIn max-h-[85vh] flex flex-col">
+        {/* Header with gradient */}
+        <div className="relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600" />
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
+          <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-white/10 rounded-full blur-xl" />
 
-          {/* Tabs */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab('messages')}
-              className={`flex-1 py-2 px-4 rounded-xl font-semibold text-sm transition-all ${
-                activeTab === 'messages'
-                  ? 'bg-white text-purple-600 shadow-lg'
-                  : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
-            >
-              Messages
-            </button>
-            <button
-              onClick={() => setActiveTab('friends')}
-              className={`flex-1 py-2 px-4 rounded-xl font-semibold text-sm transition-all ${
-                activeTab === 'friends'
-                  ? 'bg-white text-purple-600 shadow-lg'
-                  : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
-            >
-              Friends
-            </button>
+          <div className="relative px-5 sm:px-6 py-5 sm:py-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 backdrop-blur-sm p-2.5 rounded-2xl">
+                  <ChatBubbleLeftRightIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-white font-bold text-xl sm:text-2xl">Messages</h2>
+                  {totalUnread > 0 && (
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <SparklesIcon className="h-3.5 w-3.5 text-yellow-300" />
+                      <p className="text-white/90 text-sm font-medium">{totalUnread} new</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-xl transition-all duration-200 touch-target backdrop-blur-sm"
+              >
+                <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-2 bg-white/10 backdrop-blur-sm p-1 rounded-2xl">
+              <button
+                onClick={() => setActiveTab('messages')}
+                className={`flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+                  activeTab === 'messages'
+                    ? 'bg-white text-purple-600 shadow-lg shadow-purple-500/20'
+                    : 'text-white/90 hover:bg-white/10'
+                }`}
+              >
+                <ChatBubbleLeftRightIcon className="h-4 w-4" />
+                Chats
+              </button>
+              <button
+                onClick={() => setActiveTab('friends')}
+                className={`flex-1 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+                  activeTab === 'friends'
+                    ? 'bg-white text-purple-600 shadow-lg shadow-purple-500/20'
+                    : 'text-white/90 hover:bg-white/10'
+                }`}
+              >
+                <UserGroupIcon className="h-4 w-4" />
+                Friends
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Search */}
-        <div className="p-3 sm:p-4 border-b border-gray-100">
+        <div className="px-4 sm:px-5 py-3 border-b border-gray-100 bg-gray-50/50">
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
               placeholder={activeTab === 'messages' ? 'Search conversations...' : 'Search friends...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 sm:pl-11 pr-4 py-2.5 sm:py-3 rounded-xl border-2 border-gray-200 focus:border-pink-500 focus:ring-0 outline-none text-sm bg-gray-50 focus:bg-white transition-all"
+              className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-0 outline-none text-sm bg-white transition-all duration-200 placeholder:text-gray-400 input-mobile"
             />
           </div>
         </div>
 
         {/* Content */}
-        <div ref={listParent} className="flex-1 overflow-y-auto">
+        <div ref={listParent} className="flex-1 overflow-y-auto custom-scrollbar">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-pink-500 border-t-transparent" />
+            <div className="divide-y divide-gray-100">
+              {[1, 2, 3, 4].map((i) => (
+                <ConversationSkeleton key={i} />
+              ))}
             </div>
           ) : activeTab === 'messages' ? (
             filteredConversations.length === 0 ? (
-              <div className="text-center py-12 px-4">
-                <div className="bg-gradient-to-br from-pink-100 to-purple-100 rounded-full p-4 w-16 h-16 mx-auto mb-4">
-                  <ChatBubbleLeftRightIcon className="h-8 w-8 text-pink-500" />
+              <div className="flex flex-col items-center justify-center py-16 px-6">
+                <div className="relative mb-6">
+                  <div className="bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 rounded-3xl p-6 shadow-lg shadow-purple-500/10">
+                    <ChatBubbleLeftRightIcon className="h-12 w-12 text-purple-500" />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1.5 shadow-lg">
+                    <SparklesIcon className="h-4 w-4 text-white" />
+                  </div>
                 </div>
-                <p className="font-semibold text-gray-700 mb-1">No conversations yet</p>
-                <p className="text-sm text-gray-500">Start chatting with your friends!</p>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">No conversations yet</h3>
+                <p className="text-sm text-gray-500 text-center max-w-[200px]">
+                  Start chatting with your friends to see your conversations here
+                </p>
+                <button
+                  onClick={() => setActiveTab('friends')}
+                  className="mt-6 px-6 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-lg shadow-purple-500/30 transform hover:scale-105 active:scale-95"
+                >
+                  View Friends
+                </button>
               </div>
             ) : (
-              filteredConversations.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() =>
-                    onSelectConversation(conv.id, {
-                      id: conv.otherUser.id,
-                      username: conv.otherUser.username,
-                      avatarUrl: conv.otherUser.avatarUrl,
-                    })
-                  }
-                  className="w-full flex items-center gap-3 p-3 sm:p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
-                >
-                  <div className="relative">
-                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                      {conv.otherUser.avatarUrl ? (
-                        <img
-                          src={conv.otherUser.avatarUrl}
-                          alt={conv.otherUser.username}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        conv.otherUser.username.charAt(0).toUpperCase()
+              <div className="divide-y divide-gray-100">
+                {filteredConversations.map((conv, index) => (
+                  <button
+                    key={conv.id}
+                    onClick={() =>
+                      onSelectConversation(conv.id, {
+                        id: conv.otherUser.id,
+                        username: conv.otherUser.username,
+                        avatarUrl: conv.otherUser.avatarUrl,
+                      })
+                    }
+                    className="w-full flex items-center gap-3 p-4 hover:bg-gradient-to-r hover:from-pink-50/50 hover:to-purple-50/50 transition-all duration-200 group"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <div className="relative">
+                      <Avatar user={conv.otherUser} size="md" />
+                      {conv.unreadCount > 0 && (
+                        <div className="absolute -top-1 -right-1 min-w-[20px] h-5 sm:min-w-[24px] sm:h-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-pink-500/40 animate-bounce-subtle">
+                          <span className="text-white text-[10px] sm:text-xs font-bold px-1">
+                            {conv.unreadCount > 99 ? '99+' : conv.unreadCount}
+                          </span>
+                        </div>
                       )}
                     </div>
-                    {conv.unreadCount > 0 && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-pink-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-[10px] sm:text-xs font-bold">
-                          {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`font-semibold text-sm sm:text-base truncate transition-colors ${
+                          conv.unreadCount > 0 ? 'text-gray-900' : 'text-gray-700 group-hover:text-gray-900'
+                        }`}>
+                          {conv.otherUser.username}
+                        </span>
+                        <span className={`text-xs whitespace-nowrap ${
+                          conv.unreadCount > 0 ? 'text-purple-600 font-medium' : 'text-gray-400'
+                        }`}>
+                          {formatTime(conv.lastMessageAt)}
                         </span>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-semibold text-gray-900 text-sm sm:text-base truncate">
-                        {conv.otherUser.username}
-                      </span>
-                      <span className="text-xs text-gray-400 whitespace-nowrap">
-                        {formatTime(conv.lastMessageAt)}
-                      </span>
+                      {conv.lastMessagePreview && (
+                        <p className={`text-xs sm:text-sm truncate mt-0.5 transition-colors ${
+                          conv.unreadCount > 0 ? 'text-gray-800 font-medium' : 'text-gray-500'
+                        }`}>
+                          {conv.lastMessagePreview}
+                        </p>
+                      )}
                     </div>
-                    {conv.lastMessagePreview && (
-                      <p
-                        className={`text-xs sm:text-sm truncate mt-0.5 ${
-                          conv.unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'
-                        }`}
-                      >
-                        {conv.lastMessagePreview}
-                      </p>
-                    )}
-                  </div>
-                </button>
-              ))
+                  </button>
+                ))}
+              </div>
             )
           ) : filteredFriends.length === 0 ? (
-            <div className="text-center py-12 px-4">
-              <div className="bg-gradient-to-br from-pink-100 to-purple-100 rounded-full p-4 w-16 h-16 mx-auto mb-4">
-                <UserGroupIcon className="h-8 w-8 text-pink-500" />
+            <div className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="relative mb-6">
+                <div className="bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 rounded-3xl p-6 shadow-lg shadow-purple-500/10">
+                  <UserGroupIcon className="h-12 w-12 text-purple-500" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 bg-pink-500 rounded-full p-1.5 shadow-lg">
+                  <span className="text-white text-xs">💝</span>
+                </div>
               </div>
-              <p className="font-semibold text-gray-700 mb-1">No friends yet</p>
-              <p className="text-sm text-gray-500">Add friends while video chatting!</p>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">No friends yet</h3>
+              <p className="text-sm text-gray-500 text-center max-w-[220px]">
+                Add friends while video chatting to stay connected!
+              </p>
             </div>
           ) : (
-            filteredFriends.map((friend) => (
-              <button
-                key={friend.id}
-                onClick={() => handleFriendClick(friend)}
-                className="w-full flex items-center gap-3 p-3 sm:p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
-              >
-                <div className="relative">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                    {friend.avatarUrl ? (
-                      <img
-                        src={friend.avatarUrl}
-                        alt={friend.username}
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      friend.username.charAt(0).toUpperCase()
-                    )}
+            <div className="divide-y divide-gray-100">
+              {filteredFriends.map((friend, index) => (
+                <button
+                  key={friend.id}
+                  onClick={() => handleFriendClick(friend)}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-gradient-to-r hover:from-pink-50/50 hover:to-purple-50/50 transition-all duration-200 group"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <Avatar user={friend} size="md" showOnline isOnline={friend.isOnline} />
+                  <div className="flex-1 text-left min-w-0">
+                    <span className="font-semibold text-gray-700 group-hover:text-gray-900 text-sm sm:text-base block truncate transition-colors">
+                      {friend.username}
+                    </span>
+                    <span className={`text-xs ${friend.isOnline ? 'text-emerald-500 font-medium' : 'text-gray-400'}`}>
+                      {friend.isOnline ? 'Online now' : formatTime(friend.lastInteraction) || 'Offline'}
+                    </span>
                   </div>
-                  {friend.isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white" />
-                  )}
-                </div>
-                <div className="flex-1 text-left min-w-0">
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base block truncate">
-                    {friend.username}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {friend.isOnline ? 'Online' : formatTime(friend.lastInteraction)}
-                  </span>
-                </div>
-                <ChatBubbleLeftRightIcon className="h-5 w-5 text-gray-400" />
-              </button>
-            ))
+                  <div className="p-2 rounded-xl bg-gray-100 group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:to-purple-600 transition-all duration-200">
+                    <ChatBubbleLeftRightIcon className="h-5 w-5 text-gray-400 group-hover:text-white transition-colors" />
+                  </div>
+                </button>
+              ))}
+            </div>
           )}
         </div>
       </div>
