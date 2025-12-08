@@ -222,16 +222,27 @@ export class GamesGateway implements OnGatewayDisconnect {
 
       // Apply premium multipliers to scores with actual correct answer counts
       const gameSession = await this.triviaService.getGameSession(data.gameSessionId);
-      const user1Premium = await this.premiumFeatures.isPremium(gameSession.user1Id);
-      const user2Premium = await this.premiumFeatures.isPremium(gameSession.user2Id);
 
-      const user1FinalScore = user1Premium
-        ? await this.premiumFeatures.calculatePremiumScore(gameSession.user1Id, result.user1Score, result.user1CorrectAnswers)
-        : result.user1Score;
+      // Optimization: Only check premium status and calculate for user who answered
+      const submitUserId = user.id;
+      const isUser1Submitter = gameSession.user1Id === submitUserId;
 
-      const user2FinalScore = user2Premium
-        ? await this.premiumFeatures.calculatePremiumScore(gameSession.user2Id, result.user2Score, result.user2CorrectAnswers)
-        : result.user2Score;
+      let user1FinalScore = result.user1Score;
+      let user2FinalScore = result.user2Score;
+
+      if (isUser1Submitter) {
+        // Only recalculate user1's score (who just answered)
+        const user1Premium = await this.premiumFeatures.isPremium(gameSession.user1Id);
+        user1FinalScore = user1Premium
+          ? await this.premiumFeatures.calculatePremiumScore(gameSession.user1Id, result.user1Score, result.user1CorrectAnswers)
+          : result.user1Score;
+      } else {
+        // Only recalculate user2's score (who just answered)
+        const user2Premium = await this.premiumFeatures.isPremium(gameSession.user2Id);
+        user2FinalScore = user2Premium
+          ? await this.premiumFeatures.calculatePremiumScore(gameSession.user2Id, result.user2Score, result.user2CorrectAnswers)
+          : result.user2Score;
+      }
 
       // Send score update to both
       const scoreUpdateEvent: ScoreUpdateEvent = {
@@ -313,9 +324,9 @@ export class GamesGateway implements OnGatewayDisconnect {
         this.activeGames.delete(data.sessionId);
       } else if (result.nextQuestion) {
         // Current user has more questions - send next question
-        // Get stored timePerQuestion from game metadata for consistency
-        const metadata = await this.triviaService.getGameMetadata(data.gameSessionId);
-        const timePerQuestion = metadata?.timePerQuestion || 15;
+        // Get timePerQuestion from database (stored at game start)
+        const gameSessionForTimeLimit = await this.triviaService.getGameSession(data.gameSessionId);
+        const timePerQuestion = gameSessionForTimeLimit.timePerQuestion || 15;
 
         const nextQuestionEvent: NewQuestionEvent = {
           questionNumber: data.questionNumber + 1,

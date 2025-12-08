@@ -34,6 +34,9 @@ export class GameSession {
   @Column({ type: 'jsonb', name: 'game_config' })
   gameConfig: GameConfig;
 
+  @Column({ type: 'int', default: 15, name: 'time_per_question' })
+  timePerQuestion: number;
+
   @Column({ type: 'jsonb', name: 'user1_results', nullable: true })
   user1Results?: GameUserResults;
 

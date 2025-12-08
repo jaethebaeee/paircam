@@ -69,6 +69,7 @@ export class TriviaService {
       user1Id,
       user2Id,
       gameConfig,
+      timePerQuestion: this.DEFAULT_TIME_PER_QUESTION,
       startedAt: new Date(),
     });
 
@@ -270,8 +271,16 @@ export class TriviaService {
       throw new NotFoundException('Game not found');
     }
 
+    // If game is already completed, just return the cached results
+    // This handles race conditions where both users submit their final answer simultaneously
     if (gameSession.completedAt) {
-      throw new BadRequestException('Game is already completed');
+      this.logger.debug('Game already completed, returning cached results', {
+        gameSessionId,
+      });
+      return {
+        user1Score: gameSession.user1Results?.score || 0,
+        user2Score: gameSession.user2Results?.score || 0,
+      };
     }
 
     // Get answers for both users
