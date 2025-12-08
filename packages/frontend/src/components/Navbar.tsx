@@ -10,7 +10,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 shadow-lg" role="navigation" aria-label="Main navigation">
+    <nav className="bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-500 shadow-lg" role="navigation" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 md:h-20">
           {/* Logo */}
@@ -75,7 +75,7 @@ export default function Navbar() {
           isMobileMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="px-4 pb-4 pt-2 space-y-1 bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600">
+        <div className="px-4 pb-4 pt-2 space-y-1 bg-gradient-to-r from-primary-600 via-primary-700 to-secondary-600">
           {navLinks.map(link => (
             <a
               key={link.href}
@@ -92,7 +92,7 @@ export default function Navbar() {
           {/* Mobile CTA */}
           <a
             href="/"
-            className="flex items-center justify-center gap-2 mt-3 px-4 py-3 bg-white text-indigo-600 font-bold rounded-xl shadow-lg"
+            className="flex items-center justify-center gap-2 mt-3 px-4 py-3 bg-white text-primary-600 font-bold rounded-xl shadow-lg"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

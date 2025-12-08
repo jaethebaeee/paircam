@@ -100,8 +100,8 @@ export default function GameResults({ result, isCurrentPlayerWinner, onClose }: 
           </div>
 
           {/* Difficulty badge */}
-          <div className="flex items-center justify-center gap-2 p-3 bg-indigo-50 border border-indigo-200 rounded-xl">
-            <span className="text-sm font-medium text-indigo-800">
+          <div className="flex items-center justify-center gap-2 p-3 bg-secondary-50 border border-secondary-200 rounded-xl">
+            <span className="text-sm font-medium text-secondary-800">
               Difficulty: <strong className="capitalize">{result.difficulty}</strong>
             </span>
           </div>
@@ -119,7 +119,7 @@ export default function GameResults({ result, isCurrentPlayerWinner, onClose }: 
           <div className="space-y-3">
             <button
               onClick={onClose}
-              className="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white font-bold rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-3.5 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white font-bold rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
               Play Another Game
             </button>
@@ -134,8 +134,8 @@ export default function GameResults({ result, isCurrentPlayerWinner, onClose }: 
 
         {/* Footer Note */}
         <div className="px-6 pb-6">
-          <div className="bg-violet-50 border border-violet-200 rounded-xl p-3 text-center">
-            <p className="text-xs text-violet-800">
+          <div className="bg-primary-50 border border-primary-200 rounded-xl p-3 text-center">
+            <p className="text-xs text-primary-800">
               Great game! Challenge your opponent to a rematch 👊
             </p>
           </div>

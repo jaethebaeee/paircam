@@ -40,7 +40,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               rightIcon && 'pr-11',
               error
                 ? 'border-red-500 focus:border-red-500'
-                : 'border-neutral-200 hover:border-neutral-300 focus:border-indigo-500',
+                : 'border-neutral-200 hover:border-neutral-300 focus:border-primary-500',
               className
             )}
             {...props}
