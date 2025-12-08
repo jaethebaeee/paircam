@@ -48,6 +48,23 @@ export class MatchmakingService {
     avgBucketSize: 0,
   };
 
+  // 🆕 Constants for scoring (avoid recreating on each call)
+  private readonly REGION_TIMEZONES: Record<string, number> = {
+    'us-east': -5,
+    'us-west': -8,
+    'europe': 1,
+    'asia': 8,
+    'global': 0,
+  };
+
+  private readonly REGION_LATENCY_MAP: Record<string, Record<string, number>> = {
+    'us-east': { 'us-east': 5, 'us-west': 3, 'europe': 2, 'asia': 1, 'global': 3 },
+    'us-west': { 'us-west': 5, 'us-east': 3, 'europe': 2, 'asia': 2, 'global': 3 },
+    'europe': { 'europe': 5, 'us-east': 2, 'us-west': 2, 'asia': 1, 'global': 3 },
+    'asia': { 'asia': 5, 'us-west': 2, 'us-east': 1, 'europe': 1, 'global': 3 },
+    'global': { 'global': 3, 'us-east': 3, 'us-west': 3, 'europe': 3, 'asia': 3 },
+  };
+
   constructor(
     private readonly redisService: RedisService,
     @Inject(forwardRef(() => SignalingGateway))
@@ -116,9 +133,18 @@ export class MatchmakingService {
         return; // Need at least 2 users to match
       }
 
-      // Get all users in queue
+      // Get all users in queue (with safe parsing)
       const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
-      const users: QueueUser[] = queueItems.map(item => JSON.parse(item));
+      const users: QueueUser[] = queueItems
+        .map(item => {
+          try {
+            return JSON.parse(item) as QueueUser;
+          } catch {
+            this.logger.warn('Failed to parse queue item, skipping', { item: item.substring(0, 100) });
+            return null;
+          }
+        })
+        .filter((user): user is QueueUser => user !== null);
 
       // 🆕 Process multi-queue: Separate by queue type for better matching
       const queuesByType: Record<string, QueueUser[]> = {
@@ -153,8 +179,8 @@ export class MatchmakingService {
 
       // 🆕 If some queues have only 1 user, allow cross-queue matching (except language queue)
       const singleUsers = Object.entries(queuesByType)
-        .filter(([type, users]) => users.length === 1 && type !== 'language') // Language queue is special
-        .flatMap(([, users]) => users);
+        .filter(([type, queueUserList]) => queueUserList.length === 1 && type !== 'language') // Language queue is special
+        .flatMap(([, queueUserList]) => queueUserList);
 
       if (singleUsers.length >= 2) {
         this.logger.debug('Cross-queue matching for single users', { count: singleUsers.length });
@@ -206,19 +232,24 @@ export class MatchmakingService {
 
     // 🆕 Priority 1: Match urgent waiters first (lower compatibility standards)
     // Keep this simple for urgent users - they need matches FAST
+    // Pre-compute candidates array once (avoid creating new array each iteration)
+    const allCandidates = [...urgent, ...normal];
+
     for (const urgentUser of urgent) {
       if (used.has(urgentUser.userId)) continue;
 
       // Find ANY compatible match (ignore premium priority for urgent users)
-      for (const candidate of [...urgent, ...normal]) {
+      for (const candidate of allCandidates) {
         if (used.has(candidate.userId) || candidate.userId === urgentUser.userId) continue;
 
         if (this.areCompatibleFast(urgentUser, candidate, recentMatchesMap)) {
           const waitTime = now - urgentUser.timestamp;
+          const score = this.calculateCompatibilityScore(urgentUser, candidate, now);
           matches.push({
             user1: urgentUser,
             user2: candidate,
-            waitTime
+            waitTime,
+            score,
           });
           used.add(urgentUser.userId);
           used.add(candidate.userId);
@@ -226,6 +257,7 @@ export class MatchmakingService {
             user1: urgentUser.userId,
             user2: candidate.userId,
             waitTime: `${Math.round(waitTime / 1000)}s`,
+            score,
           });
           break;
         }
@@ -275,23 +307,25 @@ export class MatchmakingService {
     
     // STEP 1: Create buckets by key attributes (O(n))
     const buckets = this.createMatchingBuckets(users);
-    
+    const bucketCount = Object.keys(buckets).length;
+
     this.logger.debug('📦 Buckets created', {
-      totalBuckets: Object.keys(buckets).length,
-      avgBucketSize: (users.length / Object.keys(buckets).length).toFixed(1),
+      totalBuckets: bucketCount,
+      avgBucketSize: bucketCount > 0 ? (users.length / bucketCount).toFixed(1) : '0',
     });
 
     // STEP 2: Process each bucket independently (O(n log n) total)
     const scoredPairs: Array<{ user1: QueueUser; user2: QueueUser; score: number }> = [];
+    const seenPairs = new Set<string>(); // Track pairs to avoid duplicates from multi-bucket users
     let comparisons = 0;
 
-    for (const [bucketKey, bucketUsers] of Object.entries(buckets)) {
+    for (const bucketUsers of Object.values(buckets)) {
       if (bucketUsers.length < 2) continue;
 
       // Within bucket: still O(n²) but n is MUCH smaller (typically 5-20 users)
       // 1000 users → 50 buckets × 20 users = 50 × 190 = 9,500 comparisons
       // vs original 1000 × 999 / 2 = 499,500 comparisons (50x improvement!)
-      
+
       for (let i = 0; i < bucketUsers.length - 1; i++) {
         const user1 = bucketUsers[i];
         if (used.has(user1.userId)) continue;
@@ -299,6 +333,14 @@ export class MatchmakingService {
         for (let j = i + 1; j < bucketUsers.length; j++) {
           const user2 = bucketUsers[j];
           if (used.has(user2.userId)) continue;
+
+          // Skip if we've already compared this pair (users can be in multiple buckets)
+          const pairKey = user1.userId < user2.userId
+            ? `${user1.userId}:${user2.userId}`
+            : `${user2.userId}:${user1.userId}`;
+
+          if (seenPairs.has(pairKey)) continue;
+          seenPairs.add(pairKey);
 
           comparisons++;
 
@@ -498,17 +540,8 @@ export class MatchmakingService {
 
   // 🆕 Calculate timezone compatibility score based on region
   private calculateTimezoneScore(user1: QueueUser, user2: QueueUser): number {
-    // Map regions to approximate UTC offsets
-    const regionTimezones: Record<string, number> = {
-      'us-east': -5,
-      'us-west': -8,
-      'europe': 1,
-      'asia': 8,
-      'global': 0, // Neutral
-    };
-
-    const tz1 = regionTimezones[user1.region] ?? 0;
-    const tz2 = regionTimezones[user2.region] ?? 0;
+    const tz1 = this.REGION_TIMEZONES[user1.region] ?? 0;
+    const tz2 = this.REGION_TIMEZONES[user2.region] ?? 0;
     const tzDiff = Math.abs(tz1 - tz2);
 
     // Score based on timezone difference
@@ -520,20 +553,10 @@ export class MatchmakingService {
 
   // 🆕 Calculate latency score based on geographic location
   private calculateLatencyScore(user1: QueueUser, user2: QueueUser): number {
-    // Simple continent-based estimation
-    // In production, you'd use actual GeoIP data
-    const regionLatencyMap: Record<string, Record<string, number>> = {
-      'us-east': { 'us-east': 5, 'us-west': 3, 'europe': 2, 'asia': 1, 'global': 3 },
-      'us-west': { 'us-west': 5, 'us-east': 3, 'europe': 2, 'asia': 2, 'global': 3 },
-      'europe': { 'europe': 5, 'us-east': 2, 'us-west': 2, 'asia': 1, 'global': 3 },
-      'asia': { 'asia': 5, 'us-west': 2, 'us-east': 1, 'europe': 1, 'global': 3 },
-      'global': { 'global': 3, 'us-east': 3, 'us-west': 3, 'europe': 3, 'asia': 3 },
-    };
-
     const region1 = user1.region || 'global';
     const region2 = user2.region || 'global';
-    
-    return regionLatencyMap[region1]?.[region2] || 2;
+
+    return this.REGION_LATENCY_MAP[region1]?.[region2] ?? 2;
   }
 
   // 🆕 Calculate language learning compatibility score
@@ -783,8 +806,16 @@ export class MatchmakingService {
   }> {
     const queueLength = await this.redisService.getQueueLength();
     const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
-    
-    const users: QueueUser[] = queueItems.map(item => JSON.parse(item));
+
+    const users: QueueUser[] = queueItems
+      .map(item => {
+        try {
+          return JSON.parse(item) as QueueUser;
+        } catch {
+          return null;
+        }
+      })
+      .filter((user): user is QueueUser => user !== null);
     const now = Date.now();
     
     const averageWaitTime = users.length > 0 
