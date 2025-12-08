@@ -9,12 +9,11 @@ import { RedisModule } from './redis/redis.module';
 import { TurnModule } from './turn/turn.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
-import { AnalyticsModule } from './analytics/analytics.module'; // 🆕 Analytics
+import { AnalyticsModule } from './analytics/analytics.module';
 import { UsersModule } from './users/users.module';
 import { FriendsModule } from './friends/friends.module'; // 🆕 Friends & Social
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
-import { GamesModule } from './games/games.module'; // 🆕 Games & Gamification
 import { HealthController } from './health/health.controller';
 import { env } from './env';
 
@@ -42,13 +41,12 @@ import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
     }),
     LoggerModule,
     RedisModule,
-    AuthModule, // AuthModule already provides JwtModule and PassportModule globally
+    AuthModule,
     UsersModule,
     FriendsModule, // 🆕 Friends & Social
     SubscriptionsModule,
     PaymentsModule,
-    GamesModule, // 🆕 Games, gamification, mini-games, rewards
-    AnalyticsModule, // 🆕 Match quality tracking
+    AnalyticsModule,
     SignalingModule,
     TurnModule,
     ReportingModule,

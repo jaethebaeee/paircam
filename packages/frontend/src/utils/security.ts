@@ -68,23 +68,23 @@ export async function verifyDTLSSRTP(peerConnection: RTCPeerConnection): Promise
     let dtlsConnected = false;
     let srtpActive = false;
     
-    stats.forEach((stat) => {
-      // Check DTLS state
+    stats.forEach((stat: RTCStats) => {
+      // Check DTLS state (RTCTransportStats)
       if (stat.type === 'transport') {
-        const transportStat = stat as any;
+        const transportStat = stat as RTCTransportStats;
         if (transportStat.dtlsState === 'connected') {
           dtlsConnected = true;
         }
-        if (transportStat.srtpCipher) {
+        if ('srtpCipher' in transportStat && transportStat.srtpCipher) {
           srtpActive = true;
         }
       }
-      
-      // Alternative: Check candidate pair
-      if (stat.type === 'candidate-pair' && (stat as any).state === 'succeeded') {
-        const candidateStat = stat as any;
+
+      // Alternative: Check candidate pair (RTCIceCandidatePairStats)
+      if (stat.type === 'candidate-pair') {
+        const candidateStat = stat as RTCIceCandidatePairStats;
         // If connection succeeded, DTLS should be active
-        if (candidateStat.transportId) {
+        if (candidateStat.state === 'succeeded' && candidateStat.transportId) {
           dtlsConnected = true;
         }
       }

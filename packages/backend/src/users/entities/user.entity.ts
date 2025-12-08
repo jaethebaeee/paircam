@@ -66,6 +66,9 @@ export class User {
   @Column({ default: 0, name: 'warning_count' })
   warningCount: number;
 
+  @Column({ default: 'user', length: 20 })
+  role: 'user' | 'moderator' | 'admin';
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', name: 'last_active' })
   lastActive: Date;
 

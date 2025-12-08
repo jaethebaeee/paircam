@@ -18,7 +18,7 @@ export class PaymentsService {
       this.logger.warn('Stripe secret key not configured');
     } else {
       this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-        apiVersion: '2025-09-30.clover' as any,
+        apiVersion: '2024-06-20',
       });
     }
   }
@@ -147,16 +147,23 @@ export class PaymentsService {
         session.subscription as string,
       );
 
+      // Safely access the first item's price ID
+      const firstItem = subscription.items.data[0];
+      if (!firstItem) {
+        this.logger.error('Subscription has no items', { subscriptionId: subscription.id });
+        throw new Error('Invalid subscription: no items found');
+      }
+
       await this.subscriptionsService.create({
         userId,
         stripeCustomerId: subscription.customer as string,
         stripeSubscriptionId: subscription.id,
-        stripePriceId: subscription.items.data[0].price.id,
+        stripePriceId: firstItem.price.id,
         status: subscription.status,
         plan,
-        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
-        trialEnd: (subscription as any).trial_end ? new Date((subscription as any).trial_end * 1000) : undefined,
+        currentPeriodStart: new Date(subscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : undefined,
       });
 
       this.logger.log('Subscription created from checkout', {
@@ -174,9 +181,9 @@ export class PaymentsService {
     try {
       await this.subscriptionsService.updateByStripeId(subscription.id, {
         status: subscription.status,
-        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
-        cancelAtPeriodEnd: (subscription as any).cancel_at_period_end,
+        currentPeriodStart: new Date(subscription.current_period_start * 1000),
+        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
       });
 
       this.logger.log('Subscription updated', {
