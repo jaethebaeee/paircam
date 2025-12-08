@@ -15,6 +15,7 @@ import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
 import ReportModal from '../ReportModal';
 import PremiumUpsellModal from '../PremiumUpsellModal';
+import PremiumModal from '../PremiumModal';
 
 type TurnCredentials = {
   urls: string[];
@@ -68,6 +69,7 @@ export default function VideoChat({
   const [matchedAt, setMatchedAt] = useState<Date | undefined>(undefined);
   const [skipStats, setSkipStats] = useState<{ count: number; limit: number; remaining: number; isPremium: boolean } | null>(null);
   const [showPremiumUpsell, setShowPremiumUpsell] = useState<'skip_limit' | 'gender_filter' | 'region_filter' | 'long_wait' | null>(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Geolocation for country flags
@@ -449,11 +451,15 @@ export default function VideoChat({
           onClose={() => setShowPremiumUpsell(null)}
           onUpgrade={() => {
             setShowPremiumUpsell(null);
-            // Navigate to premium page or open payment modal
-            window.location.href = '/premium';
+            setShowPremiumModal(true);
           }}
           skipStats={skipStats || undefined}
         />
+      )}
+
+      {/* Premium Modal - Stripe Checkout */}
+      {showPremiumModal && (
+        <PremiumModal onClose={() => setShowPremiumModal(false)} />
       )}
 
       {/* Skip Counter Badge - Show when close to limit */}
