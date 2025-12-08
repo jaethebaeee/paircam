@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between, IsNull, Not } from 'typeorm';
 import { DailyMission } from '../entities';
 import { WalletService } from './wallet.service';
 // amplitude analytics disabled - uncomment when @amplitude/analytics-node is installed
@@ -21,15 +21,13 @@ export class MissionService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
     const existingMissions = await this.missionRepo.find({
       where: {
         userId,
-        createdAt: (() => {
-          const start = new Date(today);
-          const end = new Date(today);
-          end.setDate(end.getDate() + 1);
-          return { $gte: start, $lt: end };
-        })(),
+        createdAt: Between(today, tomorrow),
       },
     });
 
@@ -61,8 +59,8 @@ export class MissionService {
       },
     ];
 
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const expireDate = new Date(today);
+    expireDate.setDate(expireDate.getDate() + 1);
 
     const createdMissions: DailyMission[] = [];
 
@@ -73,7 +71,7 @@ export class MissionService {
         target: m.target,
         progress: 0,
         coinsReward: m.coinsReward,
-        expiresAt: tomorrow,
+        expiresAt: expireDate,
       });
 
       const saved = await this.missionRepo.save(mission);
@@ -93,7 +91,7 @@ export class MissionService {
     let missions = await this.missionRepo.find({
       where: {
         userId,
-        completedAt: null, // Not yet completed
+        completedAt: IsNull(), // Not yet completed
       },
     });
 
@@ -120,7 +118,7 @@ export class MissionService {
       where: {
         userId,
         missionType: missionType as any,
-        completedAt: null, // Not already completed
+        completedAt: IsNull(), // Not already completed
       },
     });
 
@@ -168,19 +166,16 @@ export class MissionService {
     yesterday.setDate(yesterday.getDate() - 1);
 
     // Check if user completed any mission yesterday
+    const yesterdayStart = new Date(yesterday);
+    yesterdayStart.setHours(0, 0, 0, 0);
+    const yesterdayEnd = new Date(yesterday);
+    yesterdayEnd.setHours(23, 59, 59, 999);
+
     const yesterdayMissions = await this.missionRepo.find({
       where: {
         userId,
-        createdAt: (() => {
-          const start = new Date(yesterday);
-          start.setHours(0, 0, 0, 0);
-          const end = new Date(yesterday);
-          end.setHours(23, 59, 59, 999);
-          return { $gte: start, $lt: end };
-        })(),
-        completedAt: (() => ({
-          $ne: null,
-        }))(),
+        createdAt: Between(yesterdayStart, yesterdayEnd),
+        completedAt: Not(IsNull()),
       },
     });
 
