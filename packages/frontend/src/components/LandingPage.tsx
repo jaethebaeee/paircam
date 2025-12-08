@@ -44,7 +44,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [isFormFocused, setIsFormFocused] = useState(false);
   const liveUserCount = useLiveUserCount();
 
   const handleStartChat = (textMode = false) => {
@@ -137,8 +136,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   setUserName(e.target.value.slice(0, 30));
                   setShowNameError(false);
                 }}
-                onFocus={() => setIsFormFocused(true)}
-                onBlur={() => setIsFormFocused(false)}
                 placeholder="Enter a nickname"
                 aria-label="Your name or nickname"
                 aria-required="true"
@@ -221,8 +218,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                     setUserAge(e.target.value);
                     setShowAgeError(false);
                   }}
-                  onFocus={() => setIsFormFocused(true)}
-                  onBlur={() => setIsFormFocused(false)}
                   placeholder="18"
                   min="18"
                   max="120"
@@ -277,6 +272,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className="max-w-md mx-auto mt-8 px-2">
           <AdBanner format="responsive" className="rounded-xl overflow-hidden" />
         </div>
+      </div>
       </div>
 
       {/* Ad Banner - Side placement for desktop */}

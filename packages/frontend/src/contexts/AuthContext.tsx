@@ -25,3 +25,20 @@ export function useAuthContext() {
   }
   return context;
 }
+
+// User type for auth
+interface User {
+  email?: string;
+  username?: string;
+}
+
+// Alias for useAuthContext - provides full auth state
+export function useAuth() {
+  const context = useAuthContext();
+  return {
+    ...context,
+    user: null as User | null,
+    isAuthenticated: false,
+    signOut: () => {},
+  };
+}
