@@ -41,24 +41,22 @@ export default function VideoControls({
 }: VideoControlsProps) {
   return (
     <div className="absolute bottom-0 left-0 right-0 z-50">
-      {/* Gradient background */}
-      <div className="bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-6 px-4">
-        <div className="max-w-lg mx-auto">
-          {/* Main control bar */}
-          <div className="flex items-center justify-center gap-3 sm:gap-4">
+      {/* Clean frosted glass background */}
+      <div className="bg-black/30 backdrop-blur-xl border-t border-white/5 py-5 px-4">
+        <div className="max-w-md mx-auto">
+          {/* Main control bar - Hinge/Airbnb style */}
+          <div className="flex items-center justify-center gap-3">
             {/* Video Toggle */}
             {!isTextMode && (
               <ControlButton
                 onClick={onToggleVideo}
-                isActive={isVideoEnabled}
-                activeColor="bg-white/20"
-                inactiveColor="bg-red-500"
-                tooltip={isVideoEnabled ? 'Camera off' : 'Camera on'}
+                isOn={isVideoEnabled}
+                label={isVideoEnabled ? 'Camera on' : 'Camera off'}
               >
                 {isVideoEnabled ? (
-                  <VideoCameraIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  <VideoCameraIcon className="h-5 w-5" />
                 ) : (
-                  <VideoCameraSlashIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  <VideoCameraSlashIcon className="h-5 w-5" />
                 )}
               </ControlButton>
             )}
@@ -67,82 +65,67 @@ export default function VideoControls({
             {!isTextMode && (
               <ControlButton
                 onClick={onToggleAudio}
-                isActive={isAudioEnabled}
-                activeColor="bg-white/20"
-                inactiveColor="bg-red-500"
-                tooltip={isAudioEnabled ? 'Mute' : 'Unmute'}
+                isOn={isAudioEnabled}
+                label={isAudioEnabled ? 'Mic on' : 'Mic off'}
               >
                 {isAudioEnabled ? (
-                  <MicrophoneIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  <MicrophoneIcon className="h-5 w-5" />
                 ) : (
-                  <MicrophoneSlashIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  <MicrophoneSlashIcon className="h-5 w-5" />
                 )}
               </ControlButton>
             )}
 
-            {/* Stop Button - Red */}
+            {/* End Call Button */}
             <button
               onClick={onStopChatting}
-              className="relative p-4 sm:p-5 rounded-full bg-red-500 hover:bg-red-600 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg shadow-red-500/30"
-              aria-label="Stop"
+              className="p-4 rounded-full bg-rose-500 hover:bg-rose-600 text-white transition-all duration-200 shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 active:scale-95"
+              aria-label="End call"
             >
-              <PhoneXMarkIcon className="h-6 w-6 sm:h-7 sm:w-7 text-white rotate-[135deg]" />
+              <PhoneXMarkIcon className="h-6 w-6 rotate-[135deg]" />
             </button>
 
-            {/* Next Button - Gradient */}
+            {/* Next Button */}
             <button
               onClick={onNext}
               disabled={isSkipping}
-              className={`relative p-4 sm:p-5 rounded-full transition-all duration-200 transform shadow-lg ${
+              className={`px-6 py-3.5 rounded-full font-medium text-sm transition-all duration-200 shadow-lg active:scale-95 flex items-center gap-2 ${
                 isSkipping
-                  ? 'bg-gray-600 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 hover:scale-105 active:scale-95 shadow-blue-500/30'
+                  ? 'bg-neutral-700 text-neutral-400 cursor-not-allowed shadow-none'
+                  : 'bg-white text-neutral-900 hover:bg-neutral-100 shadow-white/10 hover:shadow-white/20'
               }`}
               aria-label={isSkipping ? 'Finding...' : 'Next'}
             >
               <ArrowPathIcon
-                className={`h-6 w-6 sm:h-7 sm:w-7 text-white ${isSkipping ? 'animate-spin' : ''}`}
+                className={`h-5 w-5 ${isSkipping ? 'animate-spin' : ''}`}
               />
+              <span>{isSkipping ? 'Finding...' : 'Next'}</span>
             </button>
 
             {/* Chat Toggle */}
             {!isTextMode && (
               <ControlButton
                 onClick={onToggleChat}
-                isActive={true}
-                activeColor="bg-white/20"
-                inactiveColor="bg-white/20"
-                tooltip="Chat"
+                isOn={true}
+                label="Chat"
               >
-                <ChatBubbleLeftIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                <ChatBubbleLeftIcon className="h-5 w-5" />
               </ControlButton>
             )}
 
             {/* Report */}
-            <ControlButton
+            <button
               onClick={onReport}
-              isActive={true}
-              activeColor="bg-white/10"
-              inactiveColor="bg-white/10"
-              tooltip="Report"
               disabled={!isConnected}
+              className={`p-3 rounded-full transition-all duration-200 ${
+                isConnected
+                  ? 'text-white/50 hover:text-white/80 hover:bg-white/10'
+                  : 'text-white/20 cursor-not-allowed'
+              }`}
+              aria-label="Report"
             >
-              <FlagIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white/70 hover:text-white" />
-            </ControlButton>
-          </div>
-
-          {/* Status text */}
-          <div className="mt-4 text-center">
-            {isSkipping ? (
-              <p className="text-white/60 text-sm animate-pulse">Finding someone new...</p>
-            ) : isConnected ? (
-              <p className="text-green-400/80 text-sm flex items-center justify-center gap-2">
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                Connected
-              </p>
-            ) : (
-              <p className="text-white/40 text-xs">Press Next to find someone</p>
-            )}
+              <FlagIcon className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -150,43 +133,29 @@ export default function VideoControls({
   );
 }
 
-// Reusable control button component
+// Clean control button component - Hinge/Airbnb style
 function ControlButton({
   onClick,
-  isActive,
-  activeColor,
-  inactiveColor,
-  tooltip,
+  isOn,
+  label,
   children,
-  disabled = false,
 }: {
   onClick: () => void;
-  isActive: boolean;
-  activeColor: string;
-  inactiveColor: string;
-  tooltip: string;
+  isOn: boolean;
+  label: string;
   children: React.ReactNode;
-  disabled?: boolean;
 }) {
   return (
-    <div className="relative group">
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        className={`relative p-3 sm:p-4 rounded-full transition-all duration-200 transform hover:scale-105 active:scale-95 backdrop-blur-sm ${
-          isActive ? activeColor : inactiveColor
-        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-        aria-label={tooltip}
-      >
-        {children}
-      </button>
-
-      {/* Tooltip */}
-      <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-        <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-          {tooltip}
-        </div>
-      </div>
-    </div>
+    <button
+      onClick={onClick}
+      className={`p-3.5 rounded-full transition-all duration-200 active:scale-95 ${
+        isOn
+          ? 'bg-white/10 text-white hover:bg-white/15'
+          : 'bg-rose-500/90 text-white hover:bg-rose-500'
+      }`}
+      aria-label={label}
+    >
+      {children}
+    </button>
   );
 }

@@ -1,34 +1,21 @@
 import { useState, useEffect } from 'react';
-import { SparklesIcon, UserGroupIcon, ClockIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 interface WaitingQueueProps {
   queuePosition?: number;
-  estimatedWaitTime?: number; // seconds
+  estimatedWaitTime?: number;
   onCancel: () => void;
 }
 
-export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCancel }: WaitingQueueProps) {
-  const [currentTipIndex, setCurrentTipIndex] = useState(0);
-  const [progress, setProgress] = useState(0);
+export default function WaitingQueue({ queuePosition, onCancel }: WaitingQueueProps) {
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
 
   const tips = [
-    { icon: '🤝', text: 'Be respectful and kind to everyone you meet' },
-    { icon: '🚨', text: 'Report inappropriate behavior immediately' },
-    { icon: '🎭', text: 'You can skip to the next person anytime' },
-    { icon: '💬', text: 'Use the chat feature if your camera is off' },
-    { icon: '🌍', text: 'Meet people from around the world!' },
-    { icon: '⚠️', text: 'Never share personal information like your address' },
-    { icon: '🛡️', text: 'Our AI monitors for inappropriate content' },
+    'Be respectful and kind to everyone you meet',
+    'You can skip to the next person anytime',
+    'Use the chat feature to send messages',
+    'Report any inappropriate behavior',
   ];
-
-  // Rotate tips every 4 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTipIndex((prev) => (prev + 1) % tips.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [tips.length]);
 
   // Track elapsed time
   useEffect(() => {
@@ -38,142 +25,79 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
     return () => clearInterval(interval);
   }, []);
 
-  // Simulate progress based on estimated wait time or elapsed time
+  // Rotate tips
   useEffect(() => {
-    if (estimatedWaitTime && estimatedWaitTime > 0) {
-      const progressPercentage = Math.min((elapsedTime / estimatedWaitTime) * 100, 95);
-      setProgress(progressPercentage);
-    } else {
-      // If no estimate, show a pulsing progress (30% to 70%)
-      const pulsingProgress = 30 + Math.sin(elapsedTime / 2) * 20;
-      setProgress(pulsingProgress);
-    }
-  }, [elapsedTime, estimatedWaitTime]);
+    const interval = setInterval(() => {
+      setCurrentTipIndex((prev) => (prev + 1) % tips.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [tips.length]);
 
   const formatTime = (seconds: number) => {
-    if (seconds < 60) return `${seconds}s`;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}m ${remainingSeconds}s`;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center px-4">
-      <div className="max-w-2xl w-full">
-        {/* Main Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-6 animate-pulse">
-              <SparklesIcon className="w-10 h-10 text-white" />
+    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+      <div className="max-w-sm w-full text-center">
+        {/* Loading animation - clean minimal */}
+        <div className="mb-10">
+          <div className="relative w-20 h-20 mx-auto">
+            {/* Outer ring */}
+            <div className="absolute inset-0 rounded-full border-2 border-neutral-100"></div>
+            {/* Spinning indicator */}
+            <div
+              className="absolute inset-0 rounded-full border-2 border-transparent border-t-rose-400 animate-spin"
+              style={{ animationDuration: '1.2s' }}
+            ></div>
+            {/* Inner content */}
+            <div className="absolute inset-3 rounded-full bg-neutral-50 flex items-center justify-center">
+              <svg className="w-6 h-6 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Finding your match...
-            </h2>
-            <p className="text-gray-600 text-lg">
-              We're connecting you with someone awesome
-            </p>
-          </div>
-
-          {/* Queue Stats */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            {/* Queue Position */}
-            <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-6 text-center">
-              <UserGroupIcon className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-purple-900 mb-1">
-                {queuePosition !== undefined ? queuePosition : '...'}
-              </div>
-              <div className="text-sm text-purple-700 font-medium">
-                {queuePosition === 1 ? 'person ahead' : 'people in queue'}
-              </div>
-            </div>
-
-            {/* Wait Time */}
-            <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl p-6 text-center">
-              <ClockIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-blue-900 mb-1">
-                {estimatedWaitTime !== undefined ? formatTime(estimatedWaitTime) : '~15s'}
-              </div>
-              <div className="text-sm text-blue-700 font-medium">
-                estimated wait
-              </div>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-500 ease-out relative"
-                style={{ width: `${progress}%` }}
-              >
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-              </div>
-            </div>
-            <div className="flex justify-between mt-2 text-sm text-gray-500">
-              <span>Searching...</span>
-              <span>{Math.round(progress)}%</span>
-            </div>
-          </div>
-
-          {/* Rotating Tips */}
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-orange-400 rounded-xl p-6 mb-8">
-            <div className="flex items-start gap-4">
-              <div className="text-4xl mt-1 animate-bounce-subtle">
-                {tips[currentTipIndex].icon}
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-orange-900 mb-1 uppercase tracking-wide">
-                  Quick Tip
-                </div>
-                <p className="text-gray-800 text-base leading-relaxed">
-                  {tips[currentTipIndex].text}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Safety Badge */}
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-6">
-            <ShieldCheckIcon className="w-5 h-5 text-green-600" />
-            <span>Your safety is our priority • All chats are monitored</span>
-          </div>
-
-          {/* Cancel Button */}
-          <button
-            onClick={onCancel}
-            className="w-full py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 hover:shadow-lg active:scale-95"
-          >
-            Cancel and Go Back
-          </button>
-
-          {/* Additional Info */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
-              Having trouble connecting? Check your internet connection or try again later.
-            </p>
           </div>
         </div>
 
-        {/* Fun Facts Below Card */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            💡 <strong>Did you know?</strong> Over 10,000+ people connect daily on PairCam
+        {/* Title */}
+        <h1 className="text-2xl font-semibold text-neutral-900 mb-2">
+          Finding your match
+        </h1>
+        <p className="text-neutral-500 mb-8">
+          This usually takes a few seconds
+        </p>
+
+        {/* Stats row */}
+        <div className="flex items-center justify-center gap-6 mb-10">
+          {queuePosition !== undefined && (
+            <div className="text-center">
+              <div className="text-2xl font-semibold text-neutral-900">{queuePosition}</div>
+              <div className="text-xs text-neutral-400 uppercase tracking-wide">in queue</div>
+            </div>
+          )}
+          <div className="text-center">
+            <div className="text-2xl font-semibold text-neutral-900 tabular-nums">{formatTime(elapsedTime)}</div>
+            <div className="text-xs text-neutral-400 uppercase tracking-wide">elapsed</div>
+          </div>
+        </div>
+
+        {/* Tip - clean minimal */}
+        <div className="bg-neutral-50 rounded-2xl px-6 py-4 mb-10">
+          <p className="text-sm text-neutral-600 leading-relaxed">
+            {tips[currentTipIndex]}
           </p>
         </div>
-      </div>
 
-      <style>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
-        }
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-      `}</style>
+        {/* Cancel button - Hinge/Airbnb style */}
+        <button
+          onClick={onCancel}
+          className="w-full py-4 text-neutral-500 hover:text-neutral-700 font-medium text-sm transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }
-
