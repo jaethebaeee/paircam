@@ -1,15 +1,15 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import Stripe from 'stripe';
 import { env } from '../env';
 import { UsersService } from '../users/users.service';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { LoggerService } from '../services/logger.service';
+import { STRIPE_CLIENT, STRIPE_WEBHOOK_EVENTS, STRIPE_PAYMENT_STATUS } from './stripe';
 
 @Injectable()
 export class PaymentsService {
-  private stripe: Stripe;
-
   constructor(
+    @Inject(STRIPE_CLIENT) private readonly stripe: Stripe | null,
     private readonly usersService: UsersService,
     private readonly subscriptionsService: SubscriptionsService,
     private readonly logger: LoggerService,
@@ -18,7 +18,7 @@ export class PaymentsService {
       this.logger.warn('Stripe secret key not configured');
     } else {
       this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-        apiVersion: '2025-09-30.clover' as any,
+        apiVersion: '2025-09-30.clover',
       });
     }
   }
@@ -102,26 +102,26 @@ export class PaymentsService {
 
     try {
       switch (event.type) {
-        case 'checkout.session.completed':
+        case STRIPE_WEBHOOK_EVENTS.CHECKOUT_SESSION_COMPLETED:
           await this.handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
           break;
-        
-        case 'customer.subscription.updated':
+
+        case STRIPE_WEBHOOK_EVENTS.SUBSCRIPTION_UPDATED:
           await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
           break;
-        
-        case 'customer.subscription.deleted':
+
+        case STRIPE_WEBHOOK_EVENTS.SUBSCRIPTION_DELETED:
           await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
           break;
-        
-        case 'invoice.payment_succeeded':
+
+        case STRIPE_WEBHOOK_EVENTS.PAYMENT_SUCCEEDED:
           await this.handlePaymentSucceeded(event.data.object as Stripe.Invoice);
           break;
-        
-        case 'invoice.payment_failed':
+
+        case STRIPE_WEBHOOK_EVENTS.PAYMENT_FAILED:
           await this.handlePaymentFailed(event.data.object as Stripe.Invoice);
           break;
-        
+
         default:
           this.logger.debug('Unhandled webhook event', { type: event.type });
       }
@@ -134,6 +134,8 @@ export class PaymentsService {
   }
 
   private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+    if (!this.stripe) return;
+
     const userId = session.metadata?.userId;
     const plan = session.metadata?.plan as 'weekly' | 'monthly';
 
@@ -147,16 +149,23 @@ export class PaymentsService {
         session.subscription as string,
       );
 
+      // Safely access the first item's price ID
+      const firstItem = subscription.items.data[0];
+      if (!firstItem) {
+        this.logger.error('Subscription has no items', undefined, { subscriptionId: subscription.id });
+        throw new Error('Invalid subscription: no items found');
+      }
+
       await this.subscriptionsService.create({
         userId,
         stripeCustomerId: subscription.customer as string,
         stripeSubscriptionId: subscription.id,
-        stripePriceId: subscription.items.data[0].price.id,
+        stripePriceId: firstItem.price.id,
         status: subscription.status,
         plan,
-        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
-        trialEnd: (subscription as any).trial_end ? new Date((subscription as any).trial_end * 1000) : undefined,
+        currentPeriodStart: new Date(firstItem.current_period_start * 1000),
+        currentPeriodEnd: new Date(firstItem.current_period_end * 1000),
+        trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : undefined,
       });
 
       this.logger.log('Subscription created from checkout', {
@@ -172,11 +181,12 @@ export class PaymentsService {
 
   private async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     try {
+      const firstItem = subscription.items.data[0];
       await this.subscriptionsService.updateByStripeId(subscription.id, {
         status: subscription.status,
-        currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
-        currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
-        cancelAtPeriodEnd: (subscription as any).cancel_at_period_end,
+        currentPeriodStart: firstItem ? new Date(firstItem.current_period_start * 1000) : undefined,
+        currentPeriodEnd: firstItem ? new Date(firstItem.current_period_end * 1000) : undefined,
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
       });
 
       this.logger.log('Subscription updated', {
@@ -270,7 +280,7 @@ export class PaymentsService {
       }
 
       // Check if payment was successful
-      if (session.payment_status !== 'paid') {
+      if (session.payment_status !== STRIPE_PAYMENT_STATUS.PAID) {
         throw new BadRequestException('Payment not completed');
       }
 

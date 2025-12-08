@@ -1,8 +1,10 @@
 import { Controller, Post, Get, Body, UseGuards, Req, Query } from '@nestjs/common';
 import { ReportingService, ReportData } from './reporting.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ModeratorGuard } from '../auth/moderator.guard';
 import { SubmitReportDto } from './dto/submit-report.dto';
 import { ModerateReportDto } from './dto/moderate-report.dto';
+import { User } from '../users/entities/user.entity';
 
 @Controller('reports')
 export class ReportingController {
@@ -26,29 +28,28 @@ export class ReportingController {
     return { reportId };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ModeratorGuard)
   @Get('next')
-  async getNextReport(@Req() _req: { user: { deviceId: string } }) {
-    // In a real implementation, you'd check if the user is a moderator
+  async getNextReport(@Req() _req: { user: { deviceId: string }; moderator: User }) {
     return await this.reportingService.getNextReport();
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ModeratorGuard)
   @Get()
   async getAllReports(@Query('limit') limit?: string) {
     const limitNum = limit ? parseInt(limit, 10) : 50;
     return await this.reportingService.getAllReports(limitNum);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ModeratorGuard)
   @Post('moderate')
-  async moderateReport(@Body() body: ModerateReportDto, @Req() req: { user: { deviceId: string } }) {
-    const moderatorId = req.user.deviceId;
+  async moderateReport(@Body() body: ModerateReportDto, @Req() req: { user: { deviceId: string }; moderator: User }) {
+    const moderatorId = req.moderator.id;
     await this.reportingService.moderateReport(body.reportId, moderatorId, body.decision);
     return { success: true };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, ModeratorGuard)
   @Get('stats')
   async getReportStats() {
     return await this.reportingService.getReportStats();

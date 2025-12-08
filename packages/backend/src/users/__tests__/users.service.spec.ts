@@ -25,6 +25,7 @@ describe('UsersService', () => {
     showLocation: false,
     isBanned: false,
     warningCount: 0,
+    role: 'user',
     totalMatches: 10,
     totalReportsReceived: 0,
     lastActive: new Date(),

@@ -14,7 +14,6 @@ import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
 import ReportModal from '../ReportModal';
-import { TriviaGame } from '../games';
 
 type TurnCredentials = {
   urls: string[];
@@ -66,7 +65,6 @@ export default function VideoChat({
   const [showReportModal, setShowReportModal] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
   const [matchedAt, setMatchedAt] = useState<Date | undefined>(undefined);
-  const [showGameModal, setShowGameModal] = useState(false);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Geolocation for country flags
@@ -160,9 +158,21 @@ export default function VideoChat({
           'Content-Type': 'application/json',
         },
       })
-        .then((res) => res.json())
-        .then(setTurnCredentials)
-        .catch(console.error);
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Failed to fetch TURN credentials: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data: TurnCredentials) => {
+          if (data && data.urls && data.username && data.credential) {
+            setTurnCredentials(data);
+          }
+        })
+        .catch((error) => {
+          console.error('TURN credentials error:', error);
+          // Continue without TURN - STUN-only fallback
+        });
     }
   }, [accessToken]);
 
@@ -192,9 +202,18 @@ export default function VideoChat({
   // Create offer when matched (skip in text mode)
   useEffect(() => {
     if (signaling.matched && !isTextMode && webrtc.localStream) {
-      webrtc.createOffer().then((offer) => {
-        signaling.sendOffer(signaling.matched!.sessionId, offer);
-      });
+      webrtc.createOffer()
+        .then((offer) => {
+          if (signaling.matched) {
+            signaling.sendOffer(signaling.matched.sessionId, offer);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to create WebRTC offer:', error);
+          toast.error('Connection failed', {
+            description: 'Failed to establish video connection. Please try again.',
+          });
+        });
     }
   }, [signaling.matched, signaling, webrtc, isTextMode]);
 
@@ -396,24 +415,12 @@ export default function VideoChat({
         onNext={handleNext}
         onToggleChat={() => setShowChat(!showChat)}
         onReport={handleOpenReport}
-        onPlayGame={() => setShowGameModal(true)}
         isSkipping={isSkipping}
         isTextMode={isTextMode}
         isAudioOnlyMode={isAudioOnlyMode}
         onSwitchToAudioOnly={handleSwitchToAudioOnly}
         isConnected={!!signaling.matched}
-        isGamingMode={queueType === 'gaming'}
       />
-
-      {/* Game Modal */}
-      {signaling.matched && (
-        <TriviaGame
-          socket={signaling.socket}
-          sessionId={signaling.matched.sessionId}
-          onClose={() => setShowGameModal(false)}
-          isVisible={showGameModal}
-        />
-      )}
 
       {/* Report Modal */}
       {showReportModal && (
