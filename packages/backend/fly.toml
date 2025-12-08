@@ -1,0 +1,70 @@
+# Fly.io Configuration for PairCam Backend
+# Deploy with: fly deploy
+# More info: https://fly.io/docs/reference/configuration/
+
+app = "paircam"
+primary_region = "lax"  # Los Angeles - change based on your location
+
+[build]
+  builder = "dockerfile"
+
+[deploy]
+  release_command = "npm run migrate || true"  # Run migrations before deploying
+  strategy = "rolling"  # Zero-downtime deploys
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 3333
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.http_checks]
+    enabled = true
+    grace_period = "5s"
+    interval = "30s"
+    timeout = "5s"
+    path = "/health"
+    protocol = "http"
+
+[vm]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[scale]
+  count = 1  # Start with 1 VM, scale up with 'fly scale count 3'
+  memory = 512
+  cpu_kind = "shared"
+  cpus = 1
+
+[metrics]
+  port = 9090
+  path = "/metrics"
+
+# Environment variables (critical ones)
+# Additional env vars should be set with: fly secrets set KEY=VALUE
+[env]
+  NODE_ENV = "production"
+  NIXPACKS_NODE_VERSION = "18.18.0"
+  LOG_LEVEL = "info"
+
+# Health check configuration
+[checks]
+  [checks.status]
+    grace_period = "10s"
+    interval = "30s"
+    method = "get"
+    path = "/health"
+    protocol = "http"
+    timeout = 5
+    type = "http"

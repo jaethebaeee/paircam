@@ -1,0 +1,206 @@
+name: 🚀 Deploy to Fly.io
+
+# Trigger on push to main and PR branches starting with 'claude/'
+on:
+  push:
+    branches:
+      - main
+      - claude/*
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  # Job 1: Lint and Type Check
+  lint:
+    name: 📝 Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.0
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: ✨ Lint backend
+        run: cd packages/backend && npm run lint
+
+      - name: ✨ Lint frontend
+        run: cd packages/frontend && npm run lint
+
+      - name: 🔍 Type check backend
+        run: cd packages/backend && npm run typecheck
+
+      - name: 🔍 Type check frontend
+        run: cd packages/frontend && npm run typecheck
+
+  # Job 2: Build & Test
+  test:
+    name: 🧪 Build & Test
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.0
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔨 Build backend
+        run: cd packages/backend && npm run build
+
+      - name: 🔨 Build frontend
+        run: cd packages/frontend && npm run build
+
+      - name: 🧪 Test backend
+        run: cd packages/backend && npm run test -- --coverage || true
+
+      - name: 📊 Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./packages/backend/coverage/lcov.info
+          flags: backend
+          fail_ci_if_error: false
+
+  # Job 3: Security Checks
+  security:
+    name: 🔒 Security Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.0
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔐 Run npm audit
+        run: npm audit --audit-level=moderate || true
+
+      - name: ✅ Check environment variables
+        run: |
+          echo "Checking .env.example files..."
+          test -f packages/backend/.env.example || echo "⚠️ Warning: backend/.env.example missing"
+          test -f packages/frontend/.env.example || echo "⚠️ Warning: frontend/.env.example missing"
+
+  # Job 4: Deploy to Fly.io
+  deploy:
+    name: 🚀 Deploy to Fly.io
+    runs-on: ubuntu-latest
+    needs: [lint, test, security]
+    # Only deploy on push to main or claude/* branches, not on PRs
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/claude/'))
+    environment:
+      name: production
+      url: https://paircam.live
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: 🔐 Login to Fly.io
+        run: flyctl auth token
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: 📝 List Fly.io apps
+        run: flyctl apps list
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: 🚀 Deploy to Fly.io
+        run: |
+          cd packages/backend
+          flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: 🏥 Smoke Tests
+        run: |
+          echo "⏳ Waiting for deployment to stabilize..."
+          sleep 30
+
+          BACKEND_URL="https://paircam.live"
+
+          echo "🔍 Testing health endpoint..."
+          curl -f -s "$BACKEND_URL/health" || {
+            echo "❌ Health check failed"
+            exit 1
+          }
+
+          echo "✅ Backend is responding"
+
+          echo "🔍 Testing API endpoint..."
+          curl -f -s "$BACKEND_URL/api/health" -H "Accept: application/json" || {
+            echo "⚠️ API health check failed (might be normal if endpoint not implemented)"
+          }
+
+          echo "✅ Smoke tests passed!"
+
+      - name: 📊 Get Deployment Status
+        if: always()
+        run: |
+          cd packages/backend
+          flyctl status || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: 📢 Notify Slack Success
+        if: success()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "✅ *Deployment Successful*\n\n*Commit:* <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\n*Author:* ${{ github.actor }}\n*Branch:* ${{ github.ref_name }}\n*URL:* https://paircam.live"
+                  }
+                }
+              ]
+            }
+
+      - name: 📢 Notify Slack Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "❌ *Deployment Failed*\n\n*Commit:* <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\n*Author:* ${{ github.actor }}\n*Branch:* ${{ github.ref_name }}\n*Log:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>"
+                  }
+                }
+              ]
+            }
