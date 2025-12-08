@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { LoggerModule } from './services/logger.module';
 import { AuthModule } from './auth/auth.module';
@@ -30,6 +31,7 @@ import { BlockedUser } from './blocking/entities/blocked-user.entity';
       isGlobal: true,
       load: [() => env],
     }),
+    ScheduleModule.forRoot(), // Enable scheduled tasks/cron jobs
     // TypeORM Configuration
     TypeOrmModule.forRoot({
       type: 'postgres',

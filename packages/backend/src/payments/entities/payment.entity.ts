@@ -1,8 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Subscription } from '../../subscriptions/entities/subscription.entity';
 
 @Entity('payments')
+@Index(['userId']) // For user's payment history
+@Index(['status']) // For failed payment queries
+@Index(['createdAt']) // For revenue analytics
+@Index(['subscriptionId']) // For subscription payment history
 export class Payment {
   @PrimaryGeneratedColumn('uuid')
   id: string;

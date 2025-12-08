@@ -312,4 +312,115 @@ export class BlockingService {
       this.logger.warn('Failed to invalidate blocked-by cache', { error: error.message });
     }
   }
+
+  /**
+   * Bulk fetch blocked device IDs for multiple users (optimized for matchmaking)
+   * Returns a Map where key = deviceId and value = Set of blocked deviceIds
+   */
+  async getBlockedDeviceIdsBulk(deviceIds: string[]): Promise<Map<string, Set<string>>> {
+    const result = new Map<string, Set<string>>();
+
+    if (deviceIds.length === 0) {
+      return result;
+    }
+
+    // Initialize empty sets for all deviceIds
+    for (const deviceId of deviceIds) {
+      result.set(deviceId, new Set());
+    }
+
+    try {
+      // Try cache first using pipeline
+      const pipeline = this.redisService.getClient().multi();
+      for (const deviceId of deviceIds) {
+        pipeline.get(`${this.BLOCKED_CACHE_PREFIX}${deviceId}`);
+      }
+      const cachedResults = await pipeline.exec();
+
+      const uncachedDeviceIds: string[] = [];
+
+      for (let i = 0; i < deviceIds.length; i++) {
+        const cached = cachedResults[i] as string | null;
+        if (cached) {
+          try {
+            const blockedIds: string[] = JSON.parse(cached);
+            result.set(deviceIds[i], new Set(blockedIds));
+          } catch {
+            uncachedDeviceIds.push(deviceIds[i]);
+          }
+        } else {
+          uncachedDeviceIds.push(deviceIds[i]);
+        }
+      }
+
+      // For uncached entries, fetch from database
+      if (uncachedDeviceIds.length > 0) {
+        // Get all users for uncached deviceIds
+        const users = await this.userRepository.find({
+          where: { deviceId: In(uncachedDeviceIds) },
+        });
+
+        if (users.length > 0) {
+          const userIds = users.map(u => u.id);
+          const deviceIdToUserId = new Map(users.map(u => [u.deviceId, u.id]));
+          const userIdToDeviceId = new Map(users.map(u => [u.id, u.deviceId]));
+
+          // Get all blocks where any of these users is blocker or blocked
+          const [blockedByUsers, blockedThisUsers] = await Promise.all([
+            this.blockedUserRepository.find({
+              where: { blockerId: In(userIds) },
+              relations: ['blocked'],
+            }),
+            this.blockedUserRepository.find({
+              where: { blockedId: In(userIds) },
+              relations: ['blocker'],
+            }),
+          ]);
+
+          // Build the blocked sets
+          for (const block of blockedByUsers) {
+            const blockerDeviceId = userIdToDeviceId.get(block.blockerId);
+            if (blockerDeviceId) {
+              const blockedSet = result.get(blockerDeviceId) || new Set();
+              blockedSet.add(block.blocked.deviceId);
+              result.set(blockerDeviceId, blockedSet);
+            }
+          }
+
+          for (const block of blockedThisUsers) {
+            const blockedDeviceId = userIdToDeviceId.get(block.blockedId);
+            if (blockedDeviceId) {
+              const blockedSet = result.get(blockedDeviceId) || new Set();
+              blockedSet.add(block.blocker.deviceId);
+              result.set(blockedDeviceId, blockedSet);
+            }
+          }
+
+          // Cache the results
+          const cachePipeline = this.redisService.getClient().multi();
+          for (const deviceId of uncachedDeviceIds) {
+            const blockedSet = result.get(deviceId) || new Set();
+            cachePipeline.setEx(
+              `${this.BLOCKED_CACHE_PREFIX}${deviceId}`,
+              this.CACHE_TTL,
+              JSON.stringify([...blockedSet]),
+            );
+          }
+          await cachePipeline.exec();
+        }
+      }
+
+      this.logger.debug('Bulk fetched blocked device IDs', {
+        totalDevices: deviceIds.length,
+        fromCache: deviceIds.length - uncachedDeviceIds.length,
+        fromDb: uncachedDeviceIds.length,
+      });
+
+    } catch (error) {
+      this.logger.error('Failed to bulk fetch blocked device IDs', error.stack);
+      // Return empty sets on error (fail open for matchmaking)
+    }
+
+    return result;
+  }
 }

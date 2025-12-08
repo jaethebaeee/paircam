@@ -1,7 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 
 @Entity('subscriptions')
+@Index(['userId']) // For user's subscriptions lookup
+@Index(['status']) // For active subscription queries
+@Index(['status', 'currentPeriodEnd']) // For expiring subscriptions queries
+@Index(['cancelAtPeriodEnd', 'currentPeriodEnd']) // For renewal processing
 export class Subscription {
   @PrimaryGeneratedColumn('uuid')
   id: string;

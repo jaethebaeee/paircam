@@ -7,8 +7,9 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Inject, forwardRef, OnModuleInit, UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { WsRateLimitGuard } from './ws-rate-limit.guard';
 import { LoggerService } from '../services/logger.service';
 import { RedisService } from '../redis/redis.service';
 import { RedisPubSubService, MatchNotifyEvent, SessionEndEvent, SignalForwardEvent } from '../redis/redis-pubsub.service';
@@ -169,6 +170,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('join-queue')
   async handleJoinQueue(
     @ConnectedSocket() client: Socket,
@@ -251,6 +253,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('leave-queue')
   async handleLeaveQueue(@ConnectedSocket() client: Socket) {
     // Clear queue update interval
@@ -265,6 +268,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     client.emit('queue-left', { timestamp: Date.now() });
   }
 
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('send-offer')
   async handleSendOffer(
     @ConnectedSocket() client: Socket,
@@ -299,6 +303,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('send-answer')
   async handleSendAnswer(
     @ConnectedSocket() client: Socket,
@@ -327,6 +332,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('send-candidate')
   async handleSendCandidate(
     @ConnectedSocket() client: Socket,
@@ -354,6 +360,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('send-message')
   async handleSendMessage(
     @ConnectedSocket() client: Socket,
@@ -383,6 +390,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('send-reaction')
   async handleSendReaction(
     @ConnectedSocket() client: Socket,
@@ -411,6 +419,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
   }
 
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('end-call')
   async handleEndCall(@ConnectedSocket() client: Socket, @MessageBody() data: { sessionId: string; wasSkipped?: boolean }) {
     const deviceId = client.data.deviceId;
@@ -524,6 +533,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
   }
 
   // 🆕 Track connection success/failure
+  @UseGuards(WsRateLimitGuard)
   @SubscribeMessage('connection-status')
   async handleConnectionStatus(
     @ConnectedSocket() client: Socket,

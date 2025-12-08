@@ -1,4 +1,5 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Interval } from '@nestjs/schedule';
 import { RedisService } from '../redis/redis.service';
 import { SignalingGateway } from './signaling.gateway';
 import { LoggerService } from '../services/logger.service';
@@ -210,7 +211,11 @@ export class MatchmakingService {
 
     // ⚡ PRE-FETCH: Bulk load recent matches to avoid per-pair Redis calls
     const userIds = users.map(u => u.userId);
+    const deviceIds = users.map(u => u.deviceId);
     const recentMatchesMap = await this.redisService.getRecentMatchesBulk(userIds);
+
+    // ⚡ PRE-FETCH: Bulk load blocked users to avoid per-pair DB calls
+    const blockedUsersMap = await this.blockingService.getBlockedDeviceIdsBulk(deviceIds);
 
     // 🆕 DYNAMIC URGENCY THRESHOLD - Adjust based on queue size
     // Larger queues = stricter threshold (more matches available)
@@ -245,7 +250,7 @@ export class MatchmakingService {
       for (const candidate of allCandidates) {
         if (used.has(candidate.userId) || candidate.userId === urgentUser.userId) continue;
 
-        if (this.areCompatibleFast(urgentUser, candidate, recentMatchesMap)) {
+        if (this.areCompatibleFast(urgentUser, candidate, recentMatchesMap, blockedUsersMap)) {
           const waitTime = now - urgentUser.timestamp;
           const score = this.calculateCompatibilityScore(urgentUser, candidate, now);
           matches.push({
@@ -273,7 +278,7 @@ export class MatchmakingService {
     const remainingUsers = [...premiumUsers, ...freeUsers];
 
     if (remainingUsers.length > 0) {
-      const bucketedMatches = await this.findMatchesOptimized(remainingUsers, used, now, recentMatchesMap);
+      const bucketedMatches = await this.findMatchesOptimized(remainingUsers, used, now, recentMatchesMap, blockedUsersMap);
       matches.push(...bucketedMatches);
     }
 
@@ -304,7 +309,8 @@ export class MatchmakingService {
     users: QueueUser[],
     used: Set<string>,
     now: number,
-    recentMatchesMap: Map<string, Set<string>>
+    recentMatchesMap: Map<string, Set<string>>,
+    blockedUsersMap: Map<string, Set<string>>,
   ): Promise<Array<{ user1: QueueUser; user2: QueueUser; score: number }>> {
     const matches: Array<{ user1: QueueUser; user2: QueueUser; score: number }> = [];
     
@@ -348,7 +354,7 @@ export class MatchmakingService {
           comparisons++;
 
           // Quick compatibility check (cheap - uses pre-fetched data)
-          if (this.areCompatibleFast(user1, user2, recentMatchesMap)) {
+          if (this.areCompatibleFast(user1, user2, recentMatchesMap, blockedUsersMap)) {
             // Calculate score (expensive, but only for compatible pairs)
             const score = this.calculateCompatibilityScore(user1, user2, now);
             scoredPairs.push({ user1, user2, score });
@@ -592,7 +598,8 @@ export class MatchmakingService {
   private areCompatibleFast(
     user1: QueueUser,
     user2: QueueUser,
-    recentMatchesMap: Map<string, Set<string>>
+    recentMatchesMap: Map<string, Set<string>>,
+    blockedUsersMap: Map<string, Set<string>>,
   ): boolean {
     // Same region preference
     if (user1.region !== 'global' && user2.region !== 'global' && user1.region !== user2.region) {
@@ -601,6 +608,18 @@ export class MatchmakingService {
 
     // Same language preference
     if (user1.language !== user2.language) {
+      return false;
+    }
+
+    // ⚡ CHECK BLOCKED USERS - Uses pre-fetched map (no DB call!)
+    const user1Blocked = blockedUsersMap.get(user1.deviceId) || new Set();
+    const user2Blocked = blockedUsersMap.get(user2.deviceId) || new Set();
+
+    if (user1Blocked.has(user2.deviceId) || user2Blocked.has(user1.deviceId)) {
+      this.logger.debug('Skipping blocked users (fast check)', {
+        user1: user1.userId,
+        user2: user2.userId,
+      });
       return false;
     }
 
@@ -851,5 +870,81 @@ export class MatchmakingService {
       averageWaitTime,
       regionDistribution,
     };
+  }
+
+  // ========================================
+  // SCHEDULED TASKS
+  // ========================================
+
+  /**
+   * Cleanup stale queue entries every 30 seconds
+   *
+   * This handles cases where:
+   * - Users disconnect without properly leaving the queue
+   * - Server restarts leave orphaned queue entries
+   * - Redis connection drops cause inconsistent state
+   */
+  @Interval(30000) // Every 30 seconds
+  async cleanupStaleQueueEntries(): Promise<void> {
+    try {
+      const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
+
+      if (queueItems.length === 0) {
+        return;
+      }
+
+      const now = Date.now();
+      const maxAge = 5 * 60 * 1000; // 5 minutes max in queue
+      let cleanedCount = 0;
+
+      for (const item of queueItems) {
+        try {
+          const user = JSON.parse(item) as QueueUser;
+          const age = now - user.timestamp;
+
+          if (age > maxAge) {
+            await this.redisService.removeFromQueue(user.userId);
+            cleanedCount++;
+
+            this.logger.warn('Cleaned up stale queue entry', {
+              userId: user.userId,
+              deviceId: user.deviceId,
+              ageSeconds: Math.round(age / 1000),
+            });
+          }
+        } catch (parseError) {
+          // Invalid queue item - remove it
+          await this.redisService.getClient().lRem('matchmaking:queue', 1, item);
+          cleanedCount++;
+          this.logger.warn('Removed invalid queue item', { item: item.substring(0, 100) });
+        }
+      }
+
+      if (cleanedCount > 0) {
+        this.logger.log(`🧹 Queue cleanup completed`, {
+          removed: cleanedCount,
+          remaining: queueItems.length - cleanedCount,
+        });
+
+        // Track cleanup metrics
+        await this.redisService.incrementCounter('queue:cleanup:runs');
+        await this.redisService.incrementCounter('queue:cleanup:removed', cleanedCount);
+      }
+    } catch (error) {
+      this.logger.error('Queue cleanup error', error.stack);
+    }
+  }
+
+  /**
+   * Process queue periodically to find matches
+   * Runs every 2 seconds to ensure quick matching
+   */
+  @Interval(2000) // Every 2 seconds
+  async periodicQueueProcessing(): Promise<void> {
+    try {
+      await this.processQueue();
+    } catch (error) {
+      this.logger.error('Periodic queue processing error', error.stack);
+    }
   }
 }

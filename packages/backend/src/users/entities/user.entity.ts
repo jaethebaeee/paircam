@@ -1,7 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
 import { Subscription } from '../../subscriptions/entities/subscription.entity';
 
 @Entity('users')
+@Index(['lastActive']) // For finding active users and cleanup queries
+@Index(['isBanned', 'bannedUntil']) // For ban checks during connection
+@Index(['createdAt']) // For analytics and user growth metrics
+@Index(['countryCode', 'languagePreference']) // For regional matching optimization
+@Index(['role']) // For admin/moderator queries
+@Index(['totalReportsReceived']) // For moderation queue sorting
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
