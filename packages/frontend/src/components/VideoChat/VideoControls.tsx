@@ -212,7 +212,7 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onPlayGame}
-                className="relative p-4 rounded-full bg-gradient-to-r from-secondary-600 to-blue-600 hover:from-secondary-700 hover:to-blue-700 shadow-lg shadow-secondary-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                className="relative p-4 rounded-full bg-gradient-to-r from-secondary-600 to-primary-600 hover:from-secondary-700 hover:to-primary-700 shadow-lg shadow-secondary-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95"
                 aria-label="Play game"
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />

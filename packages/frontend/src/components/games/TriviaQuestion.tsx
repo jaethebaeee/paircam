@@ -60,7 +60,7 @@ export default function TriviaQuestion({
       </div>
 
       {/* Question text */}
-      <div className="bg-gradient-to-br from-blue-50 to-secondary-50 rounded-xl p-5 border border-blue-200">
+      <div className="bg-gradient-to-br from-primary-50 to-secondary-50 rounded-xl p-5 border border-primary-200">
         <p className="text-lg font-semibold text-gray-800 leading-relaxed">
           {decodeURIComponent(question.question)}
         </p>
@@ -76,7 +76,7 @@ export default function TriviaQuestion({
             disabled={isAnswered || isLoading}
             className={`w-full p-4 rounded-xl border-2 transition-all text-left font-medium flex items-center gap-3 ${
               selectedAnswer === answer
-                ? 'border-blue-500 bg-blue-50'
+                ? 'border-primary-500 bg-primary-50'
                 : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
             } disabled:cursor-not-allowed ${isAnswered ? 'opacity-70' : ''}`}
           >
@@ -100,7 +100,7 @@ export default function TriviaQuestion({
       {!isAnswered && selectedAnswer && (
         <button
           disabled={isLoading}
-          className="w-full py-3 bg-gradient-to-r from-blue-500 to-secondary-500 hover:from-blue-600 hover:to-secondary-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full py-3 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
         >
           {isLoading ? 'Submitting...' : 'Submit Answer'}
         </button>
