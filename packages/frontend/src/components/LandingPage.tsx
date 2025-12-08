@@ -4,6 +4,8 @@ import AnimatedBackground from './ui/AnimatedBackground';
 import AdBanner from './ads/AdBanner';
 import { StepCard, CompactFeature } from './ui/FeatureCard';
 import SafetyFeatureItem from './ui/SafetyFeatureItem';
+import LiveIndicator, { LiveCountBadge } from './ui/LiveIndicator';
+import NoticeBox from './ui/NoticeBox';
 
 interface LandingPageProps {
   onStartCall: (data: {
@@ -72,17 +74,10 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       <AnimatedBackground variant="gradient-orbs" />
 
       {/* Live Users Indicator - Fixed Top Left */}
-      <div className="fixed top-16 sm:top-20 md:top-24 left-2 sm:left-4 z-10 bg-white/90 backdrop-blur-sm px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg border border-green-200 animate-fadeIn">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-          </span>
-          <span className="text-sm font-semibold text-gray-700">
-            <span className="text-green-600">{liveUserCount.toLocaleString()}</span> online
-          </span>
-        </div>
-      </div>
+      <LiveIndicator
+        count={liveUserCount}
+        className="fixed top-16 sm:top-20 md:top-24 left-2 sm:left-4 z-10 animate-fadeIn"
+      />
 
       {/* Premium Button - Fixed Top Right */}
       <button
@@ -122,14 +117,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           {/* Live User Count Badge */}
           {liveUserCount > 0 && (
             <div className="flex items-center justify-center gap-2 mb-8">
-              <div className="inline-flex items-center gap-3 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-800 px-6 py-3 rounded-full shadow-lg">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                <span className="font-bold text-2xl text-gray-900">{liveUserCount.toLocaleString()}</span>
-                <span className="font-medium text-gray-600">users online now</span>
-              </div>
+              <LiveCountBadge count={liveUserCount} />
             </div>
           )}
 
@@ -497,31 +485,17 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         </div>
 
         {/* Modern Disclaimer */}
-        <div className="bg-gradient-to-br from-yellow-50 via-orange-50 to-amber-50 rounded-xl sm:rounded-2xl border-2 border-yellow-200/70 p-4 sm:p-6 shadow-md hover:shadow-lg transition-all duration-300">
-          <div className="flex items-start gap-3 sm:gap-4">
-            <div className="flex-shrink-0 mt-0.5">
-              <div className="bg-gradient-to-br from-yellow-400 to-orange-500 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-md">
-                <svg className="w-5 sm:w-6 h-5 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-            </div>
-            <div className="flex-1">
-              <p className="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2.5">
-                Stay Safe, Be Respectful
-              </p>
-              <p className="text-xs sm:text-sm text-gray-700 mb-3 sm:mb-4 leading-relaxed">
-                Never share personal info with strangers. Report inappropriate behavior immediately.
-              </p>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                By using this service, you agree to our{' '}
-                <a href="/terms-of-service" className="text-blue-600 hover:text-blue-700 font-semibold underline transition-colors">Terms</a>
-                {' '}and{' '}
-                <a href="/privacy-policy" className="text-blue-600 hover:text-blue-700 font-semibold underline transition-colors">Privacy Policy</a>.
-              </p>
-            </div>
-          </div>
-        </div>
+        <NoticeBox title="Stay Safe, Be Respectful" variant="warning">
+          <p className="mb-3 sm:mb-4">
+            Never share personal info with strangers. Report inappropriate behavior immediately.
+          </p>
+          <p className="text-xs text-gray-600">
+            By using this service, you agree to our{' '}
+            <a href="/terms-of-service" className="text-blue-600 hover:text-blue-700 font-semibold underline transition-colors">Terms</a>
+            {' '}and{' '}
+            <a href="/privacy-policy" className="text-blue-600 hover:text-blue-700 font-semibold underline transition-colors">Privacy Policy</a>.
+          </p>
+        </NoticeBox>
         </div>
 
         {/* Additional Features Section */}
