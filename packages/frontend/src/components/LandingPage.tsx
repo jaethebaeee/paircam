@@ -278,6 +278,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           <AdBanner format="responsive" className="rounded-xl overflow-hidden" />
         </div>
       </div>
+      </div>
 
       {/* Ad Banner - Side placement for desktop */}
       <div className="hidden xl:block fixed right-4 top-1/2 -translate-y-1/2 w-[160px] z-0">
