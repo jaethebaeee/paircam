@@ -179,15 +179,15 @@ function AppRoutes({
               path="/" 
               element={
                 (appState === 'chatting' || appState === 'waiting') ? (
-                  <VideoChat 
-                    onStopChatting={handleStopChatting} 
+                  <VideoChat
+                    onStopChatting={handleStopChatting}
                     userName={userName}
                     userGender={userGender}
                     genderPreference={genderPreference}
-                    interests={interests} // 🆕
-                    queueType={queueType} // 🆕
-                    nativeLanguage={nativeLanguage} // 🆕
-                    learningLanguage={learningLanguage} // 🆕
+                    interests={interests}
+                    queueType={queueType}
+                    nativeLanguage={nativeLanguage}
+                    learningLanguage={learningLanguage}
                     isTextMode={isTextMode}
                     initialVideoEnabled={initialVideoEnabled}
                     showWaitingQueue={appState === 'waiting'}
@@ -255,14 +255,14 @@ function AppRoutes({
 }
 
 function App() {
-  const [appState, setAppState] = useState<'landing' | 'preferences' | 'safety' | 'permissions' | 'waiting' | 'chatting'>('landing');
+  const [appState, setAppState] = useState<AppState>('landing');
   const [userName, setUserName] = useState('');
   const [userGender, setUserGender] = useState('');
   const [genderPreference, setGenderPreference] = useState('any');
-  const [interests, setInterests] = useState<string[]>([]); // 🆕 User interests
-  const [queueType, setQueueType] = useState<'casual' | 'serious' | 'language' | 'gaming'>('casual'); // 🆕 Queue type
-  const [nativeLanguage, setNativeLanguage] = useState<string>('en'); // 🆕 Native language
-  const [learningLanguage, setLearningLanguage] = useState<string>('es'); // 🆕 Learning language
+  const [interests, setInterests] = useState<string[]>([]);
+  const [queueType, setQueueType] = useState<QueueType>('casual');
+  const [nativeLanguage, setNativeLanguage] = useState<string>('en');
+  const [learningLanguage, setLearningLanguage] = useState<string>('es');
   const [isTextMode, setIsTextMode] = useState(false);
   const [initialVideoEnabled, setInitialVideoEnabled] = useState(true);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
@@ -288,16 +288,16 @@ function App() {
     gender?: string;
     genderPreference: string;
     interests?: string[];
-    queueType?: 'casual' | 'serious' | 'language' | 'gaming';
+    queueType?: QueueType;
     nativeLanguage?: string;
     learningLanguage?: string;
   }) => {
     setUserGender(preferences.gender || '');
     setGenderPreference(preferences.genderPreference);
-    setInterests(preferences.interests || []); // 🆕
-    setQueueType(preferences.queueType || 'casual'); // 🆕
-    setNativeLanguage(preferences.nativeLanguage || 'en'); // 🆕
-    setLearningLanguage(preferences.learningLanguage || 'es'); // 🆕
+    setInterests(preferences.interests || []);
+    setQueueType(preferences.queueType || 'casual');
+    setNativeLanguage(preferences.nativeLanguage || 'en');
+    setLearningLanguage(preferences.learningLanguage || 'es');
     // Show safety modal
     setAppState('safety');
   };
@@ -371,10 +371,10 @@ function App() {
         userName={userName}
         userGender={userGender}
         genderPreference={genderPreference}
-        interests={interests} // 🆕
-        queueType={queueType} // 🆕
-        nativeLanguage={nativeLanguage} // 🆕
-        learningLanguage={learningLanguage} // 🆕
+        interests={interests}
+        queueType={queueType}
+        nativeLanguage={nativeLanguage}
+        learningLanguage={learningLanguage}
         isTextMode={isTextMode}
         initialVideoEnabled={initialVideoEnabled}
         isPremium={isPremium}

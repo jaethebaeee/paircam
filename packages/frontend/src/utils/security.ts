@@ -91,7 +91,7 @@ export async function verifyDTLSSRTP(peerConnection: RTCPeerConnection): Promise
         if (transportStat.dtlsState === 'connected') {
           dtlsConnected = true;
         }
-        if (transportStat.srtpCipher) {
+        if ('srtpCipher' in transportStat && transportStat.srtpCipher) {
           srtpActive = true;
         }
       }

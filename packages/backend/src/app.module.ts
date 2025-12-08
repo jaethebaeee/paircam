@@ -11,6 +11,7 @@ import { ReportingModule } from './reporting/reporting.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { UsersModule } from './users/users.module';
+import { FriendsModule } from './friends/friends.module'; // 🆕 Friends & Social
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { BlockingModule } from './blocking/blocking.module';
@@ -40,8 +41,9 @@ import { BlockedUser } from './blocking/entities/blocked-user.entity';
     }),
     LoggerModule,
     RedisModule,
-    AuthModule, // AuthModule already provides JwtModule and PassportModule globally
+    AuthModule,
     UsersModule,
+    FriendsModule, // 🆕 Friends & Social
     SubscriptionsModule,
     PaymentsModule,
     BlockingModule,

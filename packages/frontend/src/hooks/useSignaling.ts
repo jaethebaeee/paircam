@@ -2,6 +2,12 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333';
+const isDev = import.meta.env.DEV;
+
+// Only log in development mode
+const debugLog = (...args: unknown[]) => {
+  if (isDev) console.log('[Signaling]', ...args);
+};
 
 export interface MatchData {
   peerId: string;
@@ -95,7 +101,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
     // Connection events with enhanced state tracking
     newSocket.on('connect', () => {
-      console.log('Socket connected');
+      debugLog('Socket connected');
       setConnected(true);
       setError(null);
       setConnectionState({
@@ -107,7 +113,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
     });
 
     newSocket.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
+      debugLog('Socket disconnected:', reason);
       setConnected(false);
       setConnectionState(prev => ({
         ...prev,
@@ -160,17 +166,17 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
     // Connection confirmed
     newSocket.on('connected', (data: { deviceId: string; timestamp: number }) => {
-      console.log('Connection confirmed by server:', data);
+      debugLog('Connection confirmed by server:', data);
     });
 
     // Queue events
     newSocket.on('queue-joined', (data: QueueStatus) => {
-      console.log('Joined queue:', data);
+      debugLog('Joined queue:', data);
       setQueueStatus(data);
     });
 
     newSocket.on('queue-update', (data: { position: number; estimatedWaitTime: number }) => {
-      console.log('Queue position updated:', data);
+      debugLog('Queue position updated:', data);
       setQueueStatus(prev => ({
         ...prev,
         position: data.position,
@@ -179,13 +185,13 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
     });
 
     newSocket.on('queue-left', (data: { timestamp: number }) => {
-      console.log('Left queue:', data);
+      debugLog('Left queue:', data);
       setQueueStatus(null);
     });
 
     // Match found
     newSocket.on('matched', (data: MatchData) => {
-      console.log('Matched with peer:', data);
+      debugLog('Matched with peer:', data);
       setMatched(data);
       setQueueStatus(null);
       setError(null);
@@ -193,40 +199,40 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
 
     // WebRTC signaling events
     newSocket.on('offer', (data: { sessionId: string; offer: RTCSessionDescriptionInit; from: string }) => {
-      console.log('Received offer:', data);
+      debugLog('Received offer:', data);
       callbacksRef.current.onOffer?.(data);
     });
 
     newSocket.on('answer', (data: { sessionId: string; answer: RTCSessionDescriptionInit; from: string }) => {
-      console.log('Received answer:', data);
+      debugLog('Received answer:', data);
       callbacksRef.current.onAnswer?.(data);
     });
 
     newSocket.on('candidate', (data: { sessionId: string; candidate: RTCIceCandidateInit; from: string }) => {
-      console.log('Received ICE candidate:', data);
+      debugLog('Received ICE candidate:', data);
       callbacksRef.current.onCandidate?.(data);
     });
 
     // Communication events
     newSocket.on('message', (data: { sessionId: string; message: string; from: string; timestamp: number }) => {
-      console.log('Received message:', data);
+      debugLog('Received message:', data);
       callbacksRef.current.onMessage?.(data);
     });
 
     newSocket.on('reaction', (data: { sessionId: string; emoji: string; from: string; timestamp: number }) => {
-      console.log('Received reaction:', data);
+      debugLog('Received reaction:', data);
       callbacksRef.current.onReaction?.(data);
     });
 
     // Call end events
     newSocket.on('peer-disconnected', (data: { sessionId: string }) => {
-      console.log('Peer disconnected:', data);
+      debugLog('Peer disconnected:', data);
       setMatched(null);
       callbacksRef.current.onPeerDisconnected?.(data);
     });
 
     newSocket.on('call-ended', (data: { sessionId: string }) => {
-      console.log('Call ended:', data);
+      debugLog('Call ended:', data);
       setMatched(null);
       callbacksRef.current.onCallEnded?.(data);
     });
@@ -260,7 +266,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
       learningLanguage?: string
     ) => {
       if (socket?.connected) {
-        console.log('Joining queue:', { region, language, gender, genderPreference, interests, queueType, nativeLanguage, learningLanguage });
+        debugLog('Joining queue:', { region, language, gender, genderPreference, interests, queueType, nativeLanguage, learningLanguage });
         socket.emit('join-queue', {
           region,
           language,
@@ -281,7 +287,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   // Leave matchmaking queue
   const leaveQueue = useCallback(() => {
     if (socket?.connected) {
-      console.log('Leaving queue');
+      debugLog('Leaving queue');
       socket.emit('leave-queue');
       setQueueStatus(null);
     }
@@ -291,7 +297,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   const sendOffer = useCallback(
     (sessionId: string, offer: RTCSessionDescriptionInit) => {
       if (socket?.connected) {
-        console.log('Sending offer for session:', sessionId);
+        debugLog('Sending offer for session:', sessionId);
         socket.emit('send-offer', {
           sessionId,
           type: 'offer',
@@ -308,7 +314,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   const sendAnswer = useCallback(
     (sessionId: string, answer: RTCSessionDescriptionInit) => {
       if (socket?.connected) {
-        console.log('Sending answer for session:', sessionId);
+        debugLog('Sending answer for session:', sessionId);
         socket.emit('send-answer', {
           sessionId,
           type: 'answer',
@@ -339,7 +345,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   const sendMessage = useCallback(
     (sessionId: string, message: string, sender?: string) => {
       if (socket?.connected) {
-        console.log('Sending message for session:', sessionId);
+        debugLog('Sending message for session:', sessionId);
         socket.emit('send-message', {
           sessionId,
           message,
@@ -357,7 +363,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   const sendReaction = useCallback(
     (sessionId: string, emoji: string) => {
       if (socket?.connected) {
-        console.log('Sending reaction for session:', sessionId);
+        debugLog('Sending reaction for session:', sessionId);
         socket.emit('send-reaction', {
           sessionId,
           emoji,
@@ -372,7 +378,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   const endCall = useCallback(
     (sessionId: string, wasSkipped: boolean = false) => {
       if (socket?.connected) {
-        console.log('Ending call for session:', sessionId, { wasSkipped });
+        debugLog('Ending call for session:', sessionId, { wasSkipped });
         socket.emit('end-call', { sessionId, wasSkipped }); // 🆕 Send skip status
         setMatched(null);
         setQueueStatus(null);

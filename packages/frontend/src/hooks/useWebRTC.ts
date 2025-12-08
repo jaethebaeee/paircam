@@ -288,7 +288,7 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
       setConnectionState('closed');
       setError(null);
       
-      console.log('[WebRTC] Cleanup completed successfully');
+      debugLog('Cleanup completed successfully');
     } catch (error) {
       console.error('[WebRTC] Error during cleanup:', error);
     }

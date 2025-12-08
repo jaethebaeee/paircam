@@ -22,7 +22,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest(err: any, user: any, _info: any, _context: ExecutionContext) {
+  handleRequest<TUser = { userId: string; deviceId: string }>(
+    err: Error | null,
+    user: TUser | false,
+    _info: unknown,
+    _context: ExecutionContext,
+  ): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException('Authentication required');
     }
