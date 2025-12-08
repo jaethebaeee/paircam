@@ -73,7 +73,7 @@ export default function Footer() {
                 <a href="/cookie-policy" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Cookie Policy</a>
               </li>
               <li>
-                <a href="mailto:support@paircam.live" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Contact Us</a>
+                <a href="/support" className="text-gray-600 hover:text-pink-600 text-sm transition-colors">Contact Support</a>
               </li>
             </ul>
           </div>

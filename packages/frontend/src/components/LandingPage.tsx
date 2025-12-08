@@ -70,6 +70,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [isFormFocused, setIsFormFocused] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const liveUserCount = useLiveUserCount();
 
   const handleStartChat = (textMode = false) => {
@@ -609,6 +610,85 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Your Choice</h3>
               <p className="text-sm sm:text-base text-gray-600">Video, voice, or text – switch modes anytime.</p>
             </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div id="faq" className="max-w-3xl mx-auto mt-10 sm:mt-16 mb-8 sm:mb-12 px-2 scroll-mt-24">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-2 sm:mb-4">Frequently Asked Questions</h2>
+          <p className="text-center text-gray-600 mb-8 sm:mb-10 text-sm sm:text-base">Got questions? We've got answers.</p>
+
+          <div className="space-y-3 sm:space-y-4">
+            {[
+              {
+                q: "Is PairCam really free?",
+                a: "Yes! PairCam is 100% free to use. We offer optional Premium features for users who want extras like gender filters and no ads, but the core video chat experience is completely free."
+              },
+              {
+                q: "Do I need to create an account?",
+                a: "No signup required. Just enter a nickname and start chatting instantly. We believe in keeping things simple and anonymous."
+              },
+              {
+                q: "Is PairCam safe?",
+                a: "Safety is our priority. We use AI moderation, have 24/7 human moderators, and provide easy reporting tools. Users must be 18+ for video chat, and we never store your personal information."
+              },
+              {
+                q: "Can I use PairCam on mobile?",
+                a: "Yes! PairCam works on any modern browser - desktop, tablet, or mobile. No app download needed."
+              },
+              {
+                q: "How do I report someone?",
+                a: "During any chat, click the report button (flag icon) to report inappropriate behavior. Our team reviews reports within 24 hours and takes action against violators."
+              },
+              {
+                q: "Why can't I connect to anyone?",
+                a: "Make sure you've allowed camera/microphone permissions in your browser. If issues persist, try refreshing the page or using a different browser. Check that you're not on a restricted network (some schools/workplaces block video chat)."
+              },
+              {
+                q: "What is Premium?",
+                a: "Premium unlocks gender filters, removes ads, gives you priority matching, and adds a verified badge. It's optional - free users get the full chat experience."
+              }
+            ].map((faq, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-xl sm:rounded-2xl border-2 border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                  className="w-full px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between text-left"
+                  aria-expanded={openFaq === index}
+                >
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base pr-4">{faq.q}</span>
+                  <svg
+                    className={`w-5 h-5 text-gray-500 flex-shrink-0 transition-transform duration-200 ${openFaq === index ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div
+                  className={`px-4 sm:px-6 overflow-hidden transition-all duration-200 ${openFaq === index ? 'pb-4 sm:pb-5 max-h-48' : 'max-h-0'}`}
+                >
+                  <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{faq.a}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Still need help? */}
+          <div className="mt-8 sm:mt-10 text-center">
+            <p className="text-gray-600 mb-3 text-sm sm:text-base">Still have questions?</p>
+            <a
+              href="mailto:support@paircam.live"
+              className="inline-flex items-center gap-2 text-pink-600 hover:text-purple-600 font-semibold transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Contact Support
+            </a>
           </div>
         </div>
 
