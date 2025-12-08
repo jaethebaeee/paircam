@@ -5,6 +5,7 @@ import { GamesGateway } from './games.gateway';
 import { TriviaService } from './services/trivia.service';
 import { OpenTriviaDatabaseService } from './services/open-trivia-db.service';
 import { GameAnalyticsService } from './services/game-analytics.service';
+import { PremiumFeaturesService } from './services/premium-features.service';
 import { RedisModule } from '../redis/redis.module';
 import { UsersModule } from '../users/users.module';
 import { LoggerModule } from '../services/logger.module';
@@ -21,7 +22,8 @@ import { LoggerModule } from '../services/logger.module';
     TriviaService,
     OpenTriviaDatabaseService,
     GameAnalyticsService,
+    PremiumFeaturesService,
   ],
-  exports: [TriviaService, GameAnalyticsService, OpenTriviaDatabaseService],
+  exports: [TriviaService, GameAnalyticsService, OpenTriviaDatabaseService, PremiumFeaturesService],
 })
 export class GamesModule {}
