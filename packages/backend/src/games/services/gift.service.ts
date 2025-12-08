@@ -20,7 +20,7 @@ export class GiftService {
 
     if (count > 0) return; // Already initialized
 
-    const gifts = [
+    const gifts: { name: string; costCoins: number; imageUrl: string; rarity: 'common' | 'rare' | 'epic' | 'legendary' }[] = [
       {
         name: 'Rose',
         costCoins: 20,

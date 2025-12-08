@@ -109,9 +109,9 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       // Track analytics
       amplitude.track({
-        userId,
-        eventType: 'game_started',
-        eventProperties: {
+        user_id: userId,
+        event_type: 'game_started',
+        event_properties: {
           gameType: game.type,
           opponent: data.peerId,
           sessionId: data.sessionId,
@@ -212,14 +212,16 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
           // Track analytics
           amplitude.track({
-            userId: winnerId,
-            eventType: 'game_won',
-            eventProperties: {
+            user_id: winnerId,
+            event_type: 'game_won',
+            event_properties: {
               gameType: updatedGame.type,
               reward,
-              duration: Math.floor(
-                (updatedGame.endedAt.getTime() - updatedGame.createdAt.getTime()) / 1000,
-              ),
+              duration: updatedGame.endedAt
+                ? Math.floor(
+                    (updatedGame.endedAt.getTime() - updatedGame.createdAt.getTime()) / 1000,
+                  )
+                : 0,
             },
           });
         }
@@ -287,9 +289,9 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       // Track analytics
       amplitude.track({
-        userId,
-        eventType: 'gift_sent',
-        eventProperties: {
+        user_id: userId,
+        event_type: 'gift_sent',
+        event_properties: {
           giftId: data.giftId,
           cost: transaction.costCoins,
           recipientId: data.toUserId,

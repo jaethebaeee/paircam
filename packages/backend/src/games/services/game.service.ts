@@ -362,8 +362,8 @@ export class GameService {
   /**
    * GET GAME REWARD - Coins earned for winning
    */
-  getGameReward(gameType: string): number {
-    const rewards = {
+  getGameReward(gameType: 'tic-tac-toe' | 'trivia' | 'truth-dare' | '20-questions'): number {
+    const rewards: Record<string, number> = {
       'tic-tac-toe': 50,
       'trivia': 75,
       'truth-dare': 60,

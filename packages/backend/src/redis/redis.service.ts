@@ -542,4 +542,41 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       return 0;
     }
   }
+
+  // Generic cache operations (for games, leaderboards, etc.)
+  async get(key: string): Promise<string | null> {
+    try {
+      return await this.client.get(key);
+    } catch (error) {
+      this.logger.error(`Failed to get key ${key}`, error.stack);
+      return null;
+    }
+  }
+
+  async setex(key: string, seconds: number, value: string): Promise<void> {
+    try {
+      await this.client.setEx(key, seconds, value);
+    } catch (error) {
+      this.logger.error(`Failed to setex ${key}`, error.stack);
+    }
+  }
+
+  async del(key: string): Promise<number> {
+    try {
+      return await this.client.del(key);
+    } catch (error) {
+      this.logger.error(`Failed to delete key ${key}`, error.stack);
+      return 0;
+    }
+  }
+
+  // Hash operations for leaderboard
+  async hincrby(key: string, field: string, increment: number): Promise<number> {
+    try {
+      return await this.client.hIncrBy(key, field, increment);
+    } catch (error) {
+      this.logger.error(`Failed to hincrby ${key} ${field}`, error.stack);
+      return 0;
+    }
+  }
 }

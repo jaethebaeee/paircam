@@ -36,7 +36,7 @@ import { env } from '../env';
     UsersModule,
     JwtModule.register({
       secret: env.JWT_SECRET,
-      signOptions: { expiresIn: env.JWT_EXPIRATION },
+      signOptions: { expiresIn: '7d' },
     }),
   ],
   controllers: [GamesController],

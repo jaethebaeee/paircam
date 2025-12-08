@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between, IsNull, Not } from 'typeorm';
 import { DailyMission } from '../entities';
 import { WalletService } from './wallet.service';
 import * as amplitude from '@amplitude/analytics-node';
@@ -20,15 +20,13 @@ export class MissionService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
     const existingMissions = await this.missionRepo.find({
       where: {
         userId,
-        createdAt: (() => {
-          const start = new Date(today);
-          const end = new Date(today);
-          end.setDate(end.getDate() + 1);
-          return { $gte: start, $lt: end };
-        })(),
+        createdAt: Between(today, tomorrow),
       },
     });
 
@@ -60,9 +58,6 @@ export class MissionService {
       },
     ];
 
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
     const createdMissions: DailyMission[] = [];
 
     for (const m of missions) {
@@ -86,13 +81,10 @@ export class MissionService {
    * GET TODAY'S MISSIONS
    */
   async getTodaysMissions(userId: string): Promise<DailyMission[]> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     let missions = await this.missionRepo.find({
       where: {
         userId,
-        completedAt: null, // Not yet completed
+        completedAt: IsNull(), // Not yet completed
       },
     });
 
@@ -119,7 +111,7 @@ export class MissionService {
       where: {
         userId,
         missionType: missionType as any,
-        completedAt: null, // Not already completed
+        completedAt: IsNull(), // Not already completed
       },
     });
 
@@ -145,9 +137,9 @@ export class MissionService {
 
       // Track analytics
       amplitude.track({
-        userId,
-        eventType: 'mission_completed',
-        eventProperties: {
+        user_id: userId,
+        event_type: 'mission_completed',
+        event_properties: {
           missionType,
           coinsEarned: mission.coinsReward,
         },
@@ -165,21 +157,17 @@ export class MissionService {
 
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    const today = new Date(yesterday);
+    today.setDate(today.getDate() + 1);
 
     // Check if user completed any mission yesterday
     const yesterdayMissions = await this.missionRepo.find({
       where: {
         userId,
-        createdAt: (() => {
-          const start = new Date(yesterday);
-          start.setHours(0, 0, 0, 0);
-          const end = new Date(yesterday);
-          end.setHours(23, 59, 59, 999);
-          return { $gte: start, $lt: end };
-        })(),
-        completedAt: (() => ({
-          $ne: null,
-        }))(),
+        createdAt: Between(yesterday, today),
+        completedAt: Not(IsNull()), // Not null = completed
       },
     });
 
