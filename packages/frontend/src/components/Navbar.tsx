@@ -1,13 +1,65 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const { user, isLoading, signOut, setShowAuthModal, setAuthModalMode } = useAuthContext();
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const navLinks = [
     { href: '/#faq', label: 'FAQ', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
     { href: '/blog', label: 'Blog', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
     { href: '/blog/video-chat-safety-tips-protect-yourself-online', label: 'Safety', icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
   ];
+
+  const handleSignIn = () => {
+    setAuthModalMode('login');
+    setShowAuthModal(true);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleSignUp = () => {
+    setAuthModalMode('signup');
+    setShowAuthModal(true);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  // Get user display name or email
+  const getUserDisplayName = () => {
+    if (!user) return '';
+    return user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+  };
+
+  // Get user avatar URL or initials
+  const getUserAvatar = () => {
+    if (!user) return null;
+    return user.user_metadata?.avatar_url || null;
+  };
+
+  const getInitials = () => {
+    const name = getUserDisplayName();
+    return name.charAt(0).toUpperCase();
+  };
 
   return (
     <nav className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 shadow-lg" role="navigation" aria-label="Main navigation">
@@ -29,7 +81,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-6" role="menubar">
+          <div className="hidden md:flex items-center gap-4" role="menubar">
             {navLinks.map(link => (
               <a
                 key={link.href}
@@ -43,10 +95,124 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
+
+            {/* Auth Buttons / User Menu */}
+            {isLoading ? (
+              <div className="w-8 h-8 rounded-full bg-white/20 animate-pulse" />
+            ) : user ? (
+              // User is logged in - show avatar dropdown
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-white/10 transition-colors"
+                  aria-expanded={isUserMenuOpen}
+                  aria-haspopup="true"
+                >
+                  {getUserAvatar() ? (
+                    <img
+                      src={getUserAvatar()!}
+                      alt={getUserDisplayName()}
+                      className="w-8 h-8 rounded-full border-2 border-white/30"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+                      {getInitials()}
+                    </div>
+                  )}
+                  <svg
+                    className={`w-4 h-4 text-white transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fadeIn">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900">{getUserDisplayName()}</p>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    </div>
+
+                    <a
+                      href="/profile"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      My Profile
+                    </a>
+
+                    <a
+                      href="/settings"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Settings
+                    </a>
+
+                    <div className="border-t border-gray-100 mt-2 pt-2">
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // User is not logged in - show sign in/up buttons
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleSignIn}
+                  className="px-4 py-2 text-white/90 hover:text-white font-medium text-sm transition-colors rounded-lg hover:bg-white/10"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={handleSignUp}
+                  className="px-4 py-2 bg-white text-purple-600 font-semibold text-sm rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center">
+          <div className="flex md:hidden items-center gap-2">
+            {/* Mobile user avatar */}
+            {user && (
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="p-1"
+              >
+                {getUserAvatar() ? (
+                  <img
+                    src={getUserAvatar()!}
+                    alt={getUserDisplayName()}
+                    className="w-8 h-8 rounded-full border-2 border-white/30"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm">
+                    {getInitials()}
+                  </div>
+                )}
+              </button>
+            )}
+
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
@@ -72,7 +238,7 @@ export default function Navbar() {
       <div
         id="mobile-menu"
         className={`md:hidden overflow-hidden transition-all duration-300 ${
-          isMobileMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
+          isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="px-4 pb-4 pt-2 space-y-1 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600">
@@ -89,6 +255,62 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
+
+          {/* Mobile Auth Section */}
+          <div className="pt-3 border-t border-white/20 mt-3">
+            {user ? (
+              <>
+                <div className="flex items-center gap-3 px-4 py-3">
+                  {getUserAvatar() ? (
+                    <img
+                      src={getUserAvatar()!}
+                      alt={getUserDisplayName()}
+                      className="w-10 h-10 rounded-full border-2 border-white/30"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">
+                      {getInitials()}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-white font-semibold">{getUserDisplayName()}</p>
+                    <p className="text-white/70 text-sm truncate">{user.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-white/90 font-medium rounded-xl hover:bg-white/10 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleSignIn}
+                  className="flex items-center justify-center gap-2 px-4 py-3 text-white font-medium rounded-xl hover:bg-white/10 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  Sign In
+                </button>
+                <button
+                  onClick={handleSignUp}
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-white text-purple-600 font-bold rounded-xl shadow-lg"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  Create Account
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Mobile CTA */}
           <a
             href="/"
@@ -101,27 +323,6 @@ export default function Navbar() {
             Start Chatting
           </a>
         </div>
-
-        {/* Mobile Menu Dropdown */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-white/20 mt-2">
-            <div className="flex flex-col gap-1 pt-3">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-white/90 hover:text-white hover:bg-white/10 font-medium text-sm transition-colors flex items-center gap-2 px-3 py-2.5 rounded-lg"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={link.icon} />
-                  </svg>
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
