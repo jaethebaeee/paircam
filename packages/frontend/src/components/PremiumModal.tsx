@@ -5,7 +5,7 @@ interface PremiumModalProps {
 }
 
 // Stripe Payment Links - configure in .env
-const STRIPE_WEEKLY_LINK = import.meta.env.VITE_STRIPE_WEEKLY_LINK || 'https://buy.stripe.com/test_weekly';
+const STRIPE_WEEKLY_LINK = import.meta.env.VITE_STRIPE_WEEKLY_LINK || 'https://buy.stripe.com/00wcN71x0bog2kugMW4F200';
 const STRIPE_MONTHLY_LINK = import.meta.env.VITE_STRIPE_MONTHLY_LINK || 'https://buy.stripe.com/test_monthly';
 
 export default function PremiumModal({ onClose }: PremiumModalProps) {
@@ -100,7 +100,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            <div className="text-2xl font-bold">$9.99</div>
+            <div className="text-2xl font-bold">$9.90</div>
             <div className="text-sm opacity-90">per week</div>
           </button>
           <button
