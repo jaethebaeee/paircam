@@ -21,6 +21,7 @@ describe('SignalingGateway integration', () => {
       subscribe: jest.fn(async () => {}),
       publish: jest.fn(async () => {}),
       publishMatchNotify: jest.fn(async () => {}),
+      publishSignalForward: jest.fn(async () => {}),
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
@@ -68,6 +69,7 @@ describe('SignalingGateway integration', () => {
       subscribe: jest.fn(async () => {}),
       publish: jest.fn(async () => {}),
       publishMatchNotify: jest.fn(async () => {}),
+      publishSignalForward: jest.fn(async () => {}),
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
@@ -103,6 +105,7 @@ describe('SignalingGateway integration', () => {
     const fakeClientApi = {
       del: jest.fn(async (_k: any) => 1),
       keys: jest.fn(async () => ['candidates:sid:a', 'candidates:sid:b']),
+      get: jest.fn(async () => Date.now().toString()),
     } as any;
     const redis = {
       getSession: jest.fn(async () => ({ peers: ['a', 'b'] })),
@@ -110,6 +113,8 @@ describe('SignalingGateway integration', () => {
       getClient: jest.fn(() => fakeClientApi),
       getUserReputation: jest.fn(async () => ({ rating: 70 })),
       updateReputation: jest.fn(async () => {}),
+      incrementDailySkipCount: jest.fn(async () => 1),
+      getDailySkipCount: jest.fn(async () => 0),
     } as any as RedisService;
 
     const analyticsService = {
@@ -123,6 +128,7 @@ describe('SignalingGateway integration', () => {
       subscribe: jest.fn(async () => {}),
       publish: jest.fn(async () => {}),
       publishMatchNotify: jest.fn(async () => {}),
+      publishSignalForward: jest.fn(async () => {}),
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
@@ -144,7 +150,7 @@ describe('SignalingGateway integration', () => {
     await (gateway as any).handleEndCall(client, { sessionId: 'sid' });
 
     // self notified
-    expect(client.emit).toHaveBeenCalledWith('call-ended', { sessionId: 'sid' });
+    expect(client.emit).toHaveBeenCalledWith('call-ended', { sessionId: 'sid', skipStats: null });
     // peer notified via cleanup
     expect(peer.emit).toHaveBeenCalledWith('peer-disconnected', { sessionId: 'sid' });
 
@@ -172,6 +178,7 @@ describe('SignalingGateway integration', () => {
       subscribe: jest.fn(async () => {}),
       publish: jest.fn(async () => {}),
       publishMatchNotify: jest.fn(async () => {}),
+      publishSignalForward: jest.fn(async () => {}),
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
@@ -226,6 +233,7 @@ describe('SignalingGateway integration', () => {
       subscribe: jest.fn(async () => {}),
       publish: jest.fn(async () => {}),
       publishMatchNotify: jest.fn(async () => {}),
+      publishSignalForward: jest.fn(async () => {}),
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 

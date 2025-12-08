@@ -7,6 +7,7 @@ import { MatchAnalyticsService } from '../../analytics/match-analytics.service';
 import { AuthService } from '../../auth/auth.service';
 import { UsersService } from '../../users/users.service';
 import { LoggerService } from '../../services/logger.service';
+import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { Socket } from 'socket.io';
 
 describe('SignalingGateway', () => {
@@ -62,6 +63,8 @@ describe('SignalingGateway', () => {
             deleteSession: jest.fn(),
             updateReputation: jest.fn(),
             getClient: jest.fn(() => mockRedisClient),
+            incrementDailySkipCount: jest.fn().mockResolvedValue(1),
+            getDailySkipCount: jest.fn().mockResolvedValue(0),
           },
         },
         {
@@ -100,6 +103,12 @@ describe('SignalingGateway', () => {
           useValue: {
             findOrCreate: jest.fn().mockResolvedValue({ id: 'user-123', deviceId: 'device-123' }),
             isPremium: jest.fn().mockResolvedValue(false),
+          },
+        },
+        {
+          provide: SubscriptionsService,
+          useValue: {
+            isUserPremium: jest.fn().mockResolvedValue(false),
           },
         },
         {
@@ -460,7 +469,7 @@ describe('SignalingGateway', () => {
       await gateway.handleEndCall(client, { sessionId: 'session-123', wasSkipped: false });
 
       expect(redisService.deleteSession).toHaveBeenCalledWith('session-123');
-      expect(client.emit).toHaveBeenCalledWith('call-ended', { sessionId: 'session-123' });
+      expect(client.emit).toHaveBeenCalledWith('call-ended', { sessionId: 'session-123', skipStats: null });
     });
 
     it('should track analytics when call ends', async () => {
