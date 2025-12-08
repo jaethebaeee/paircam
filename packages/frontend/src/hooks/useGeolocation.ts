@@ -34,8 +34,16 @@ export function useGeolocation(): GeoLocation {
 
     // Fetch from ipapi.co (free, no API key needed)
     fetch('https://ipapi.co/json/')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Geolocation API error: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
+        if (!data || typeof data !== 'object') {
+          throw new Error('Invalid geolocation response');
+        }
         const geoData = {
           country: data.country_name || 'Unknown',
           countryCode: data.country_code || 'XX',
@@ -52,7 +60,7 @@ export function useGeolocation(): GeoLocation {
           country: 'Unknown',
           countryCode: 'XX',
           loading: false,
-          error: error.message,
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       });
   }, []);

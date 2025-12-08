@@ -428,10 +428,14 @@ export class MatchAnalyticsService {
       for (const key of sampleKeys) {
         const matchData = await this.redisService.getClient().get(key);
         if (matchData) {
-          const match = JSON.parse(matchData);
-          if (match.matchQualityScore && match.matchQualityScore > 0) {
-            totalQualityScore += match.matchQualityScore;
-            qualityScoreCount++;
+          try {
+            const match = JSON.parse(matchData);
+            if (match.matchQualityScore && match.matchQualityScore > 0) {
+              totalQualityScore += match.matchQualityScore;
+              qualityScoreCount++;
+            }
+          } catch (parseError) {
+            this.logger.warn('Failed to parse match data', { key, error: parseError.message });
           }
         }
       }

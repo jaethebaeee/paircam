@@ -172,7 +172,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         };
       }
       
-      return JSON.parse(data);
+      try {
+        return JSON.parse(data);
+      } catch (parseError) {
+        this.logger.error(`Failed to parse reputation data for ${userId}`, parseError.stack);
+        return {
+          rating: 70,
+          totalRatings: 0,
+          skipRate: 0,
+          reportCount: 0,
+          averageCallDuration: 0,
+          lastUpdated: Date.now(),
+        };
+      }
     } catch (error) {
       this.logger.error(`Failed to get reputation for ${userId}`, error.stack);
       return {
@@ -495,7 +507,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try {
       const data = await this.client.get(`client:${deviceId}`);
       if (!data) return null;
-      return JSON.parse(data);
+      try {
+        return JSON.parse(data);
+      } catch (parseError) {
+        this.logger.error(`Failed to parse client instance data for ${deviceId}`, parseError.stack);
+        return null;
+      }
     } catch (error) {
       this.logger.error(`Failed to get client instance for ${deviceId}`, error.stack);
       return null;
