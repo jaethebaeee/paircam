@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
 import AnimatedBackground from './ui/AnimatedBackground';
 import AdBanner from './ads/AdBanner';
+import Button from './ui/Button';
+import { VideoCameraIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 
 interface LandingPageProps {
   onStartCall: (data: {
@@ -68,19 +70,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
     <div className="min-h-screen py-8 sm:py-12 px-4 relative overflow-hidden">
       {/* Animated Background */}
       <AnimatedBackground variant="gradient-orbs" />
-
-      {/* Live Users Indicator - Fixed Top Left */}
-      <div className="fixed top-20 sm:top-24 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-lg border border-green-200 animate-fadeIn">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-          </span>
-          <span className="text-sm font-semibold text-gray-700">
-            <span className="text-green-600">{liveUserCount.toLocaleString()}</span> online
-          </span>
-        </div>
-      </div>
 
       {/* Premium Button - Fixed Top Right */}
       <button
@@ -151,32 +140,6 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
           </div>
 
-          {/* Hero Visual Mockup */}
-          <div className="max-w-4xl mx-auto mb-10 sm:mb-16 px-2">
-            <div className="bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border-2 sm:border-4 border-white">
-              <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-3 sm:px-6 py-2 sm:py-3 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-white/80"></div>
-                  <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-white/60"></div>
-                  <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-white/40"></div>
-                </div>
-                <span className="text-white text-xs sm:text-sm font-semibold">Live Video Chat</span>
-                <div className="w-12 sm:w-20"></div>
-              </div>
-              <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg className="w-16 sm:w-24 h-16 sm:h-24 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="relative z-10 text-center text-white px-4">
-                  <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">👋</div>
-                  <p className="text-base sm:text-xl font-semibold mb-1">Connect face-to-face</p>
-                  <p className="text-xs sm:text-sm text-gray-300">with people from around the world</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Ad Banner - Below Hero */}
@@ -484,41 +447,32 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             )}
 
 
-            {/* Modern Primary Button */}
+            {/* Primary CTA Button */}
             <div className="pt-4 sm:pt-6">
-              <button
+              <Button
                 onClick={() => handleStartChat(false)}
                 disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
-                className="group relative w-full py-4 sm:py-5 px-6 sm:px-8 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 hover:from-pink-600 hover:via-purple-600 hover:to-purple-700 disabled:from-gray-400 disabled:via-gray-400 disabled:to-gray-400 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-xl shadow-pink-500/40 hover:shadow-2xl hover:shadow-pink-500/50 disabled:shadow-gray-300/30 transition-all duration-300 transform hover:scale-[1.02] hover:disabled:scale-100 active:scale-[0.97] active:disabled:scale-100 focus:outline-none focus:ring-4 focus:ring-pink-300 disabled:cursor-not-allowed overflow-hidden"
+                variant="primary"
+                size="lg"
+                fullWidth
+                leftIcon={<VideoCameraIcon className="w-5 h-5" />}
               >
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 disabled:opacity-0 transition-opacity duration-500" />
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:animate-pulse disabled:opacity-0" />
-                <span className="relative flex items-center justify-center gap-2 sm:gap-3">
-                  <svg className="w-5 sm:w-6 h-5 sm:h-6 group-hover:scale-110 disabled:group-hover:scale-100 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  <span className="tracking-wide">Start Video Chat</span>
-                  <svg className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 disabled:group-hover:translate-x-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
-              </button>
+                Start Video Chat
+              </Button>
             </div>
 
             {/* Text Only Option */}
-            <div className="text-center pt-1 sm:pt-2">
-              <button
+            <div className="text-center pt-2">
+              <Button
                 onClick={() => handleStartChat(true)}
                 disabled={!userName.trim()}
+                variant="ghost"
+                size="md"
+                leftIcon={<ChatBubbleLeftRightIcon className="w-5 h-5" />}
                 aria-label="Start text only chat mode"
-                className="group inline-flex items-center gap-2 text-pink-600 hover:text-purple-700 disabled:text-gray-400 font-semibold text-sm sm:text-base transition-all duration-200 hover:gap-3 disabled:hover:gap-2 px-4 py-2 rounded-xl hover:bg-pink-50 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
-                <span className="text-lg sm:text-xl">💬</span>
-                <span className="relative">
-                  Text only mode
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-600 to-purple-700 group-hover:w-full disabled:group-hover:w-0 transition-all duration-300"></span>
-                </span>
-              </button>
+                Text only mode
+              </Button>
             </div>
           </div>
         </div>

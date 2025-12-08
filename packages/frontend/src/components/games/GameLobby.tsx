@@ -13,7 +13,7 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fadeIn">
       <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl animate-scaleIn">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 p-2 rounded-xl">
               <span className="text-2xl">🎮</span>
@@ -67,8 +67,8 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
             ))}
           </div>
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-            <p className="text-xs text-blue-800 text-center">
+          <div className="mt-6 p-4 bg-pink-50 border border-pink-200 rounded-xl">
+            <p className="text-xs text-pink-800 text-center">
               <strong>Game Rules:</strong> Answer 10 trivia questions correctly to win. You have 30 seconds per question. Good luck! 🍀
             </p>
           </div>

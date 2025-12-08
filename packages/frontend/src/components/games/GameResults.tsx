@@ -100,8 +100,8 @@ export default function GameResults({ result, isCurrentPlayerWinner, onClose }: 
           </div>
 
           {/* Difficulty badge */}
-          <div className="flex items-center justify-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-            <span className="text-sm font-medium text-blue-800">
+          <div className="flex items-center justify-center gap-2 p-3 bg-pink-50 border border-pink-200 rounded-xl">
+            <span className="text-sm font-medium text-pink-800">
               Difficulty: <strong className="capitalize">{result.difficulty}</strong>
             </span>
           </div>
@@ -119,7 +119,7 @@ export default function GameResults({ result, isCurrentPlayerWinner, onClose }: 
           <div className="space-y-3">
             <button
               onClick={onClose}
-              className="w-full py-3.5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-3.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
               Play Another Game
             </button>
