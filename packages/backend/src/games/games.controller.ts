@@ -10,7 +10,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { GameService, WalletService, GiftService, MissionService, LeaderboardService } from './services';
+import { GameService, WalletService, GiftService, MissionService, LeaderboardService, type LeaderboardEntry } from './services';
 import { StartGameDto, GameMoveDto, SendGiftDto, GetLeaderboardDto } from './dtos';
 
 @Controller('games')
@@ -269,7 +269,7 @@ export class GamesController {
    * GET WEEKLY LEADERBOARD
    */
   @Get('leaderboard/weekly')
-  async getWeeklyLeaderboard(@Query('limit') limit: string = '100') {
+  async getWeeklyLeaderboard(@Query('limit') limit: string = '100'): Promise<{ leaderboard: LeaderboardEntry[] }> {
     const leaderboard = await this.leaderboardService.getWeeklyLeaderboard(parseInt(limit));
 
     return { leaderboard };
@@ -279,7 +279,7 @@ export class GamesController {
    * GET ALL-TIME LEADERBOARD
    */
   @Get('leaderboard/all-time')
-  async getAllTimeLeaderboard(@Query('limit') limit: string = '100') {
+  async getAllTimeLeaderboard(@Query('limit') limit: string = '100'): Promise<{ leaderboard: LeaderboardEntry[] }> {
     const leaderboard = await this.leaderboardService.getAllTimeLeaderboard(parseInt(limit));
 
     return { leaderboard };
