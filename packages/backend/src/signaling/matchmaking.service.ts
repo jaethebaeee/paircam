@@ -118,7 +118,16 @@ export class MatchmakingService {
 
       // Get all users in queue
       const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
-      const users: QueueUser[] = queueItems.map(item => JSON.parse(item));
+      const users: QueueUser[] = queueItems
+        .map(item => {
+          try {
+            return JSON.parse(item) as QueueUser;
+          } catch {
+            this.logger.warn('Failed to parse queue item', { item });
+            return null;
+          }
+        })
+        .filter((user): user is QueueUser => user !== null);
 
       // 🆕 Process multi-queue: Separate by queue type for better matching
       const queuesByType: Record<string, QueueUser[]> = {
@@ -680,8 +689,16 @@ export class MatchmakingService {
   }> {
     const queueLength = await this.redisService.getQueueLength();
     const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
-    
-    const users: QueueUser[] = queueItems.map(item => JSON.parse(item));
+
+    const users: QueueUser[] = queueItems
+      .map(item => {
+        try {
+          return JSON.parse(item) as QueueUser;
+        } catch {
+          return null;
+        }
+      })
+      .filter((user): user is QueueUser => user !== null);
     const now = Date.now();
     
     const averageWaitTime = users.length > 0 
