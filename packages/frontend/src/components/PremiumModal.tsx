@@ -41,7 +41,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl max-w-4xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -77,7 +77,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
         </div>
 
         {/* Features Grid with quantified benefits */}
-        <div className="grid md:grid-cols-2 gap-3 mb-8">
+        <div className="grid md:grid-cols-2 gap-2 sm:gap-3 mb-6 sm:mb-8">
           <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl border border-pink-100">
             <div className="text-2xl">🎯</div>
             <div>
@@ -113,21 +113,21 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
         </div>
 
         {/* Pricing Toggle */}
-        <div className="flex justify-center gap-4 mb-6">
+        <div className="flex justify-center gap-2 sm:gap-4 mb-6">
           <button
             onClick={() => setSelectedPlan('weekly')}
-            className={`px-8 py-4 rounded-2xl font-semibold transition-all ${
+            className={`px-4 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all min-h-[70px] ${
               selectedPlan === 'weekly'
                 ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            <div className="text-2xl font-bold">$2.99</div>
-            <div className="text-sm opacity-90">per week</div>
+            <div className="text-xl sm:text-2xl font-bold">$2.99</div>
+            <div className="text-xs sm:text-sm opacity-90">per week</div>
           </button>
           <button
             onClick={() => setSelectedPlan('monthly')}
-            className={`px-8 py-4 rounded-2xl font-semibold transition-all relative ${
+            className={`px-4 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all relative min-h-[70px] ${
               selectedPlan === 'monthly'
                 ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -136,8 +136,8 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
             <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
               Save 25%
             </div>
-            <div className="text-2xl font-bold">$9.99</div>
-            <div className="text-sm opacity-90">per month</div>
+            <div className="text-xl sm:text-2xl font-bold">$9.99</div>
+            <div className="text-xs sm:text-sm opacity-90">per month</div>
           </button>
         </div>
 

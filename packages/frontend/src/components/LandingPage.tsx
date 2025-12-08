@@ -70,7 +70,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       <AnimatedBackground variant="gradient-orbs" />
 
       {/* Live Users Indicator - Fixed Top Left */}
-      <div className="fixed top-20 sm:top-24 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-lg border border-green-200 animate-fadeIn">
+      <div className="fixed top-16 sm:top-20 md:top-24 left-2 sm:left-4 z-10 bg-white/90 backdrop-blur-sm px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg border border-green-200 animate-fadeIn">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -85,7 +85,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       {/* Premium Button - Fixed Top Right */}
       <button
         onClick={() => setShowPremiumModal(true)}
-        className="group fixed top-20 sm:top-24 right-4 z-10 bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden text-sm sm:text-base"
+        className="group fixed top-16 sm:top-20 md:top-24 right-2 sm:right-4 z-10 bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden text-sm sm:text-base min-h-[40px]"
       >
         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         <span className="relative flex items-center gap-1.5 sm:gap-2">

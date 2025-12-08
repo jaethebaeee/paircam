@@ -66,7 +66,7 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
                   <button
                     key={reason.id}
                     onClick={() => handleReasonSelect(reason.id)}
-                    className={`w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all text-left ${
+                    className={`w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-xl border-2 transition-all text-left min-h-[48px] ${
                       selectedReason === reason.id
                         ? 'border-orange-500 bg-orange-50'
                         : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50'
@@ -119,7 +119,7 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
                 <button
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-lg sm:rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base"
+                  className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base min-h-[48px]"
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -135,7 +135,7 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
                 </button>
                 <button
                   onClick={onClose}
-                  className="w-full py-2.5 sm:py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors text-sm sm:text-base"
+                  className="w-full py-2.5 sm:py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors text-sm sm:text-base min-h-[44px]"
                 >
                   Cancel
                 </button>

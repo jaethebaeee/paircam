@@ -69,7 +69,7 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onToggleVideo}
-                className={`relative p-3 sm:p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 ${
+                className={`relative p-3 sm:p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center ${
                   isVideoEnabled
                     ? 'bg-gray-700 hover:bg-gray-600'
                     : 'bg-red-500 hover:bg-red-600 animate-pulse'
@@ -126,7 +126,7 @@ export default function VideoControls({
           <div className="relative group">
             <button
               onClick={onStopChatting}
-              className="relative p-3.5 sm:p-5 rounded-full bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/50 transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-red-500/70"
+              className="relative p-3.5 sm:p-5 rounded-full bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/50 transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-red-500/70 min-h-[48px] min-w-[48px] sm:min-h-[56px] sm:min-w-[56px] flex items-center justify-center"
               aria-label="Stop chatting"
             >
               <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -189,7 +189,7 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onToggleChat}
-                className="relative p-3 sm:p-4 rounded-full bg-gray-700 hover:bg-gray-600 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                className="relative p-3 sm:p-4 rounded-full bg-gray-700 hover:bg-gray-600 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
                 aria-label="Toggle chat"
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -212,7 +212,7 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onPlayGame}
-                className="relative p-3 sm:p-4 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                className="relative p-3 sm:p-4 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
                 aria-label="Play game"
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -235,7 +235,7 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onFriendRequest}
-                className="relative p-3 sm:p-4 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                className="relative p-3 sm:p-4 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
                 aria-label="Send friend request"
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -257,7 +257,7 @@ export default function VideoControls({
           <div className="relative group">
             <button
               onClick={onReport}
-              className="relative p-3 sm:p-4 rounded-full bg-orange-600 hover:bg-orange-700 transition-all duration-300 transform hover:scale-110 active:scale-95"
+              className="relative p-3 sm:p-4 rounded-full bg-orange-600 hover:bg-orange-700 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
               aria-label="Report user"
             >
               <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -279,7 +279,7 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onSwitchToAudioOnly}
-                className="relative p-3 sm:p-4 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                className="relative p-3 sm:p-4 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
                 aria-label="Switch to audio only"
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />

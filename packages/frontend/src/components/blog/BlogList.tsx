@@ -107,7 +107,7 @@ export default function BlogList() {
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-4 sm:px-5 py-2 rounded-full font-medium text-sm sm:text-base transition-all ${
+              className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-full font-medium text-sm sm:text-base transition-all min-h-[40px] ${
                 selectedCategory === null
                   ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
                   : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
@@ -119,7 +119,7 @@ export default function BlogList() {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`px-4 sm:px-5 py-2 rounded-full font-medium text-sm sm:text-base transition-all ${
+                className={`px-4 sm:px-5 py-2.5 sm:py-2 rounded-full font-medium text-sm sm:text-base transition-all min-h-[40px] ${
                   selectedCategory === category
                     ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
