@@ -65,25 +65,25 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:py-16 px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-center py-8 sm:py-12 md:py-16 px-3 sm:px-4 relative overflow-hidden">
       {/* Animated Background */}
       <AnimatedBackground variant="gradient-orbs" />
 
       {/* Top Right Actions */}
-      <div className="fixed top-4 sm:top-6 right-4 sm:right-6 z-10 flex items-center gap-3">
+      <div className="fixed top-3 sm:top-4 md:top-6 right-3 sm:right-4 md:right-6 z-10 flex items-center gap-2 sm:gap-3">
         <a
           href="/login"
-          className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
         >
           Sign in
         </a>
         <button
           onClick={() => setShowPremiumModal(true)}
-          className="group bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden text-sm sm:text-base"
+          className="group bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-2.5 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-full font-bold shadow-lg sm:shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden text-xs sm:text-sm md:text-base"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          <span className="relative flex items-center gap-1.5 sm:gap-2">
-            <span className="text-base sm:text-lg">⭐</span>
+          <span className="relative flex items-center gap-1 sm:gap-1.5 md:gap-2">
+            <span className="text-sm sm:text-base md:text-lg">⭐</span>
             <span className="hidden sm:inline">Premium</span>
           </span>
         </button>
@@ -91,8 +91,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
 
       <div className="max-w-xl mx-auto w-full relative z-10">
         {/* Hero Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
             No profiles. No swiping.
             <span className="block bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mt-1">Just people.</span>
           </h1>
@@ -115,7 +115,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className="px-2">
 
         {/* Clean Form Card */}
-        <div className={`bg-white rounded-2xl shadow-xl border transition-all duration-300 p-6 sm:p-8 ${
+        <div className={`bg-white rounded-xl sm:rounded-2xl shadow-xl border transition-all duration-300 p-4 sm:p-6 md:p-8 ${
           isFormFocused ? 'border-pink-200 shadow-2xl' : 'border-gray-100'
         }`}>
           <div className="space-y-4">
@@ -158,7 +158,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 aria-label="Your nickname"
                 aria-required="true"
                 aria-invalid={showNameError}
-                className={`w-full px-4 py-3.5 rounded-xl border-2 ${
+                className={`w-full px-3 sm:px-4 py-3 sm:py-3.5 rounded-lg sm:rounded-xl border-2 text-base ${
                   showNameError
                     ? 'border-red-400 bg-red-50/50'
                     : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 focus:border-pink-500'
