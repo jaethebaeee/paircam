@@ -59,53 +59,213 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     return this.client;
   }
 
-  // Queue operations
+  // ========================================
+  // QUEUE OPERATIONS (Using ZSET for O(log n))
+  // ========================================
+
+  // Queue keys:
+  // - matchmaking:queue:zset - Sorted set with userId as member, timestamp as score
+  // - matchmaking:queue:data:{userId} - Hash storing full queue user data
+
+  private readonly QUEUE_ZSET_KEY = 'matchmaking:queue:zset';
+  private readonly QUEUE_DATA_PREFIX = 'matchmaking:queue:data:';
+
+  /**
+   * Add user to queue using ZSET (O(log n))
+   */
   async addToQueue<T extends { userId: string; timestamp: number }>(userId: string, item: T): Promise<void> {
     try {
-      await this.client.lPush('matchmaking:queue', JSON.stringify(item));
+      const pipeline = this.client.multi();
+
+      // Add to sorted set with timestamp as score (for ordering by wait time)
+      pipeline.zAdd(this.QUEUE_ZSET_KEY, { score: item.timestamp, value: userId });
+
+      // Store full data in a hash (expires after 10 minutes max)
+      pipeline.setEx(`${this.QUEUE_DATA_PREFIX}${userId}`, 600, JSON.stringify(item));
+
+      await pipeline.exec();
+
+      this.logger.debug('User added to ZSET queue', { userId, timestamp: item.timestamp });
     } catch (error) {
       this.logger.error(`Failed to add user ${userId} to queue`, error.stack);
       throw new Error('Queue operation failed');
     }
   }
 
+  /**
+   * Remove user from queue (O(log n))
+   */
   async removeFromQueue(userId: string): Promise<void> {
     try {
-      const queueItems = await this.client.lRange('matchmaking:queue', 0, -1);
-      for (const item of queueItems) {
-        try {
-          const data = JSON.parse(item);
-          if (data.userId === userId) {
-            await this.client.lRem('matchmaking:queue', 1, item);
-            break;
-          }
-        } catch (parseError) {
-          this.logger.warn('Failed to parse queue item', { item, error: parseError.message });
-          continue;
-        }
-      }
+      const pipeline = this.client.multi();
+
+      // Remove from sorted set
+      pipeline.zRem(this.QUEUE_ZSET_KEY, userId);
+
+      // Remove data
+      pipeline.del(`${this.QUEUE_DATA_PREFIX}${userId}`);
+
+      await pipeline.exec();
+
+      this.logger.debug('User removed from queue', { userId });
     } catch (error) {
       this.logger.error(`Failed to remove user ${userId} from queue`, error.stack);
       throw new Error('Queue operation failed');
     }
   }
 
+  /**
+   * Get queue length (O(1))
+   */
   async getQueueLength(): Promise<number> {
     try {
-      return await this.client.lLen('matchmaking:queue');
+      return await this.client.zCard(this.QUEUE_ZSET_KEY);
     } catch (error) {
       this.logger.error('Failed to get queue length', error.stack);
       return 0;
     }
   }
 
+  /**
+   * Get all users in queue ordered by wait time (oldest first)
+   * Returns full QueueUser data for each user
+   */
+  async getAllQueueUsers<T>(): Promise<T[]> {
+    try {
+      // Get all userIds ordered by timestamp (oldest first)
+      const userIds = await this.client.zRange(this.QUEUE_ZSET_KEY, 0, -1);
+
+      if (userIds.length === 0) {
+        return [];
+      }
+
+      // Fetch all user data in a single pipeline
+      const pipeline = this.client.multi();
+      for (const userId of userIds) {
+        pipeline.get(`${this.QUEUE_DATA_PREFIX}${userId}`);
+      }
+      const results = await pipeline.exec();
+
+      // Parse results, filtering out null/invalid entries
+      const users: T[] = [];
+      for (let i = 0; i < results.length; i++) {
+        const data = results[i] as string | null;
+        if (data) {
+          try {
+            users.push(JSON.parse(data) as T);
+          } catch (parseError) {
+            // Invalid data - clean it up
+            this.logger.warn('Invalid queue data, cleaning up', { userId: userIds[i] });
+            await this.removeFromQueue(userIds[i]);
+          }
+        } else {
+          // Missing data but in ZSET - clean it up
+          this.logger.warn('Missing queue data, cleaning up', { userId: userIds[i] });
+          await this.client.zRem(this.QUEUE_ZSET_KEY, userIds[i]);
+        }
+      }
+
+      return users;
+    } catch (error) {
+      this.logger.error('Failed to get all queue users', error.stack);
+      return [];
+    }
+  }
+
+  /**
+   * Get users waiting longer than specified time
+   */
+  async getUrgentQueueUsers<T>(olderThanMs: number): Promise<T[]> {
+    try {
+      const cutoffTime = Date.now() - olderThanMs;
+
+      // Get userIds with timestamp < cutoffTime (waiting longer)
+      const userIds = await this.client.zRangeByScore(this.QUEUE_ZSET_KEY, '-inf', cutoffTime);
+
+      if (userIds.length === 0) {
+        return [];
+      }
+
+      // Fetch all user data
+      const pipeline = this.client.multi();
+      for (const userId of userIds) {
+        pipeline.get(`${this.QUEUE_DATA_PREFIX}${userId}`);
+      }
+      const results = await pipeline.exec();
+
+      const users: T[] = [];
+      for (let i = 0; i < results.length; i++) {
+        const data = results[i] as string | null;
+        if (data) {
+          try {
+            users.push(JSON.parse(data) as T);
+          } catch {
+            // Skip invalid
+          }
+        }
+      }
+
+      return users;
+    } catch (error) {
+      this.logger.error('Failed to get urgent queue users', error.stack);
+      return [];
+    }
+  }
+
+  /**
+   * Check if user is in queue (O(log n))
+   */
+  async isInQueue(userId: string): Promise<boolean> {
+    try {
+      const score = await this.client.zScore(this.QUEUE_ZSET_KEY, userId);
+      return score !== null;
+    } catch (error) {
+      this.logger.error(`Failed to check if user ${userId} is in queue`, error.stack);
+      return false;
+    }
+  }
+
+  /**
+   * Get user's position in queue (O(log n))
+   * Returns 1-indexed position, or -1 if not in queue
+   */
+  async getQueuePosition(userId: string): Promise<number> {
+    try {
+      const rank = await this.client.zRank(this.QUEUE_ZSET_KEY, userId);
+      return rank !== null ? rank + 1 : -1;
+    } catch (error) {
+      this.logger.error(`Failed to get queue position for ${userId}`, error.stack);
+      return -1;
+    }
+  }
+
+  /**
+   * Get user's wait time in milliseconds
+   */
+  async getQueueWaitTime(userId: string): Promise<number> {
+    try {
+      const score = await this.client.zScore(this.QUEUE_ZSET_KEY, userId);
+      if (score === null) return 0;
+      return Date.now() - score;
+    } catch (error) {
+      this.logger.error(`Failed to get wait time for ${userId}`, error.stack);
+      return 0;
+    }
+  }
+
   async getNextInQueue(): Promise<Record<string, unknown> | null> {
     try {
-      const item = await this.client.rPop('matchmaking:queue');
-      if (!item) return null;
-      
+      // Get oldest user (lowest score = earliest timestamp)
+      const results = await this.client.zRangeWithScores(this.QUEUE_ZSET_KEY, 0, 0);
+      if (results.length === 0) return null;
+
+      const userId = results[0].value;
+      const data = await this.client.get(`${this.QUEUE_DATA_PREFIX}${userId}`);
+
+      if (!data) return null;
+
       try {
-        return JSON.parse(item);
+        return JSON.parse(data);
       } catch (parseError) {
         this.logger.error('Failed to parse queue item', parseError.stack);
         return null;

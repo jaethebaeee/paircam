@@ -16,6 +16,7 @@ import { FriendsModule } from './friends/friends.module'; // 🆕 Friends & Soci
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { BlockingModule } from './blocking/blocking.module';
+import { MatchesModule } from './matches/matches.module';
 import { HealthController } from './health/health.controller';
 import { env } from './env';
 
@@ -24,6 +25,7 @@ import { User } from './users/entities/user.entity';
 import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { BlockedUser } from './blocking/entities/blocked-user.entity';
+import { Match } from './matches/entities/match.entity';
 
 @Module({
   imports: [
@@ -36,7 +38,7 @@ import { BlockedUser } from './blocking/entities/blocked-user.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment, BlockedUser],
+      entities: [User, Subscription, Payment, BlockedUser, Match],
       synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
@@ -49,6 +51,7 @@ import { BlockedUser } from './blocking/entities/blocked-user.entity';
     SubscriptionsModule,
     PaymentsModule,
     BlockingModule,
+    MatchesModule, // 🆕 Match persistence for analytics
     AnalyticsModule,
     SignalingModule,
     TurnModule,

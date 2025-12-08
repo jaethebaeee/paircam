@@ -132,23 +132,17 @@ export class MatchmakingService {
   async processQueue(): Promise<void> {
     try {
       const queueLength = await this.redisService.getQueueLength();
-      
+
       if (queueLength < 2) {
         return; // Need at least 2 users to match
       }
 
-      // Get all users in queue (with safe parsing)
-      const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
-      const users: QueueUser[] = queueItems
-        .map(item => {
-          try {
-            return JSON.parse(item) as QueueUser;
-          } catch {
-            this.logger.warn('Failed to parse queue item, skipping', { item: item.substring(0, 100) });
-            return null;
-          }
-        })
-        .filter((user): user is QueueUser => user !== null);
+      // ⚡ Get all users using ZSET-based queue (O(n) fetch, already ordered by wait time)
+      const users = await this.redisService.getAllQueueUsers<QueueUser>();
+
+      if (users.length < 2) {
+        return;
+      }
 
       // 🆕 Process multi-queue: Separate by queue type for better matching
       const queuesByType: Record<string, QueueUser[]> = {
@@ -842,21 +836,12 @@ export class MatchmakingService {
     averageWaitTime: number;
     regionDistribution: Record<string, number>;
   }> {
+    // ⚡ Use ZSET-based queue methods
     const queueLength = await this.redisService.getQueueLength();
-    const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
-
-    const users: QueueUser[] = queueItems
-      .map(item => {
-        try {
-          return JSON.parse(item) as QueueUser;
-        } catch {
-          return null;
-        }
-      })
-      .filter((user): user is QueueUser => user !== null);
+    const users = await this.redisService.getAllQueueUsers<QueueUser>();
     const now = Date.now();
-    
-    const averageWaitTime = users.length > 0 
+
+    const averageWaitTime = users.length > 0
       ? users.reduce((sum, user) => sum + (now - user.timestamp), 0) / users.length
       : 0;
 
@@ -883,47 +868,42 @@ export class MatchmakingService {
    * - Users disconnect without properly leaving the queue
    * - Server restarts leave orphaned queue entries
    * - Redis connection drops cause inconsistent state
+   *
+   * ⚡ OPTIMIZED: Uses ZSET ZRANGEBYSCORE for O(log n + m) cleanup
    */
   @Interval(30000) // Every 30 seconds
   async cleanupStaleQueueEntries(): Promise<void> {
     try {
-      const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
+      const maxAge = 5 * 60 * 1000; // 5 minutes max in queue
 
-      if (queueItems.length === 0) {
+      // ⚡ Get stale users directly using ZSET score range (much faster than iterating)
+      const staleUsers = await this.redisService.getUrgentQueueUsers<QueueUser>(maxAge);
+
+      if (staleUsers.length === 0) {
         return;
       }
 
       const now = Date.now();
-      const maxAge = 5 * 60 * 1000; // 5 minutes max in queue
       let cleanedCount = 0;
 
-      for (const item of queueItems) {
-        try {
-          const user = JSON.parse(item) as QueueUser;
-          const age = now - user.timestamp;
+      for (const user of staleUsers) {
+        const age = now - user.timestamp;
 
-          if (age > maxAge) {
-            await this.redisService.removeFromQueue(user.userId);
-            cleanedCount++;
+        await this.redisService.removeFromQueue(user.userId);
+        cleanedCount++;
 
-            this.logger.warn('Cleaned up stale queue entry', {
-              userId: user.userId,
-              deviceId: user.deviceId,
-              ageSeconds: Math.round(age / 1000),
-            });
-          }
-        } catch (parseError) {
-          // Invalid queue item - remove it
-          await this.redisService.getClient().lRem('matchmaking:queue', 1, item);
-          cleanedCount++;
-          this.logger.warn('Removed invalid queue item', { item: item.substring(0, 100) });
-        }
+        this.logger.warn('Cleaned up stale queue entry', {
+          userId: user.userId,
+          deviceId: user.deviceId,
+          ageSeconds: Math.round(age / 1000),
+        });
       }
 
       if (cleanedCount > 0) {
+        const queueLength = await this.redisService.getQueueLength();
         this.logger.log(`🧹 Queue cleanup completed`, {
           removed: cleanedCount,
-          remaining: queueItems.length - cleanedCount,
+          remaining: queueLength,
         });
 
         // Track cleanup metrics
