@@ -12,6 +12,7 @@ import {
   NoSymbolIcon,
   FaceSmileIcon,
 } from '@heroicons/react/24/solid';
+import ControlButton from '../ui/ControlButton';
 
 const REACTION_EMOJIS = ['👋', '😂', '❤️', '🔥', '👍', '😮', '🎉', '💀'];
 
@@ -77,60 +78,30 @@ export default function VideoControls({
         <div className="flex items-center justify-center gap-2 sm:gap-3">
           {/* Video Toggle - Hidden in text mode */}
           {!isTextMode && (
-            <div className="relative group">
-              <button
-                onClick={onToggleVideo}
-                className={`relative p-3 sm:p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center ${
-                  isVideoEnabled
-                    ? 'bg-gray-700 hover:bg-gray-600'
-                    : 'bg-red-500 hover:bg-red-600 animate-pulse'
-                }`}
-                aria-label={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
-              >
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                {isVideoEnabled ? (
-                  <VideoCameraIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-                ) : (
-                  <VideoCameraSlashIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-                )}
-              </button>
-              {/* Tooltip - Hidden on touch devices */}
-              <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                  {isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-black/90"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ControlButton
+              onClick={onToggleVideo}
+              tooltip={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+              ariaLabel={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
+              className={isVideoEnabled ? 'bg-gray-700 hover:bg-gray-600' : 'bg-red-500 hover:bg-red-600 animate-pulse'}
+            >
+              {isVideoEnabled ? (
+                <VideoCameraIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+              ) : (
+                <VideoCameraSlashIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+              )}
+            </ControlButton>
           )}
 
           {/* Audio Toggle - Hidden in text mode */}
           {!isTextMode && (
-            <div className="relative group">
-              <button
-                onClick={onToggleAudio}
-                className={`relative p-3 sm:p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 min-w-[40px] min-h-[40px] sm:min-w-[48px] sm:min-h-[48px] flex items-center justify-center ${
-                  isAudioEnabled
-                    ? 'bg-gray-700 hover:bg-gray-600'
-                    : 'bg-red-500 hover:bg-red-600'
-                }`}
-                aria-label={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
-              >
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <MicrophoneIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-              </button>
-              {/* Tooltip - Hidden on touch devices */}
-              <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                  {isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-black/90"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ControlButton
+              onClick={onToggleAudio}
+              tooltip={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+              ariaLabel={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
+              className={isAudioEnabled ? 'bg-gray-700 hover:bg-gray-600' : 'bg-red-500 hover:bg-red-600'}
+            >
+              <MicrophoneIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+            </ControlButton>
           )}
 
           {/* Stop Chatting - Prominent red button */}
@@ -143,8 +114,7 @@ export default function VideoControls({
               <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
               <PhoneXMarkIcon className="h-5 w-5 sm:h-7 sm:w-7 text-white relative z-10 rotate-[135deg]" />
             </button>
-            {/* Tooltip - Hidden on touch devices */}
-            <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
               <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
                 Stop chatting
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
@@ -171,7 +141,6 @@ export default function VideoControls({
                 isSkipping ? 'animate-spin' : 'group-hover:rotate-180'
               }`} />
             </button>
-            {/* Tooltip with cooldown explanation - Hidden on touch devices */}
             <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
               <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap text-center">
                 {isSkipping ? (
@@ -197,115 +166,59 @@ export default function VideoControls({
 
           {/* Chat - Hidden in text mode since chat is always visible */}
           {!isTextMode && (
-            <div className="relative group">
-              <button
-                onClick={onToggleChat}
-                className="relative p-3 sm:p-4 rounded-full bg-gray-700 hover:bg-gray-600 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
-                aria-label="Toggle chat"
-              >
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <ChatBubbleLeftIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-              </button>
-              {/* Tooltip - Hidden on touch devices */}
-              <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                  Chat
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-black/90"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ControlButton
+              onClick={onToggleChat}
+              tooltip="Chat"
+              ariaLabel="Toggle chat"
+            >
+              <ChatBubbleLeftIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+            </ControlButton>
           )}
 
           {/* Play Game - Only show when connected and in gaming mode */}
           {isConnected && isGamingMode && onPlayGame && (
-            <div className="relative group">
-              <button
-                onClick={onPlayGame}
-                className="relative p-3 sm:p-4 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
-                aria-label="Play game"
-              >
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="text-xl sm:text-2xl relative z-10">🎮</span>
-              </button>
-              {/* Tooltip - Hidden on touch devices */}
-              <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                  Play Trivia Battle
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-black/90"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ControlButton
+              onClick={onPlayGame}
+              tooltip="Play Trivia Battle"
+              ariaLabel="Play game"
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30"
+            >
+              <span className="text-xl sm:text-2xl relative z-10">🎮</span>
+            </ControlButton>
           )}
 
           {/* Friend Request - Only show when connected */}
           {isConnected && onFriendRequest && (
-            <div className="relative group">
-              <button
-                onClick={onFriendRequest}
-                className="relative p-3 sm:p-4 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
-                aria-label="Send friend request"
-              >
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <UserPlusIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-              </button>
-              {/* Tooltip - Hidden on touch devices */}
-              <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                  Add as friend
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-black/90"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ControlButton
+              onClick={onFriendRequest}
+              tooltip="Add as friend"
+              ariaLabel="Send friend request"
+              className="bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30"
+            >
+              <UserPlusIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+            </ControlButton>
           )}
 
           {/* Report */}
-          <div className="relative group">
-            <button
-              onClick={onReport}
-              className="relative p-3 sm:p-4 rounded-full bg-orange-600 hover:bg-orange-700 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
-              aria-label="Report user"
-            >
-              <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <FlagIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-            </button>
-            {/* Tooltip - Hidden on touch devices */}
-            <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                Report inappropriate behavior
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                  <div className="border-4 border-transparent border-t-black/90"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ControlButton
+            onClick={onReport}
+            tooltip="Report inappropriate behavior"
+            ariaLabel="Report user"
+            className="bg-orange-600 hover:bg-orange-700"
+          >
+            <FlagIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+          </ControlButton>
 
           {/* Block User - Only show when connected */}
           {isConnected && onBlockUser && (
-            <div className="relative group">
-              <button
-                onClick={onBlockUser}
-                className="relative p-3 sm:p-4 rounded-full bg-red-700 hover:bg-red-800 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
-                aria-label="Block user"
-              >
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <NoSymbolIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-              </button>
-              {/* Tooltip - Hidden on touch devices */}
-              <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                  Block this user
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-black/90"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ControlButton
+              onClick={onBlockUser}
+              tooltip="Block this user"
+              ariaLabel="Block user"
+              className="bg-red-700 hover:bg-red-800"
+            >
+              <NoSymbolIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+            </ControlButton>
           )}
 
           {/* Reactions - Only show when connected */}
@@ -345,9 +258,9 @@ export default function VideoControls({
                   </div>
                 </div>
               )}
-              {/* Tooltip - Hidden on touch devices and when picker is open */}
+              {/* Tooltip - Hidden when picker is open */}
               {!showReactions && (
-                <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                   <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
                     Send reaction
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
@@ -361,25 +274,14 @@ export default function VideoControls({
 
           {/* Audio-Only Mode Toggle - Only show if not in text mode and callback provided */}
           {!isTextMode && onSwitchToAudioOnly && !isAudioOnlyMode && (
-            <div className="relative group">
-              <button
-                onClick={onSwitchToAudioOnly}
-                className="relative p-3 sm:p-4 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
-                aria-label="Switch to audio only"
-              >
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <SpeakerWaveIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
-              </button>
-              {/* Tooltip - Hidden on touch devices */}
-              <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg">
-                  Switch to audio-only
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-black/90"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ControlButton
+              onClick={onSwitchToAudioOnly}
+              tooltip="Switch to audio-only"
+              ariaLabel="Switch to audio only"
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <SpeakerWaveIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+            </ControlButton>
           )}
         </div>
 
