@@ -22,7 +22,10 @@ export class GiftCatalog {
   costGems?: number; // Can be bought with premium currency
 
   @Column({ nullable: true, name: 'image_url' })
-  imageUrl: string;
+  imageUrl?: string;
+
+  @Column({ length: 10, nullable: true })
+  emoji?: string; // Emoji representation of the gift (e.g., '🌹', '💍')
 
   @Column({ length: 50, default: 'common' })
   rarity: 'common' | 'rare' | 'epic' | 'legendary';

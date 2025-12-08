@@ -1,15 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between, Not, IsNull } from 'typeorm';
 import { DailyMission } from '../entities';
 import { WalletService } from './wallet.service';
-import * as amplitude from '@amplitude/analytics-node';
+import { LoggerService } from '../../services/logger.service';
 
 @Injectable()
 export class MissionService {
   constructor(
     @InjectRepository(DailyMission) private missionRepo: Repository<DailyMission>,
     private walletService: WalletService,
+    private logger: LoggerService,
   ) {}
 
   /**
@@ -20,15 +21,14 @@ export class MissionService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const startOfDay = new Date(today);
+    const endOfDay = new Date(today);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
     const existingMissions = await this.missionRepo.find({
       where: {
         userId,
-        createdAt: (() => {
-          const start = new Date(today);
-          const end = new Date(today);
-          end.setDate(end.getDate() + 1);
-          return { $gte: start, $lt: end };
-        })(),
+        createdAt: Between(startOfDay, endOfDay),
       },
     });
 
@@ -144,13 +144,10 @@ export class MissionService {
       await this.updateStreak(userId);
 
       // Track analytics
-      amplitude.track({
+      this.logger.log('Mission completed', {
         userId,
-        eventType: 'mission_completed',
-        eventProperties: {
-          missionType,
-          coinsEarned: mission.coinsReward,
-        },
+        missionType,
+        coinsEarned: mission.coinsReward,
       });
     }
 
@@ -167,19 +164,16 @@ export class MissionService {
     yesterday.setDate(yesterday.getDate() - 1);
 
     // Check if user completed any mission yesterday
+    const startOfYesterday = new Date(yesterday);
+    startOfYesterday.setHours(0, 0, 0, 0);
+    const endOfYesterday = new Date(yesterday);
+    endOfYesterday.setHours(23, 59, 59, 999);
+
     const yesterdayMissions = await this.missionRepo.find({
       where: {
         userId,
-        createdAt: (() => {
-          const start = new Date(yesterday);
-          start.setHours(0, 0, 0, 0);
-          const end = new Date(yesterday);
-          end.setHours(23, 59, 59, 999);
-          return { $gte: start, $lt: end };
-        })(),
-        completedAt: (() => ({
-          $ne: null,
-        }))(),
+        createdAt: Between(startOfYesterday, endOfYesterday),
+        completedAt: Not(IsNull()),
       },
     });
 

@@ -18,7 +18,7 @@ export class PaymentsService {
       this.logger.warn('Stripe secret key not configured');
     } else {
       this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-        apiVersion: '2025-09-30.clover' as any,
+        apiVersion: '2024-06-20',
       });
     }
   }
