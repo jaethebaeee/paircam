@@ -134,11 +134,13 @@ export class PaymentsService {
   }
 
   private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+    // Support both metadata (custom checkout) and client_reference_id (Buy Button)
+    const deviceId = session.client_reference_id || session.metadata?.deviceId;
     const userId = session.metadata?.userId;
-    const plan = session.metadata?.plan as 'weekly' | 'monthly';
+    const plan = (session.metadata?.plan as 'weekly' | 'monthly') || 'monthly';
 
-    if (!userId || !session.subscription) {
-      this.logger.warn('Missing metadata in checkout session', { sessionId: session.id });
+    if (!session.subscription) {
+      this.logger.warn('No subscription in checkout session', { sessionId: session.id });
       return;
     }
 
@@ -154,8 +156,30 @@ export class PaymentsService {
         throw new Error('Invalid subscription: no items found');
       }
 
+      // Find user by deviceId if userId not provided (Buy Button flow)
+      let resolvedUserId = userId;
+      if (!resolvedUserId && deviceId) {
+        const user = await this.usersService.findByDeviceId(deviceId);
+        if (user) {
+          resolvedUserId = user.id;
+        } else {
+          // Create a new user for this device
+          const newUser = await this.usersService.create({ deviceId });
+          resolvedUserId = newUser.id;
+        }
+      }
+
+      if (!resolvedUserId) {
+        this.logger.warn('Could not resolve user for subscription', {
+          sessionId: session.id,
+          deviceId,
+          customerId: subscription.customer,
+        });
+        return;
+      }
+
       await this.subscriptionsService.create({
-        userId,
+        userId: resolvedUserId,
         stripeCustomerId: subscription.customer as string,
         stripeSubscriptionId: subscription.id,
         stripePriceId: firstItem.price.id,
@@ -167,7 +191,8 @@ export class PaymentsService {
       });
 
       this.logger.log('Subscription created from checkout', {
-        userId,
+        userId: resolvedUserId,
+        deviceId,
         subscriptionId: subscription.id,
         plan,
       });

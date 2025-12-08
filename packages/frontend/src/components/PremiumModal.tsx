@@ -1,29 +1,36 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface PremiumModalProps {
   onClose: () => void;
 }
 
+// Get or create a device ID for tracking
+function getDeviceId(): string {
+  let deviceId = localStorage.getItem('paircam_device_id');
+  if (!deviceId) {
+    deviceId = 'device_' + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('paircam_device_id', deviceId);
+  }
+  return deviceId;
+}
+
 export default function PremiumModal({ onClose }: PremiumModalProps) {
+  const [deviceId] = useState(getDeviceId);
+
   // Load Stripe Buy Button script
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://js.stripe.com/v3/buy-button.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      // Cleanup script on unmount
-      const existingScript = document.querySelector('script[src="https://js.stripe.com/v3/buy-button.js"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-    };
+    const existingScript = document.querySelector('script[src="https://js.stripe.com/v3/buy-button.js"]');
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.src = 'https://js.stripe.com/v3/buy-button.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl max-w-4xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -33,72 +40,36 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
           </svg>
         </button>
 
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-bold mb-4">
             <span>⭐</span>
             <span>PREMIUM</span>
-            <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">Try Free</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3">
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
             Match 3x Faster
           </h2>
-          <p className="text-gray-600 text-base sm:text-lg max-w-md mx-auto">
-            Get priority matching, gender filters, and an ad-free experience
+          <p className="text-gray-600 text-sm sm:text-base max-w-md mx-auto">
+            Priority matching, gender filters, ad-free experience
           </p>
-          {/* Social proof */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <div className="flex -space-x-2">
-              <div className="w-8 h-8 rounded-full bg-pink-200 border-2 border-white flex items-center justify-center text-xs">JK</div>
-              <div className="w-8 h-8 rounded-full bg-purple-200 border-2 border-white flex items-center justify-center text-xs">AM</div>
-              <div className="w-8 h-8 rounded-full bg-blue-200 border-2 border-white flex items-center justify-center text-xs">TL</div>
-            </div>
-            <p className="text-sm text-gray-500">
-              <span className="font-semibold text-gray-700">2,500+</span> upgraded this week
-            </p>
-          </div>
         </div>
 
-        {/* Features Grid with quantified benefits */}
-        <div className="grid md:grid-cols-2 gap-3 mb-8">
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl border border-pink-100">
-            <div className="text-2xl">🎯</div>
-            <div>
-              <h3 className="font-bold text-gray-900">Gender Filter</h3>
-              <p className="text-sm text-gray-600">Match your preferred gender only</p>
-              <p className="text-xs text-pink-600 font-medium mt-1">50% more relevant matches</p>
-            </div>
+        {/* Features Grid - Compact */}
+        <div className="grid grid-cols-2 gap-2 mb-6">
+          <div className="flex items-center gap-2 p-3 bg-pink-50 rounded-xl">
+            <span className="text-lg">🎯</span>
+            <span className="text-sm font-medium text-gray-800">Gender Filter</span>
           </div>
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl border border-purple-100">
-            <div className="text-2xl">⚡</div>
-            <div>
-              <h3 className="font-bold text-gray-900">Priority Queue</h3>
-              <p className="text-sm text-gray-600">Skip the line, match instantly</p>
-              <p className="text-xs text-purple-600 font-medium mt-1">3x faster matching</p>
-            </div>
+          <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-xl">
+            <span className="text-lg">⚡</span>
+            <span className="text-sm font-medium text-gray-800">Priority Queue</span>
           </div>
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100">
-            <div className="text-2xl">🚫</div>
-            <div>
-              <h3 className="font-bold text-gray-900">Ad-Free Experience</h3>
-              <p className="text-sm text-gray-600">Zero interruptions, pure chat</p>
-              <p className="text-xs text-green-600 font-medium mt-1">100% distraction-free</p>
-            </div>
+          <div className="flex items-center gap-2 p-3 bg-green-50 rounded-xl">
+            <span className="text-lg">🚫</span>
+            <span className="text-sm font-medium text-gray-800">No Ads</span>
           </div>
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl border border-orange-100">
-            <div className="text-2xl">↩️</div>
-            <div>
-              <h3 className="font-bold text-gray-900">Rewind Skip</h3>
-              <p className="text-sm text-gray-600">Undo accidental skips</p>
-              <p className="text-xs text-orange-600 font-medium mt-1">Never lose a connection</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing - Monthly */}
-        <div className="text-center mb-6">
-          <div className="inline-block bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-4 border border-pink-100">
-            <div className="text-3xl font-bold text-gray-900">$9.99<span className="text-lg font-normal text-gray-500">/month</span></div>
-            <div className="text-sm text-gray-500">Cancel anytime</div>
+          <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-xl">
+            <span className="text-lg">↩️</span>
+            <span className="text-sm font-medium text-gray-800">Rewind Skip</span>
           </div>
         </div>
 
@@ -108,35 +79,14 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
           <stripe-buy-button
             buy-button-id="buy_btn_1Sc8UsQ77jsomY7koQXdwZSM"
             publishable-key="pk_live_51SbtK5Q77jsomY7k84jtpZxsb8MOMeZenCKMoQjYqovKqBQ6Uwl25lDG22AzTsL9MPbrGUCDeznUhdYRxUvzBKnC00EQ2nLitg"
+            client-reference-id={deviceId}
           />
         </div>
 
         {/* Trust signals */}
-        <div className="mt-6 space-y-3">
-          <div className="flex items-center justify-center gap-6 text-gray-500 text-xs">
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Cancel anytime
-            </span>
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              No hidden fees
-            </span>
-            <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-              Secure payment
-            </span>
-          </div>
-          <p className="text-center text-xs text-gray-400">
-            Powered by Stripe. Your payment info is never stored on our servers.
-          </p>
-        </div>
+        <p className="text-center text-xs text-gray-400">
+          Cancel anytime · Secure payment via Stripe
+        </p>
       </div>
     </div>
   );
