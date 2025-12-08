@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { XMarkIcon, PaperAirplaneIcon, ArrowLeftIcon, CheckIcon, FaceSmileIcon } from '@heroicons/react/24/solid';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { io, Socket } from 'socket.io-client';
@@ -12,7 +12,7 @@ interface Message {
   senderId: string;
   recipientId: string;
   content: string;
-  status: 'sent' | 'delivered' | 'read';
+  status: 'sent' | 'delivered' | 'read' | 'failed';
   createdAt: string;
   sender?: {
     id: string;
@@ -162,8 +162,9 @@ export default function DirectMessage({
 
         if (response.ok) {
           const data = await response.json();
-          setMessages(data);
-          setShowQuickReplies(data.length === 0);
+          const messagesList = data.messages || [];
+          setMessages(messagesList);
+          setShowQuickReplies(messagesList.length === 0);
 
           // Mark as read
           await fetch(`${API_URL}/messages/conversations/${conversationId}/read`, {
@@ -211,12 +212,7 @@ export default function DirectMessage({
     try {
       const token = getToken();
 
-      // Send via socket
-      if (socketRef.current) {
-        socketRef.current.emit('message-send', { recipientId: friend.id, content: messageContent });
-      }
-
-      // Send via REST
+      // Send via REST only (socket will notify recipient in real-time via backend)
       const response = await fetch(`${API_URL}/messages`, {
         method: 'POST',
         headers: {
@@ -228,13 +224,21 @@ export default function DirectMessage({
 
       if (response.ok) {
         const data = await response.json();
+        // Update optimistic message with real ID and server data
         setMessages((prev) =>
           prev.map((msg) => (msg.id === optimisticMessage.id ? data.message : msg))
         );
+      } else {
+        throw new Error('Failed to send');
       }
     } catch (error) {
       console.error('Failed to send message:', error);
-      setMessages((prev) => prev.filter((msg) => msg.id !== optimisticMessage.id));
+      // Mark as failed instead of removing (better UX)
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === optimisticMessage.id ? { ...msg, status: 'failed' as const } : msg
+        )
+      );
     } finally {
       setIsSending(false);
       inputRef.current?.focus();
@@ -273,18 +277,21 @@ export default function DirectMessage({
     return date.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
   };
 
-  // Group messages by date
-  const groupedMessages: { date: string; messages: Message[] }[] = [];
-  let currentDate = '';
-  messages.forEach((message) => {
-    const msgDate = formatDate(message.createdAt);
-    if (msgDate !== currentDate) {
-      currentDate = msgDate;
-      groupedMessages.push({ date: msgDate, messages: [message] });
-    } else {
-      groupedMessages[groupedMessages.length - 1].messages.push(message);
-    }
-  });
+  // Group messages by date (memoized to prevent re-computation on every render)
+  const groupedMessages = useMemo(() => {
+    const groups: { date: string; messages: Message[] }[] = [];
+    let currentDate = '';
+    messages.forEach((message) => {
+      const msgDate = formatDate(message.createdAt);
+      if (msgDate !== currentDate) {
+        currentDate = msgDate;
+        groups.push({ date: msgDate, messages: [message] });
+      } else {
+        groups[groups.length - 1].messages.push(message);
+      }
+    });
+    return groups;
+  }, [messages]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-fadeIn">

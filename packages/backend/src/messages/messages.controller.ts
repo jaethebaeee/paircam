@@ -11,21 +11,24 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { MessagesService } from './messages.service';
-import { SendMessageDto } from './dto/send-message.dto';
+import { SendMessageDto, GetMessagesQueryDto } from './dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('messages')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ThrottlerGuard)
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
   /**
    * Send a message to a friend
    * POST /messages
+   * Rate limited: 30 messages per minute
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   async sendMessage(@Request() req, @Body() dto: SendMessageDto) {
     const { message, conversation } = await this.messagesService.sendMessage(
       req.user.userId,
@@ -63,19 +66,19 @@ export class MessagesController {
   /**
    * Get messages in a conversation
    * GET /messages/conversations/:conversationId
+   * Query params validated: limit (1-100, default 50), before (message ID)
    */
   @Get('conversations/:conversationId')
   async getMessages(
     @Request() req,
     @Param('conversationId') conversationId: string,
-    @Query('limit') limit?: string,
-    @Query('before') before?: string,
+    @Query() query: GetMessagesQueryDto,
   ) {
     const messages = await this.messagesService.getMessages(
       req.user.userId,
       conversationId,
-      limit ? parseInt(limit, 10) : 50,
-      before,
+      query.limit || 50,
+      query.before,
     );
     return {
       success: true,

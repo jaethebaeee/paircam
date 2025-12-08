@@ -108,7 +108,7 @@ export default function FriendsList({ onClose, onSelectConversation, totalUnread
         });
         if (response.ok) {
           const data = await response.json();
-          setConversations(data);
+          setConversations(data.conversations || []);
         }
       } else {
         const response = await fetch(`${API_URL}/friends`, {
@@ -116,7 +116,8 @@ export default function FriendsList({ onClose, onSelectConversation, totalUnread
         });
         if (response.ok) {
           const data = await response.json();
-          setFriends(data);
+          // Friends API may return array directly or wrapped object
+          setFriends(Array.isArray(data) ? data : data.friends || []);
         }
       }
     } catch (error) {
@@ -133,8 +134,8 @@ export default function FriendsList({ onClose, onSelectConversation, totalUnread
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
-        const conversation = await response.json();
-        onSelectConversation(conversation.id, friend);
+        const data = await response.json();
+        onSelectConversation(data.conversationId, friend);
       }
     } catch (error) {
       console.error('Failed to get conversation:', error);

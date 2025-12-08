@@ -26,8 +26,8 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   // Map client socket ID to user ID
   private clientToUser = new Map<string, string>();
-  // Map user ID to client socket ID
-  private userToClient = new Map<string, string>();
+  // Map user ID to Set of client socket IDs (supports multiple devices)
+  private userToClients = new Map<string, Set<string>>();
 
   constructor(
     private messagesService: MessagesService,
@@ -49,7 +49,12 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
 
       const userId = decoded.sub;
       this.clientToUser.set(client.id, userId);
-      this.userToClient.set(userId, client.id);
+
+      // Support multiple devices per user
+      if (!this.userToClients.has(userId)) {
+        this.userToClients.set(userId, new Set());
+      }
+      this.userToClients.get(userId)!.add(client.id);
 
       // Join user-specific room for targeted messages
       client.join(`user:${userId}`);
@@ -68,7 +73,15 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
   handleDisconnect(client: Socket) {
     const userId = this.clientToUser.get(client.id);
     if (userId) {
-      this.userToClient.delete(userId);
+      // Remove this specific client from user's set
+      const clients = this.userToClients.get(userId);
+      if (clients) {
+        clients.delete(client.id);
+        // Clean up empty sets
+        if (clients.size === 0) {
+          this.userToClients.delete(userId);
+        }
+      }
     }
     this.clientToUser.delete(client.id);
     this.logger.log(`Messages client disconnected: ${client.id}`);
@@ -180,7 +193,7 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (!userId) return;
 
     // Broadcast to conversation room except sender
-    client.to(`conversation:${data.conversationId}`).emit('user-typing', {
+    client.to(`conversation:${data.conversationId}`).emit('typing-indicator', {
       conversationId: data.conversationId,
       userId,
       isTyping: true,
@@ -199,7 +212,7 @@ export class MessagesGateway implements OnGatewayConnection, OnGatewayDisconnect
     const userId = this.clientToUser.get(client.id);
     if (!userId) return;
 
-    client.to(`conversation:${data.conversationId}`).emit('user-typing', {
+    client.to(`conversation:${data.conversationId}`).emit('typing-indicator', {
       conversationId: data.conversationId,
       userId,
       isTyping: false,

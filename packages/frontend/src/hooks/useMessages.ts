@@ -155,11 +155,11 @@ export function useMessages(): UseMessagesReturn {
       setIsLoading(true);
       setError(null);
       const data = await apiRequest('/messages/conversations');
-      setConversations(data);
+      setConversations(data.conversations || []);
 
       // Also load unread count
       const unreadData = await apiRequest('/messages/unread-count');
-      setTotalUnread(unreadData.count);
+      setTotalUnread(unreadData.count || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load conversations');
     } finally {
@@ -176,7 +176,7 @@ export function useMessages(): UseMessagesReturn {
         currentConversationIdRef.current = conversationId;
 
         const data = await apiRequest(`/messages/conversations/${conversationId}`);
-        setMessages(data);
+        setMessages(data.messages || []);
 
         // Mark as read
         await apiRequest(`/messages/conversations/${conversationId}/read`, {

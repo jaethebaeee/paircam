@@ -221,19 +221,24 @@ export class MessagesService {
 
   /**
    * Get total unread message count for a user
+   * Optimized: Uses SQL aggregation instead of loading all conversations
    */
   async getTotalUnreadCount(userId: string): Promise<number> {
-    const conversations = await this.conversationRepository.find({
-      where: [{ participantOneId: userId }, { participantTwoId: userId }],
-    });
+    const result = await this.conversationRepository
+      .createQueryBuilder('conv')
+      .select(
+        `COALESCE(SUM(
+          CASE
+            WHEN conv.participantOneId = :userId THEN conv.unreadCountOne
+            ELSE conv.unreadCountTwo
+          END
+        ), 0)`,
+        'total',
+      )
+      .where('conv.participantOneId = :userId OR conv.participantTwoId = :userId', { userId })
+      .getRawOne();
 
-    return conversations.reduce((total, conv) => {
-      if (conv.participantOneId === userId) {
-        return total + conv.unreadCountOne;
-      } else {
-        return total + conv.unreadCountTwo;
-      }
-    }, 0);
+    return parseInt(result?.total || '0', 10);
   }
 
   /**
