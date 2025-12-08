@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MatchmakingService } from './matchmaking.service';
+import { MatchOptimizationService, MatchFeaturesSimple, ABTestConfig } from './match-optimization.service';
 import { RedisService } from '../redis/redis.service';
 import { UsersService } from '../users/users.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
@@ -42,6 +43,7 @@ interface AuthenticatedRequest {
 export class MatchingController {
   constructor(
     private readonly matchmakingService: MatchmakingService,
+    private readonly optimizationService: MatchOptimizationService,
     private readonly redisService: RedisService,
     private readonly usersService: UsersService,
     private readonly analyticsService: MatchAnalyticsService,
@@ -714,6 +716,431 @@ export class MatchingController {
         isProcessing: timeSinceLastRun < 10000,
       },
       timestamp: Date.now(),
+    };
+  }
+
+  // ============================================
+  // OPTIMIZATION ENDPOINTS
+  // ============================================
+
+  /**
+   * GET /matching/optimization/weights
+   * Get current matching algorithm weights (learned from feedback)
+   */
+  @Get('optimization/weights')
+  async getOptimizationWeights() {
+    const weights = await this.optimizationService.getCurrentWeights();
+    const totalOutcomes = await this.redisService.getClient().lLen('match_outcomes');
+
+    return {
+      weights,
+      totalOutcomesRecorded: totalOutcomes,
+      lastUpdated: Date.now(),
+      description: {
+        interestSimilarity: 'Weight for shared interests between users',
+        languageMatch: 'Weight for language compatibility',
+        regionProximity: 'Weight for geographic proximity',
+        reputationBalance: 'Weight for balanced reputation scores',
+        premiumBonus: 'Bonus weight for premium user matches',
+        activityLevel: 'Weight for similar activity patterns',
+        ageCompatibility: 'Weight for age range preferences',
+      },
+    };
+  }
+
+  /**
+   * GET /matching/optimization/insights
+   * Get optimization insights and recommendations
+   */
+  @Get('optimization/insights')
+  async getOptimizationInsights() {
+    const weights = await this.optimizationService.getCurrentWeights();
+    const totalOutcomes = await this.redisService.getClient().lLen('matching:outcomes');
+
+    // Find top performing factors
+    const weightEntries = Object.entries(weights) as [string, number][];
+    const sortedWeights = weightEntries.sort((a, b) => b[1] - a[1]);
+    const topFactors = sortedWeights.slice(0, 3).map(([key]) => key);
+    const lowFactors = sortedWeights.slice(-2).map(([key]) => key);
+
+    return {
+      summary: {
+        totalOutcomesAnalyzed: totalOutcomes,
+        confidenceLevel: totalOutcomes > 100 ? 'high' : totalOutcomes > 20 ? 'medium' : 'low',
+      },
+      insights: {
+        topPerformingFactors: topFactors,
+        underperformingFactors: lowFactors,
+        recommendations: [
+          totalOutcomes < 50
+            ? 'Collect more feedback data to improve predictions'
+            : 'Weights are stabilizing based on user feedback',
+          (weights as Record<string, number>).interestSimilarity > 0.2
+            ? 'Interest matching is highly effective for this userbase'
+            : 'Consider promoting interest-based matching features',
+        ],
+      },
+      weights,
+    };
+  }
+
+  /**
+   * POST /matching/optimization/outcome
+   * Record a match outcome for weight learning (typically called internally)
+   */
+  @Post('optimization/outcome')
+  async recordMatchOutcomeEndpoint(
+    @Req() req: AuthenticatedRequest,
+    @Body()
+    body: {
+      matchId: string;
+      partnerId: string;
+      callDuration: number;
+      rating: number;
+      features?: MatchFeaturesSimple;
+    },
+  ) {
+    const deviceId = req.user.deviceId;
+    const user = await this.usersService.findByDeviceId(deviceId);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    // Build features from available data if not provided
+    const features: MatchFeaturesSimple = body.features || {
+      interestSimilarity: 0.5,
+      languageMatch: 1.0,
+      regionProximity: 0.8,
+      reputationBalance: 0.7,
+      premiumBonus: 0,
+      activityLevel: 0.5,
+      ageCompatibility: 1.0,
+    };
+
+    // Calculate outcome score (0-1 based on rating and duration)
+    const durationScore = Math.min(1, body.callDuration / 300); // 5min = max duration score
+    const ratingScore = (body.rating - 1) / 4; // Normalize 1-5 to 0-1
+    const outcomeScore = durationScore * 0.4 + ratingScore * 0.6;
+
+    await this.optimizationService.recordMatchOutcomeSimple(
+      body.matchId,
+      features,
+      outcomeScore,
+      body.callDuration,
+      body.rating,
+    );
+
+    return {
+      success: true,
+      outcomeScore,
+      message: 'Match outcome recorded for weight learning',
+    };
+  }
+
+  /**
+   * GET /matching/optimization/predict
+   * Preview match quality prediction for given features
+   */
+  @Get('optimization/predict')
+  async predictMatchQualityEndpoint(
+    @Query('interestSimilarity') interestSimilarity?: string,
+    @Query('languageMatch') languageMatch?: string,
+    @Query('regionProximity') regionProximity?: string,
+  ) {
+    const features: MatchFeaturesSimple = {
+      interestSimilarity: parseFloat(interestSimilarity || '0.5'),
+      languageMatch: parseFloat(languageMatch || '1.0'),
+      regionProximity: parseFloat(regionProximity || '0.5'),
+      reputationBalance: 0.7,
+      premiumBonus: 0,
+      activityLevel: 0.5,
+      ageCompatibility: 1.0,
+    };
+
+    const prediction = await this.optimizationService.predictMatchQualitySimple(features);
+
+    return {
+      features,
+      prediction: {
+        score: prediction.score,
+        confidence: prediction.confidence,
+        qualityTier:
+          prediction.score >= 0.8
+            ? 'excellent'
+            : prediction.score >= 0.6
+              ? 'good'
+              : prediction.score >= 0.4
+                ? 'fair'
+                : 'poor',
+      },
+    };
+  }
+
+  // ============================================
+  // A/B TESTING ENDPOINTS
+  // ============================================
+
+  /**
+   * GET /matching/abtest/:testId/variant
+   * Get user's assigned variant for an A/B test
+   */
+  @Get('abtest/:testId/variant')
+  async getABTestVariant(
+    @Req() req: AuthenticatedRequest,
+    @Param('testId') testId: string,
+  ) {
+    const deviceId = req.user.deviceId;
+    const user = await this.usersService.findByDeviceId(deviceId);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const variant = await this.optimizationService.getABTestVariant(user.id, testId);
+
+    if (!variant) {
+      throw new HttpException('A/B test not found or inactive', HttpStatus.NOT_FOUND);
+    }
+
+    return {
+      testId,
+      variant,
+      userId: user.id,
+    };
+  }
+
+  /**
+   * GET /matching/abtest/active
+   * Get all active A/B tests
+   */
+  @Get('abtest/active')
+  async getActiveABTests() {
+    const testsKey = 'abtest:active';
+    const testIds = await this.redisService.getClient().sMembers(testsKey);
+
+    const tests = await Promise.all(
+      testIds.map(async (testId) => {
+        const configStr = await this.redisService.getClient().get(`abtest:config:${testId}`);
+        if (!configStr) return null;
+
+        try {
+          const config = JSON.parse(configStr);
+          return {
+            testId,
+            ...config,
+          };
+        } catch {
+          return null;
+        }
+      }),
+    );
+
+    return {
+      activeTests: tests.filter(Boolean),
+      count: tests.filter(Boolean).length,
+    };
+  }
+
+  /**
+   * POST /matching/abtest
+   * Create a new A/B test (admin endpoint)
+   */
+  @Post('abtest')
+  async createABTestEndpoint(
+    @Body()
+    body: {
+      testId: string;
+      variants: string[];
+      weights?: number[];
+      description?: string;
+    },
+  ): Promise<{ success: boolean; config: ABTestConfig; message: string }> {
+    if (!body.testId || !body.variants || body.variants.length < 2) {
+      throw new HttpException(
+        'testId and at least 2 variants are required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const weights = body.weights || body.variants.map(() => 1 / body.variants.length);
+
+    if (weights.length !== body.variants.length) {
+      throw new HttpException(
+        'weights array must match variants array length',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const config = await this.optimizationService.createABTest(
+      body.testId,
+      body.variants,
+      weights,
+    );
+
+    this.logger.log('A/B test created', { testId: body.testId, variants: body.variants });
+
+    return {
+      success: true,
+      config,
+      message: `A/B test "${body.testId}" created with ${body.variants.length} variants`,
+    };
+  }
+
+  /**
+   * POST /matching/abtest/:testId/outcome
+   * Record an outcome for A/B test analysis
+   */
+  @Post('abtest/:testId/outcome')
+  async recordABTestOutcomeEndpoint(
+    @Req() req: AuthenticatedRequest,
+    @Param('testId') testId: string,
+    @Body() body: { metric: string; value: number },
+  ) {
+    const deviceId = req.user.deviceId;
+    const user = await this.usersService.findByDeviceId(deviceId);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const variant = await this.optimizationService.getABTestVariant(user.id, testId);
+
+    if (!variant) {
+      throw new HttpException('User not assigned to this test', HttpStatus.NOT_FOUND);
+    }
+
+    await this.optimizationService.recordABTestOutcome(
+      testId,
+      variant,
+      body.metric,
+      body.value,
+    );
+
+    return {
+      success: true,
+      testId,
+      variant,
+      metric: body.metric,
+      value: body.value,
+    };
+  }
+
+  /**
+   * GET /matching/abtest/:testId/results
+   * Get A/B test results summary
+   */
+  @Get('abtest/:testId/results')
+  async getABTestResults(@Param('testId') testId: string) {
+    const configStr = await this.redisService.getClient().get(`abtest:config:${testId}`);
+
+    if (!configStr) {
+      throw new HttpException('A/B test not found', HttpStatus.NOT_FOUND);
+    }
+
+    const config = JSON.parse(configStr);
+    const results: Record<
+      string,
+      { sampleSize: number; metrics: Record<string, { sum: number; count: number; avg: number }> }
+    > = {};
+
+    for (const variant of config.variants) {
+      const outcomeKey = `abtest:outcomes:${testId}:${variant}`;
+      const outcomes = await this.redisService.getClient().lRange(outcomeKey, 0, -1);
+
+      const metrics: Record<string, { sum: number; count: number; avg: number }> = {};
+
+      for (const outcomeStr of outcomes) {
+        try {
+          const outcome = JSON.parse(outcomeStr);
+          if (!metrics[outcome.metric]) {
+            metrics[outcome.metric] = { sum: 0, count: 0, avg: 0 };
+          }
+          metrics[outcome.metric].sum += outcome.value;
+          metrics[outcome.metric].count++;
+        } catch {
+          continue;
+        }
+      }
+
+      // Calculate averages
+      for (const metric of Object.keys(metrics)) {
+        metrics[metric].avg =
+          metrics[metric].count > 0 ? metrics[metric].sum / metrics[metric].count : 0;
+      }
+
+      results[variant] = {
+        sampleSize: outcomes.length,
+        metrics,
+      };
+    }
+
+    return {
+      testId,
+      config,
+      results,
+      summary: {
+        totalSamples: Object.values(results).reduce((sum, r) => sum + r.sampleSize, 0),
+        variants: Object.keys(results),
+      },
+    };
+  }
+
+  // ============================================
+  // INTEREST SIMILARITY ENDPOINTS
+  // ============================================
+
+  /**
+   * GET /matching/interests/similarity
+   * Calculate interest similarity between two interest sets
+   */
+  @Get('interests/similarity')
+  async calculateInterestSimilarity(
+    @Query('interests1') interests1: string,
+    @Query('interests2') interests2: string,
+  ) {
+    if (!interests1 || !interests2) {
+      throw new HttpException('Both interests1 and interests2 are required', HttpStatus.BAD_REQUEST);
+    }
+
+    const list1 = interests1.split(',').map((s) => s.trim().toLowerCase());
+    const list2 = interests2.split(',').map((s) => s.trim().toLowerCase());
+
+    const similarity = this.optimizationService.calculateInterestSimilarity(list1, list2);
+
+    return {
+      interests1: list1,
+      interests2: list2,
+      similarity,
+      interpretation:
+        similarity >= 0.8
+          ? 'Very high compatibility'
+          : similarity >= 0.5
+            ? 'Good compatibility'
+            : similarity >= 0.3
+              ? 'Some shared interests'
+              : 'Different interests',
+    };
+  }
+
+  /**
+   * GET /matching/interests/clusters
+   * Get available interest clusters for semantic matching
+   */
+  @Get('interests/clusters')
+  async getInterestClusters() {
+    return {
+      clusters: {
+        technology: ['gaming', 'programming', 'tech', 'computers', 'esports', 'coding', 'ai', 'crypto'],
+        creative: ['music', 'art', 'photography', 'writing', 'design', 'film', 'dance', 'fashion'],
+        sports: ['sports', 'fitness', 'football', 'basketball', 'soccer', 'running', 'gym', 'yoga'],
+        entertainment: ['movies', 'tv', 'anime', 'reading', 'comics', 'podcasts', 'streaming'],
+        lifestyle: ['cooking', 'travel', 'food', 'pets', 'nature', 'gardening', 'diy'],
+        social: ['languages', 'culture', 'politics', 'philosophy', 'psychology', 'history'],
+        business: ['entrepreneurship', 'investing', 'marketing', 'finance', 'startups'],
+      },
+      description:
+        'Interests in the same cluster are considered semantically similar for matching purposes',
     };
   }
 
