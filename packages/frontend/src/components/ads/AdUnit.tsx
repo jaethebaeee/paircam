@@ -67,7 +67,7 @@ export default function AdUnit({
           textAlign: 'center',
           ...style,
         }}
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // Replace with your Publisher ID
+        data-ad-client="ca-pub-3331898410671902"
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive={responsive ? 'true' : 'false'}
