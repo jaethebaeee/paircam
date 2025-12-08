@@ -13,6 +13,7 @@ import {
   FaceSmileIcon,
 } from '@heroicons/react/24/solid';
 import ControlButton from '../ui/ControlButton';
+import { CheckCircleIcon, SpinnerIcon } from '../ui/icons';
 
 const REACTION_EMOJIS = ['👋', '😂', '❤️', '🔥', '👍', '😮', '🎉', '💀'];
 
@@ -146,10 +147,7 @@ export default function VideoControls({
                 {isSkipping ? (
                   <>
                     <span className="flex items-center gap-1.5">
-                      <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
+                      <SpinnerIcon className="h-3 w-3" />
                       Finding new match...
                     </span>
                     <span className="text-gray-400 text-[10px] block mt-0.5">2 sec cooldown</span>
@@ -299,9 +297,7 @@ export default function VideoControls({
       {/* Secondary Info Bar - Hidden on mobile for space */}
       <div className="hidden sm:block mt-3 text-center">
         <div className="inline-flex items-center gap-2 bg-black/60 backdrop-blur-sm text-gray-300 px-4 py-2 rounded-full text-xs">
-          <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
+          <CheckCircleIcon className="w-4 h-4 text-green-400" />
           <span>Safe & Moderated</span>
           <span className="text-gray-500">•</span>
           <span>Your Safety Matters</span>
