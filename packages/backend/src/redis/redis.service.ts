@@ -116,13 +116,14 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  // Recent matches tracking (avoid rematching)
-  async addToRecentMatches(userId: string, matchedUserId: string): Promise<void> {
+  // Recent matches tracking (avoid rematching) - Now with timestamps for smart cooldowns
+  async addToRecentMatches(userId: string, matchedUserId: string, ttlSeconds = 3600): Promise<void> {
     try {
       const key = `recent-matches:${userId}`;
-      await this.client.sAdd(key, matchedUserId);
-      await this.client.expire(key, 3600); // Remember for 1 hour
-      this.logger.debug('Added to recent matches', { userId, matchedUserId });
+      const data = JSON.stringify({ matchedUserId, timestamp: Date.now() });
+      await this.client.hSet(key, matchedUserId, data);
+      await this.client.expire(key, ttlSeconds);
+      this.logger.debug('Added to recent matches', { userId, matchedUserId, ttl: ttlSeconds });
     } catch (error) {
       this.logger.error(`Failed to add recent match for ${userId}`, error.stack);
     }
@@ -131,9 +132,31 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async getRecentMatches(userId: string): Promise<string[]> {
     try {
       const key = `recent-matches:${userId}`;
-      return await this.client.sMembers(key);
+      const entries = await this.client.hGetAll(key);
+      return Object.keys(entries);
     } catch (error) {
       this.logger.error(`Failed to get recent matches for ${userId}`, error.stack);
+      return [];
+    }
+  }
+
+  async getRecentMatchesWithTimestamp(
+    userId: string,
+  ): Promise<Array<{ matchedUserId: string; timestamp: number }>> {
+    try {
+      const key = `recent-matches:${userId}`;
+      const entries = await this.client.hGetAll(key);
+
+      return Object.entries(entries).map(([matchedUserId, data]) => {
+        try {
+          const parsed = JSON.parse(data);
+          return { matchedUserId, timestamp: parsed.timestamp || Date.now() };
+        } catch {
+          return { matchedUserId, timestamp: Date.now() };
+        }
+      });
+    } catch (error) {
+      this.logger.error(`Failed to get recent matches with timestamp for ${userId}`, error.stack);
       return [];
     }
   }
@@ -144,6 +167,178 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       await this.client.del(key);
     } catch (error) {
       this.logger.error(`Failed to clear recent matches for ${userId}`, error.stack);
+    }
+  }
+
+  // Pending matches (waiting for acceptance)
+  async addPendingMatch(match: {
+    matchId: string;
+    sessionId: string;
+    user1Id: string;
+    user2Id: string;
+    compatibilityScore: number;
+  }): Promise<void> {
+    try {
+      const key = `pending-match:${match.matchId}`;
+      const data = {
+        ...match,
+        createdAt: Date.now(),
+        user1Accepted: false,
+        user2Accepted: false,
+      };
+      await this.client.setEx(key, 60, JSON.stringify(data)); // 60 second TTL
+      await this.client.sAdd('pending-matches', match.matchId);
+      await this.client.expire('pending-matches', 300); // Keep set for 5 minutes
+      this.logger.debug('Pending match created', { matchId: match.matchId });
+    } catch (error) {
+      this.logger.error(`Failed to add pending match ${match.matchId}`, error.stack);
+    }
+  }
+
+  async getPendingMatches(): Promise<
+    Array<{
+      matchId: string;
+      sessionId: string;
+      user1Id: string;
+      user2Id: string;
+      createdAt: number;
+      user1Accepted: boolean;
+      user2Accepted: boolean;
+      compatibilityScore: number;
+    }>
+  > {
+    try {
+      const matchIds = await this.client.sMembers('pending-matches');
+      const matches = [];
+
+      for (const matchId of matchIds) {
+        const data = await this.client.get(`pending-match:${matchId}`);
+        if (data) {
+          try {
+            matches.push(JSON.parse(data));
+          } catch {
+            // Remove invalid entry
+            await this.client.sRem('pending-matches', matchId);
+          }
+        } else {
+          // Match expired, remove from set
+          await this.client.sRem('pending-matches', matchId);
+        }
+      }
+
+      return matches;
+    } catch (error) {
+      this.logger.error('Failed to get pending matches', error.stack);
+      return [];
+    }
+  }
+
+  async getPendingMatch(matchId: string): Promise<{
+    matchId: string;
+    sessionId: string;
+    user1Id: string;
+    user2Id: string;
+    createdAt: number;
+    user1Accepted: boolean;
+    user2Accepted: boolean;
+    compatibilityScore: number;
+  } | null> {
+    try {
+      const data = await this.client.get(`pending-match:${matchId}`);
+      if (!data) return null;
+      return JSON.parse(data);
+    } catch (error) {
+      this.logger.error(`Failed to get pending match ${matchId}`, error.stack);
+      return null;
+    }
+  }
+
+  async updatePendingMatch(
+    matchId: string,
+    updates: { user1Accepted?: boolean; user2Accepted?: boolean },
+  ): Promise<boolean> {
+    try {
+      const key = `pending-match:${matchId}`;
+      const data = await this.client.get(key);
+      if (!data) return false;
+
+      const match = JSON.parse(data);
+      const updated = { ...match, ...updates };
+      await this.client.setEx(key, 60, JSON.stringify(updated));
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to update pending match ${matchId}`, error.stack);
+      return false;
+    }
+  }
+
+  async removePendingMatch(matchId: string): Promise<void> {
+    try {
+      await this.client.del(`pending-match:${matchId}`);
+      await this.client.sRem('pending-matches', matchId);
+      this.logger.debug('Pending match removed', { matchId });
+    } catch (error) {
+      this.logger.error(`Failed to remove pending match ${matchId}`, error.stack);
+    }
+  }
+
+  // Match quality feedback storage
+  async storeMatchFeedback(
+    userId: string,
+    matchId: string,
+    feedback: {
+      rating: number; // 1-5
+      tags?: string[]; // e.g., ['good-conversation', 'interesting-person']
+      duration: number;
+    },
+  ): Promise<void> {
+    try {
+      const key = `match-feedback:${userId}`;
+      const feedbackData = JSON.stringify({
+        matchId,
+        ...feedback,
+        timestamp: Date.now(),
+      });
+
+      // Store in a list (last 50 feedbacks)
+      await this.client.lPush(key, feedbackData);
+      await this.client.lTrim(key, 0, 49);
+      await this.client.expire(key, 86400 * 30); // 30 days
+
+      this.logger.debug('Match feedback stored', { userId, matchId, rating: feedback.rating });
+    } catch (error) {
+      this.logger.error(`Failed to store match feedback for ${userId}`, error.stack);
+    }
+  }
+
+  async getUserMatchFeedback(
+    userId: string,
+    limit = 10,
+  ): Promise<
+    Array<{
+      matchId: string;
+      rating: number;
+      tags?: string[];
+      duration: number;
+      timestamp: number;
+    }>
+  > {
+    try {
+      const key = `match-feedback:${userId}`;
+      const feedbacks = await this.client.lRange(key, 0, limit - 1);
+
+      return feedbacks
+        .map((f) => {
+          try {
+            return JSON.parse(f);
+          } catch {
+            return null;
+          }
+        })
+        .filter((f) => f !== null);
+    } catch (error) {
+      this.logger.error(`Failed to get match feedback for ${userId}`, error.stack);
+      return [];
     }
   }
 

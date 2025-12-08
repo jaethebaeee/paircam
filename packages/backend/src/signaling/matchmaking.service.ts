@@ -1,9 +1,39 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { SignalingGateway } from './signaling.gateway';
 import { LoggerService } from '../services/logger.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { v4 as uuidv4 } from 'uuid';
+
+// Configuration for matching system
+export const MATCHING_CONFIG = {
+  // Queue processing interval (ms)
+  QUEUE_PROCESS_INTERVAL: 5000, // Process queue every 5 seconds
+
+  // Match timeout settings
+  MATCH_ACCEPT_TIMEOUT: 30000, // 30 seconds to accept match
+  MATCH_CLEANUP_INTERVAL: 10000, // Check for expired matches every 10 seconds
+
+  // Rematch cooldown settings (in seconds)
+  REMATCH_COOLDOWN_FREE: 3600, // 1 hour for free users
+  REMATCH_COOLDOWN_PREMIUM: 1800, // 30 minutes for premium users
+
+  // Age matching settings
+  DEFAULT_AGE_RANGE: 10, // ±10 years by default
+  PREMIUM_AGE_RANGE: 5, // ±5 years for premium (more precise)
+
+  // Priority boost for premium users
+  PREMIUM_PRIORITY_BOOST: 15, // Extra points in compatibility score
+
+  // Wait time thresholds
+  URGENT_WAIT_THRESHOLD: 60000, // 1 minute
+  VERY_URGENT_WAIT_THRESHOLD: 120000, // 2 minutes
+
+  // Adaptive bucketing
+  MIN_BUCKET_SIZE: 2,
+  MAX_BUCKET_SIZE: 50,
+  TARGET_BUCKET_SIZE: 20,
+};
 
 export interface QueueUser {
   userId: string;
@@ -12,40 +42,68 @@ export interface QueueUser {
   region: string;
   language: string;
   socketId: string;
-  
+
   // User profile data
   gender?: string;
   age?: number;
-  
+
   // Premium features
   isPremium: boolean;
   genderPreference?: string; // 'any', 'male', 'female'
-  
-  // 🆕 Reputation data
+
+  // Age range preferences (premium feature)
+  minAge?: number;
+  maxAge?: number;
+
+  // Reputation data
   reputation?: number; // 0-100 rating
-  
-  // 🆕 Interest tags for better matching
+
+  // Interest tags for better matching
   interests?: string[]; // ['gaming', 'music', 'coding', etc.]
-  
-  // 🆕 Queue type for multi-queue system
+
+  // Queue type for multi-queue system
   queueType?: 'casual' | 'serious' | 'language' | 'gaming';
-  
-  // 🆕 Language learning (for language queue)
+
+  // Language learning (for language queue)
   nativeLanguage?: string;
   learningLanguage?: string;
-  
+
+  // Match quality feedback from previous sessions
+  preferredMatchTypes?: string[]; // e.g., ['long-conversation', 'quick-chat']
+
   preferences: Record<string, unknown>;
 }
 
+// Pending match waiting for acceptance
+export interface PendingMatch {
+  matchId: string;
+  sessionId: string;
+  user1Id: string;
+  user2Id: string;
+  createdAt: number;
+  user1Accepted: boolean;
+  user2Accepted: boolean;
+  compatibilityScore: number;
+}
+
 @Injectable()
-export class MatchmakingService {
-  // ⚡ Performance metrics
+export class MatchmakingService implements OnModuleInit, OnModuleDestroy {
+  // Scheduled processing intervals
+  private queueProcessingInterval: NodeJS.Timeout | null = null;
+  private matchTimeoutInterval: NodeJS.Timeout | null = null;
+
+  // Track if queue is currently being processed (prevent overlap)
+  private isProcessingQueue = false;
+
+  // Performance metrics
   private performanceMetrics = {
     totalMatchingRuns: 0,
     totalDuration: 0,
     totalComparisons: 0,
     totalUsers: 0,
     avgBucketSize: 0,
+    scheduledRuns: 0,
+    eventTriggeredRuns: 0,
   };
 
   constructor(
@@ -57,22 +115,128 @@ export class MatchmakingService {
     private readonly logger: LoggerService,
   ) {}
 
-  async addToQueue(userId: string, metadata: { 
-    region?: string; 
-    language?: string; 
+  async onModuleInit() {
+    // Start scheduled queue processing
+    this.startScheduledProcessing();
+    this.logger.log('🚀 MatchmakingService initialized with scheduled processing', {
+      queueInterval: `${MATCHING_CONFIG.QUEUE_PROCESS_INTERVAL}ms`,
+      matchTimeout: `${MATCHING_CONFIG.MATCH_ACCEPT_TIMEOUT}ms`,
+    });
+  }
+
+  async onModuleDestroy() {
+    // Clean up intervals
+    this.stopScheduledProcessing();
+    this.logger.log('MatchmakingService destroyed, intervals cleared');
+  }
+
+  private startScheduledProcessing() {
+    // Process queue periodically (catches users left behind by event-driven processing)
+    this.queueProcessingInterval = setInterval(async () => {
+      if (this.isProcessingQueue) {
+        this.logger.debug('Skipping scheduled queue processing - already in progress');
+        return;
+      }
+
+      try {
+        this.isProcessingQueue = true;
+        this.performanceMetrics.scheduledRuns++;
+        await this.processQueue();
+      } catch (error) {
+        this.logger.error('Scheduled queue processing error', error.stack);
+      } finally {
+        this.isProcessingQueue = false;
+      }
+    }, MATCHING_CONFIG.QUEUE_PROCESS_INTERVAL);
+
+    // Check for expired pending matches
+    this.matchTimeoutInterval = setInterval(async () => {
+      try {
+        await this.cleanupExpiredMatches();
+      } catch (error) {
+        this.logger.error('Match timeout cleanup error', error.stack);
+      }
+    }, MATCHING_CONFIG.MATCH_CLEANUP_INTERVAL);
+
+    this.logger.log('⏰ Scheduled queue processing started');
+  }
+
+  private stopScheduledProcessing() {
+    if (this.queueProcessingInterval) {
+      clearInterval(this.queueProcessingInterval);
+      this.queueProcessingInterval = null;
+    }
+    if (this.matchTimeoutInterval) {
+      clearInterval(this.matchTimeoutInterval);
+      this.matchTimeoutInterval = null;
+    }
+  }
+
+  // Clean up matches that weren't accepted within timeout
+  private async cleanupExpiredMatches(): Promise<void> {
+    try {
+      const pendingMatches = await this.redisService.getPendingMatches();
+      const now = Date.now();
+
+      for (const match of pendingMatches) {
+        if (now - match.createdAt > MATCHING_CONFIG.MATCH_ACCEPT_TIMEOUT) {
+          this.logger.log('Match expired - cleaning up', {
+            matchId: match.matchId,
+            user1: match.user1Id,
+            user2: match.user2Id,
+            elapsed: `${Math.round((now - match.createdAt) / 1000)}s`,
+          });
+
+          // Remove pending match
+          await this.redisService.removePendingMatch(match.matchId);
+
+          // Notify users that match expired
+          await this.signalingGateway.notifyMatchExpired(match.user1Id, match.user2Id, match.sessionId);
+
+          // Re-add users to queue if they haven't disconnected
+          // (they'll need to join again, but we can auto-rejoin in future)
+        }
+      }
+    } catch (error) {
+      this.logger.error('Failed to cleanup expired matches', error.stack);
+    }
+  }
+
+  async addToQueue(userId: string, metadata: {
+    region?: string;
+    language?: string;
     socketId: string;
     deviceId: string;
     gender?: string;
     age?: number;
     isPremium: boolean;
     genderPreference?: string;
+    minAge?: number;
+    maxAge?: number;
     reputation?: number;
-    interests?: string[]; // 🆕 Interest tags
-    queueType?: 'casual' | 'serious' | 'language' | 'gaming'; // 🆕 Queue type
-    nativeLanguage?: string; // 🆕 For language learning
-    learningLanguage?: string; // 🆕 For language learning
+    interests?: string[];
+    queueType?: 'casual' | 'serious' | 'language' | 'gaming';
+    nativeLanguage?: string;
+    learningLanguage?: string;
+    preferredMatchTypes?: string[];
     preferences?: Record<string, unknown>;
   }): Promise<void> {
+    // Calculate default age range if user has age but no preference
+    let minAge = metadata.minAge;
+    let maxAge = metadata.maxAge;
+
+    if (metadata.age && !minAge && !maxAge && metadata.isPremium) {
+      // Premium users get tighter default range
+      const range = MATCHING_CONFIG.PREMIUM_AGE_RANGE;
+      minAge = Math.max(18, metadata.age - range);
+      maxAge = metadata.age + range;
+    } else if (metadata.age && !minAge && !maxAge) {
+      // Free users get wider default range
+      const range = MATCHING_CONFIG.DEFAULT_AGE_RANGE;
+      minAge = Math.max(18, metadata.age - range);
+      maxAge = metadata.age + range;
+    }
+
     const queueData: QueueUser = {
       userId,
       deviceId: metadata.deviceId,
@@ -84,22 +248,26 @@ export class MatchmakingService {
       age: metadata.age,
       isPremium: metadata.isPremium,
       genderPreference: metadata.genderPreference || 'any',
+      minAge,
+      maxAge,
       reputation: metadata.reputation,
-      interests: metadata.interests || [], // 🆕 Default to empty array
-      queueType: metadata.queueType || 'casual', // 🆕 Default to casual
-      nativeLanguage: metadata.nativeLanguage, // 🆕
-      learningLanguage: metadata.learningLanguage, // 🆕
+      interests: metadata.interests || [],
+      queueType: metadata.queueType || 'casual',
+      nativeLanguage: metadata.nativeLanguage,
+      learningLanguage: metadata.learningLanguage,
+      preferredMatchTypes: metadata.preferredMatchTypes,
       preferences: metadata.preferences || {},
     };
 
     await this.redisService.addToQueue(userId, queueData);
-    this.logger.debug('User added to queue', { 
-      userId, 
+    this.logger.debug('User added to queue', {
+      userId,
       isPremium: queueData.isPremium,
       genderPreference: queueData.genderPreference,
-      queueType: queueData.queueType, // 🆕
-      interests: queueData.interests, // 🆕
-      reputation: queueData.reputation, // 🆕
+      ageRange: minAge && maxAge ? `${minAge}-${maxAge}` : 'any',
+      queueType: queueData.queueType,
+      interests: queueData.interests,
+      reputation: queueData.reputation,
     });
   }
 
@@ -336,36 +504,16 @@ export class MatchmakingService {
     return matches;
   }
 
-  // ⚡ NEW: Create buckets for efficient matching
+  // Adaptive bucket creation for efficient matching
   private createMatchingBuckets(users: QueueUser[]): Record<string, QueueUser[]> {
     const buckets: Record<string, QueueUser[]> = {};
 
+    // Calculate adaptive bucket granularity based on queue size
+    const queueDensity = users.length;
+    const adaptiveBucketing = this.calculateAdaptiveBucketingStrategy(queueDensity);
+
     for (const user of users) {
-      // Create bucket key from attributes that MUST match
-      // Format: "region|language|queueType|genderPref"
-      const region = user.region || 'global';
-      const language = user.language || 'en';
-      const queueType = user.queueType || 'casual';
-      
-      // For gender preference, bucket together:
-      // - Users with 'any' preference
-      // - Users whose gender matches others' preferences
-      // Multiple bucket keys per user for flexibility
-      
-      const bucketKeys: string[] = [];
-      
-      // Primary bucket: exact match
-      bucketKeys.push(`${region}|${language}|${queueType}|any`);
-      
-      // Cross-region bucket if region is 'global'
-      if (region === 'global') {
-        bucketKeys.push(`*|${language}|${queueType}|any`);
-      }
-      
-      // Cross-language bucket if language is 'en' (most common)
-      if (language === 'en') {
-        bucketKeys.push(`${region}|*|${queueType}|any`);
-      }
+      const bucketKeys = this.generateBucketKeys(user, adaptiveBucketing);
 
       // Add user to all relevant buckets
       for (const key of bucketKeys) {
@@ -376,7 +524,160 @@ export class MatchmakingService {
       }
     }
 
+    // Log bucketing efficiency
+    const bucketSizes = Object.values(buckets).map((b) => b.length);
+    const avgBucketSize = bucketSizes.reduce((a, b) => a + b, 0) / bucketSizes.length;
+    this.performanceMetrics.avgBucketSize = avgBucketSize;
+
+    this.logger.debug('Adaptive bucketing applied', {
+      queueSize: users.length,
+      bucketCount: Object.keys(buckets).length,
+      avgBucketSize: avgBucketSize.toFixed(1),
+      strategy: adaptiveBucketing.strategy,
+    });
+
     return buckets;
+  }
+
+  // Calculate bucketing strategy based on queue density
+  private calculateAdaptiveBucketingStrategy(queueSize: number): {
+    strategy: 'tight' | 'balanced' | 'loose';
+    useRegionWildcard: boolean;
+    useLanguageWildcard: boolean;
+    useAgeRangeBucketing: boolean;
+  } {
+    if (queueSize < 10) {
+      // Small queue: loose bucketing to find any match
+      return {
+        strategy: 'loose',
+        useRegionWildcard: true,
+        useLanguageWildcard: true,
+        useAgeRangeBucketing: false,
+      };
+    } else if (queueSize < 50) {
+      // Medium queue: balanced bucketing
+      return {
+        strategy: 'balanced',
+        useRegionWildcard: true,
+        useLanguageWildcard: false, // Keep language strict
+        useAgeRangeBucketing: false,
+      };
+    } else {
+      // Large queue: tight bucketing for better matches
+      return {
+        strategy: 'tight',
+        useRegionWildcard: false,
+        useLanguageWildcard: false,
+        useAgeRangeBucketing: true, // Enable age-based sub-buckets
+      };
+    }
+  }
+
+  // Generate bucket keys for a user based on strategy
+  private generateBucketKeys(
+    user: QueueUser,
+    strategy: {
+      strategy: 'tight' | 'balanced' | 'loose';
+      useRegionWildcard: boolean;
+      useLanguageWildcard: boolean;
+      useAgeRangeBucketing: boolean;
+    },
+  ): string[] {
+    const region = user.region || 'global';
+    const language = user.language || 'en';
+    const queueType = user.queueType || 'casual';
+    const bucketKeys: string[] = [];
+
+    // Primary bucket: exact match
+    let primaryKey = `${region}|${language}|${queueType}`;
+
+    // Add age range suffix for tight bucketing
+    if (strategy.useAgeRangeBucketing && user.age) {
+      const ageGroup = this.getAgeGroup(user.age);
+      primaryKey += `|${ageGroup}`;
+    }
+
+    bucketKeys.push(primaryKey);
+
+    // Cross-region bucket for global users or loose strategy
+    if (region === 'global' || strategy.useRegionWildcard) {
+      let wildcardKey = `*|${language}|${queueType}`;
+      if (strategy.useAgeRangeBucketing && user.age) {
+        wildcardKey += `|${this.getAgeGroup(user.age)}`;
+      }
+      bucketKeys.push(wildcardKey);
+    }
+
+    // Cross-language bucket for English speakers or loose strategy
+    if (language === 'en' || strategy.useLanguageWildcard) {
+      let langWildcardKey = `${region}|*|${queueType}`;
+      if (strategy.useAgeRangeBucketing && user.age) {
+        langWildcardKey += `|${this.getAgeGroup(user.age)}`;
+      }
+      bucketKeys.push(langWildcardKey);
+    }
+
+    // Premium users get additional priority bucket
+    if (user.isPremium) {
+      bucketKeys.push(`premium|${region}|${language}|${queueType}`);
+    }
+
+    // High reputation users get quality bucket
+    if (user.reputation && user.reputation >= 80) {
+      bucketKeys.push(`quality|${region}|${language}|${queueType}`);
+    }
+
+    return bucketKeys;
+  }
+
+  // Get age group for bucketing
+  private getAgeGroup(age: number): string {
+    if (age < 20) return '18-19';
+    if (age < 25) return '20-24';
+    if (age < 30) return '25-29';
+    if (age < 35) return '30-34';
+    if (age < 40) return '35-39';
+    if (age < 50) return '40-49';
+    return '50+';
+  }
+
+  // Get queue statistics including adaptive bucketing metrics
+  async getExtendedQueueStats(): Promise<{
+    queueLength: number;
+    averageWaitTime: number;
+    regionDistribution: Record<string, number>;
+    queueTypeDistribution: Record<string, number>;
+    premiumCount: number;
+    averageReputation: number;
+    performanceMetrics: typeof this.performanceMetrics;
+  }> {
+    const basicStats = await this.getQueueStats();
+    const queueItems = await this.redisService.getClient().lRange('matchmaking:queue', 0, -1);
+    const users: QueueUser[] = queueItems.map((item) => JSON.parse(item));
+
+    const queueTypeDistribution: Record<string, number> = {};
+    let premiumCount = 0;
+    let totalReputation = 0;
+    let reputationCount = 0;
+
+    users.forEach((user) => {
+      const queueType = user.queueType || 'casual';
+      queueTypeDistribution[queueType] = (queueTypeDistribution[queueType] || 0) + 1;
+
+      if (user.isPremium) premiumCount++;
+      if (user.reputation) {
+        totalReputation += user.reputation;
+        reputationCount++;
+      }
+    });
+
+    return {
+      ...basicStats,
+      queueTypeDistribution,
+      premiumCount,
+      averageReputation: reputationCount > 0 ? Math.round(totalReputation / reputationCount) : 70,
+      performanceMetrics: this.performanceMetrics,
+    };
   }
 
   // 🆕 Calculate compatibility score (0-100)
@@ -442,15 +743,39 @@ export class MatchmakingService {
       }
     }
 
-    // 5. Wait Time Bonus (12 points) - Reward longer waiters
-    const avgWaitTime = ((now - user1.timestamp) + (now - user2.timestamp)) / 2;
-    if (avgWaitTime > 45000) score += 12; // 45+ seconds
-    else if (avgWaitTime > 30000) score += 8; // 30+ seconds
-    else if (avgWaitTime > 15000) score += 4; // 15+ seconds
+    // 5. Age Match Bonus (15 points) - Similar ages get bonus
+    const ageBonus = this.calculateAgeMatchBonus(user1, user2);
+    score += ageBonus;
 
-    // 6. Premium Priority (8 points)
-    if (user1.isPremium || user2.isPremium) {
-      score += 8; // Premium users get slight boost
+    // 6. Wait Time Bonus (15 points) - Reward longer waiters with tiered urgency
+    const avgWaitTime = ((now - user1.timestamp) + (now - user2.timestamp)) / 2;
+    if (avgWaitTime > MATCHING_CONFIG.VERY_URGENT_WAIT_THRESHOLD) {
+      score += 15; // Very urgent (2+ minutes)
+    } else if (avgWaitTime > MATCHING_CONFIG.URGENT_WAIT_THRESHOLD) {
+      score += 12; // Urgent (1+ minute)
+    } else if (avgWaitTime > 45000) {
+      score += 8; // 45+ seconds
+    } else if (avgWaitTime > 30000) {
+      score += 5; // 30+ seconds
+    } else if (avgWaitTime > 15000) {
+      score += 2; // 15+ seconds
+    }
+
+    // 7. Premium Priority - Enhanced boost for premium users
+    if (user1.isPremium && user2.isPremium) {
+      score += MATCHING_CONFIG.PREMIUM_PRIORITY_BOOST; // Both premium = highest boost
+    } else if (user1.isPremium || user2.isPremium) {
+      score += Math.round(MATCHING_CONFIG.PREMIUM_PRIORITY_BOOST * 0.6); // One premium = partial boost
+    }
+
+    // 8. Preferred Match Type Bonus (5 points)
+    if (user1.preferredMatchTypes && user2.preferredMatchTypes) {
+      const commonTypes = user1.preferredMatchTypes.filter((t) =>
+        user2.preferredMatchTypes?.includes(t),
+      );
+      if (commonTypes.length > 0) {
+        score += 5;
+      }
     }
 
     return Math.min(100, Math.max(0, score)); // Clamp to 0-100
@@ -496,8 +821,108 @@ export class MatchmakingService {
     else if (user1.learningLanguage === user2.learningLanguage) {
       score += 10; // Practice together
     }
-    
+
     return score;
+  }
+
+  // Check if users' ages are compatible based on their preferences
+  private checkAgeCompatibility(user1: QueueUser, user2: QueueUser): boolean {
+    // If neither user has age preferences, they're compatible
+    if (!user1.minAge && !user1.maxAge && !user2.minAge && !user2.maxAge) {
+      return true;
+    }
+
+    // Check user1's preferences against user2's age
+    if (user1.minAge || user1.maxAge) {
+      if (!user2.age) {
+        // User2 hasn't specified age - only match if user1 isn't strict (free users)
+        if (user1.isPremium) {
+          return false; // Premium users with age preference need age info
+        }
+      } else {
+        // Check if user2's age is within user1's range
+        if (user1.minAge && user2.age < user1.minAge) return false;
+        if (user1.maxAge && user2.age > user1.maxAge) return false;
+      }
+    }
+
+    // Check user2's preferences against user1's age
+    if (user2.minAge || user2.maxAge) {
+      if (!user1.age) {
+        if (user2.isPremium) {
+          return false;
+        }
+      } else {
+        if (user2.minAge && user1.age < user2.minAge) return false;
+        if (user2.maxAge && user1.age > user2.maxAge) return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Smart rematch cooldown based on user type
+  private async checkRematchCooldown(
+    user1: QueueUser,
+    user2: QueueUser,
+  ): Promise<{ canMatch: boolean; reason?: string }> {
+    // Get recent matches with timestamps
+    const user1RecentData = await this.redisService.getRecentMatchesWithTimestamp(user1.userId);
+    const user2RecentData = await this.redisService.getRecentMatchesWithTimestamp(user2.userId);
+
+    const now = Date.now();
+
+    // Determine cooldown based on user types
+    const bothPremium = user1.isPremium && user2.isPremium;
+    const eitherPremium = user1.isPremium || user2.isPremium;
+
+    // Shorter cooldown for premium users
+    const cooldownMs = bothPremium
+      ? MATCHING_CONFIG.REMATCH_COOLDOWN_PREMIUM * 1000
+      : eitherPremium
+        ? MATCHING_CONFIG.REMATCH_COOLDOWN_PREMIUM * 1000 * 1.5 // 45 min if one is premium
+        : MATCHING_CONFIG.REMATCH_COOLDOWN_FREE * 1000;
+
+    // Check if user2 is in user1's recent matches
+    const matchedUser1 = user1RecentData.find((m) => m.matchedUserId === user2.userId);
+    if (matchedUser1) {
+      const elapsed = now - matchedUser1.timestamp;
+      if (elapsed < cooldownMs) {
+        const remaining = Math.round((cooldownMs - elapsed) / 60000);
+        return {
+          canMatch: false,
+          reason: `Matched ${Math.round(elapsed / 60000)}min ago, ${remaining}min remaining`,
+        };
+      }
+    }
+
+    // Check reverse direction too
+    const matchedUser2 = user2RecentData.find((m) => m.matchedUserId === user1.userId);
+    if (matchedUser2) {
+      const elapsed = now - matchedUser2.timestamp;
+      if (elapsed < cooldownMs) {
+        const remaining = Math.round((cooldownMs - elapsed) / 60000);
+        return {
+          canMatch: false,
+          reason: `Matched ${Math.round(elapsed / 60000)}min ago, ${remaining}min remaining`,
+        };
+      }
+    }
+
+    return { canMatch: true };
+  }
+
+  // Calculate age match bonus for compatibility score
+  private calculateAgeMatchBonus(user1: QueueUser, user2: QueueUser): number {
+    if (!user1.age || !user2.age) return 0;
+
+    const ageDiff = Math.abs(user1.age - user2.age);
+
+    // Close ages get bonus points
+    if (ageDiff <= 2) return 15; // Very close in age
+    if (ageDiff <= 5) return 10; // Close in age
+    if (ageDiff <= 10) return 5; // Reasonable age range
+    return 0; // Large age gap
   }
 
   private async areCompatible(user1: QueueUser, user2: QueueUser): Promise<boolean> {
@@ -511,15 +936,26 @@ export class MatchmakingService {
       return false;
     }
 
-    // 🆕 AVOID RECENT MATCHES - Don't match same people within 1 hour
-    const user1Recent = await this.redisService.getRecentMatches(user1.userId);
-    const user2Recent = await this.redisService.getRecentMatches(user2.userId);
-    
-    if (user1Recent.includes(user2.userId) || user2Recent.includes(user1.userId)) {
-      this.logger.debug('Skipping recent match', { 
-        user1: user1.userId, 
+    // AGE RANGE CHECK (Premium feature)
+    if (!this.checkAgeCompatibility(user1, user2)) {
+      this.logger.debug('Age range mismatch', {
+        user1: user1.userId,
+        user1Age: user1.age,
+        user1Range: user1.minAge && user1.maxAge ? `${user1.minAge}-${user1.maxAge}` : 'any',
         user2: user2.userId,
-        reason: 'Matched within last hour'
+        user2Age: user2.age,
+        user2Range: user2.minAge && user2.maxAge ? `${user2.minAge}-${user2.maxAge}` : 'any',
+      });
+      return false;
+    }
+
+    // SMART REMATCH COOLDOWN - Different cooldowns for different user types
+    const cooldownResult = await this.checkRematchCooldown(user1, user2);
+    if (!cooldownResult.canMatch) {
+      this.logger.debug('Rematch cooldown active', {
+        user1: user1.userId,
+        user2: user2.userId,
+        reason: cooldownResult.reason,
       });
       return false;
     }

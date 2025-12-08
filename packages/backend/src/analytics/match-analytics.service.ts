@@ -238,6 +238,147 @@ export class MatchAnalyticsService {
   }
 
   /**
+   * Track user feedback for a match
+   */
+  async trackMatchFeedback(data: {
+    matchId: string;
+    userId: string;
+    rating: number;
+    tags?: string[];
+    duration: number;
+  }): Promise<void> {
+    try {
+      const matchData = await this.getMatchData(data.matchId);
+
+      // Store feedback with match data
+      const feedbackKey = `match:${data.matchId}:feedback:${data.userId}`;
+      await this.redisService.getClient().setEx(
+        feedbackKey,
+        86400 * 7, // 7 day TTL for feedback
+        JSON.stringify({
+          rating: data.rating,
+          tags: data.tags || [],
+          duration: data.duration,
+          timestamp: Date.now(),
+        }),
+      );
+
+      // Update aggregated feedback stats
+      await this.redisService.incrementCounter('analytics:feedback:total');
+      await this.redisService.incrementCounter(`analytics:feedback:rating:${data.rating}`);
+
+      // Track tag usage for preference learning
+      if (data.tags && data.tags.length > 0) {
+        for (const tag of data.tags) {
+          await this.redisService.incrementCounter(`analytics:feedback:tag:${tag}`);
+
+          // Positive vs negative tag tracking
+          if (data.rating >= 4) {
+            await this.redisService.incrementCounter(`analytics:feedback:tag:${tag}:positive`);
+          } else if (data.rating <= 2) {
+            await this.redisService.incrementCounter(`analytics:feedback:tag:${tag}:negative`);
+          }
+        }
+      }
+
+      // Update match quality score based on user feedback
+      if (matchData) {
+        // User feedback influences quality score
+        const feedbackBonus = (data.rating - 3) * 5; // -10 to +10 points based on 1-5 rating
+        matchData.matchQualityScore = Math.min(
+          100,
+          Math.max(0, (matchData.matchQualityScore || 0) + feedbackBonus),
+        );
+        await this.updateMatchData(data.matchId, matchData);
+      }
+
+      this.logger.debug('Match feedback tracked', {
+        matchId: data.matchId,
+        userId: data.userId,
+        rating: data.rating,
+        tags: data.tags,
+      });
+    } catch (error) {
+      this.logger.error('Failed to track match feedback', error.stack);
+    }
+  }
+
+  /**
+   * Get feedback statistics for improving matching algorithm
+   */
+  async getFeedbackStats(): Promise<{
+    totalFeedback: number;
+    averageRating: number;
+    ratingDistribution: Record<number, number>;
+    topPositiveTags: Array<{ tag: string; count: number }>;
+    topNegativeTags: Array<{ tag: string; count: number }>;
+  }> {
+    try {
+      const totalFeedback = await this.redisService.getCounter('analytics:feedback:total');
+
+      // Get rating distribution
+      const ratingDistribution: Record<number, number> = {};
+      let totalRatingSum = 0;
+
+      for (let i = 1; i <= 5; i++) {
+        const count = await this.redisService.getCounter(`analytics:feedback:rating:${i}`);
+        ratingDistribution[i] = count;
+        totalRatingSum += i * count;
+      }
+
+      const averageRating = totalFeedback > 0 ? totalRatingSum / totalFeedback : 0;
+
+      // Get top tags
+      const commonTags = [
+        'good-conversation',
+        'interesting-person',
+        'similar-interests',
+        'friendly',
+        'rude',
+        'boring',
+        'no-response',
+        'inappropriate',
+        'fun-chat',
+        'quick-skip',
+      ];
+
+      const positiveTags: Array<{ tag: string; count: number }> = [];
+      const negativeTags: Array<{ tag: string; count: number }> = [];
+
+      for (const tag of commonTags) {
+        const positiveCount = await this.redisService.getCounter(
+          `analytics:feedback:tag:${tag}:positive`,
+        );
+        const negativeCount = await this.redisService.getCounter(
+          `analytics:feedback:tag:${tag}:negative`,
+        );
+
+        if (positiveCount > 0) {
+          positiveTags.push({ tag, count: positiveCount });
+        }
+        if (negativeCount > 0) {
+          negativeTags.push({ tag, count: negativeCount });
+        }
+      }
+
+      // Sort by count descending
+      positiveTags.sort((a, b) => b.count - a.count);
+      negativeTags.sort((a, b) => b.count - a.count);
+
+      return {
+        totalFeedback,
+        averageRating: Math.round(averageRating * 10) / 10,
+        ratingDistribution,
+        topPositiveTags: positiveTags.slice(0, 5),
+        topNegativeTags: negativeTags.slice(0, 5),
+      };
+    } catch (error) {
+      this.logger.error('Failed to get feedback stats', error.stack);
+      throw error;
+    }
+  }
+
+  /**
    * Calculate match quality score based on outcomes
    */
   private calculateMatchQualityScore(match: Partial<MatchQualityMetrics>): number {

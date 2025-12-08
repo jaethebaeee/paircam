@@ -22,11 +22,21 @@ export interface JoinQueueDto {
   language?: string;
   gender?: string;
   genderPreference?: string;
-  interests?: string[]; // 🆕 Interest tags
-  queueType?: 'casual' | 'serious' | 'language' | 'gaming'; // 🆕 Queue type
-  nativeLanguage?: string; // 🆕 For language learning
-  learningLanguage?: string; // 🆕 For language learning
+  minAge?: number; // Age range preferences (premium feature)
+  maxAge?: number;
+  interests?: string[]; // Interest tags
+  queueType?: 'casual' | 'serious' | 'language' | 'gaming'; // Queue type
+  nativeLanguage?: string; // For language learning
+  learningLanguage?: string; // For language learning
+  preferredMatchTypes?: string[]; // e.g., ['long-conversation', 'quick-chat']
   preferences?: Record<string, unknown>;
+}
+
+export interface MatchFeedbackDto {
+  matchId: string;
+  sessionId: string;
+  rating: number; // 1-5
+  tags?: string[]; // e.g., ['good-conversation', 'interesting-person', 'rude']
 }
 
 export interface WebRTCSignalDto {
@@ -207,11 +217,14 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         age: user.age,
         isPremium,
         genderPreference: data.genderPreference || 'any',
+        minAge: isPremium ? data.minAge : undefined, // Age range only for premium
+        maxAge: isPremium ? data.maxAge : undefined,
         reputation: reputation.rating,
-        interests: data.interests || [], // 🆕 Interest tags
-        queueType: data.queueType || 'casual', // 🆕 Queue type
-        nativeLanguage: data.nativeLanguage, // 🆕
-        learningLanguage: data.learningLanguage, // 🆕
+        interests: data.interests || [],
+        queueType: data.queueType || 'casual',
+        nativeLanguage: data.nativeLanguage,
+        learningLanguage: data.learningLanguage,
+        preferredMatchTypes: data.preferredMatchTypes,
         preferences: data.preferences || {},
       });
 
@@ -416,11 +429,118 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     const deviceId = client.data.deviceId;
     if (!deviceId) return;
 
-    // 🆕 Track reputation before cleanup
+    // Track reputation before cleanup
     await this.trackCallReputation(data.sessionId, deviceId, data.wasSkipped || false);
 
     await this.cleanupSession(data.sessionId, deviceId);
     client.emit('call-ended', { sessionId: data.sessionId });
+  }
+
+  // Match quality feedback
+  @SubscribeMessage('match-feedback')
+  async handleMatchFeedback(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: MatchFeedbackDto,
+  ) {
+    const deviceId = client.data.deviceId;
+    if (!deviceId) return;
+
+    try {
+      // Validate rating
+      if (data.rating < 1 || data.rating > 5) {
+        client.emit('error', { message: 'Rating must be between 1 and 5' });
+        return;
+      }
+
+      // Get session info for duration calculation
+      const startTimeStr = await this.redisService.getClient().get(`session:${data.sessionId}:startTime`);
+      const duration = startTimeStr
+        ? Math.round((Date.now() - parseInt(startTimeStr, 10)) / 1000)
+        : 0;
+
+      // Store feedback
+      await this.redisService.storeMatchFeedback(deviceId, data.matchId, {
+        rating: data.rating,
+        tags: data.tags,
+        duration,
+      });
+
+      // Track analytics
+      await this.analyticsService.trackMatchFeedback({
+        matchId: data.matchId,
+        userId: deviceId,
+        rating: data.rating,
+        tags: data.tags,
+        duration,
+      });
+
+      // Update user's preferred match types based on feedback
+      if (data.rating >= 4 && data.tags && data.tags.length > 0) {
+        // Good rating with tags - learn preferences
+        await this.updateUserMatchPreferences(deviceId, data.tags);
+      }
+
+      client.emit('feedback-received', { matchId: data.matchId, success: true });
+
+      this.logger.log('Match feedback received', {
+        userId: deviceId,
+        matchId: data.matchId,
+        rating: data.rating,
+        tags: data.tags,
+      });
+    } catch (error) {
+      this.logger.error('Match feedback error', error.stack);
+      client.emit('error', { message: 'Failed to submit feedback' });
+    }
+  }
+
+  // Update user match preferences based on positive feedback
+  private async updateUserMatchPreferences(userId: string, tags: string[]): Promise<void> {
+    try {
+      const user = await this.usersService.findOrCreate(userId);
+      // In a real implementation, you'd update user preferences in the database
+      // For now, we store in Redis for quick access during matching
+      const key = `user-preferences:${userId}`;
+      const existingData = await this.redisService.getClient().get(key);
+      const existing = existingData ? JSON.parse(existingData) : { preferredMatchTypes: [] };
+
+      // Add new tags and keep unique
+      const updatedTypes = [...new Set([...existing.preferredMatchTypes, ...tags])].slice(0, 10);
+      await this.redisService.getClient().setEx(key, 86400 * 30, JSON.stringify({
+        ...existing,
+        preferredMatchTypes: updatedTypes,
+      }));
+
+      this.logger.debug('Updated user match preferences', { userId, preferredMatchTypes: updatedTypes });
+    } catch (error) {
+      this.logger.error('Failed to update user match preferences', error.stack);
+    }
+  }
+
+  // Notify users that their match expired (wasn't accepted in time)
+  async notifyMatchExpired(deviceId1: string, deviceId2: string, sessionId: string) {
+    const client1 = this.connectedClients.get(deviceId1);
+    const client2 = this.connectedClients.get(deviceId2);
+
+    const expiredData = {
+      sessionId,
+      reason: 'Match expired - no response received',
+      timestamp: Date.now(),
+    };
+
+    if (client1) {
+      client1.emit('match-expired', expiredData);
+      this.logger.log('Match expired notification sent', { deviceId: deviceId1, sessionId });
+    }
+
+    if (client2) {
+      client2.emit('match-expired', expiredData);
+      this.logger.log('Match expired notification sent', { deviceId: deviceId2, sessionId });
+    }
+
+    // Publish to Pub/Sub for distributed notifications
+    // Note: match:expired events are local-only for now since they're less critical
+    // In a full implementation, you could add a MatchExpiredEvent type to redis-pubsub.service.ts
   }
 
   // Helper methods
