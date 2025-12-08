@@ -25,6 +25,9 @@ const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
 const BlogList = lazy(() => import('./components/blog/BlogList'));
 const BlogPost = lazy(() => import('./components/blog/BlogPost'));
 
+// Lazy load referral page
+const ReferralPage = lazy(() => import('./components/ReferralPage'));
+
 // Schema.org structured data for homepage
 const softwareAppSchema = {
   "@context": "https://schema.org",
@@ -125,6 +128,12 @@ function AppRoutes({
           description: 'Understand how PairCam uses cookies to improve your experience. Manage your cookie preferences.',
           url: 'https://paircam.live/cookie-policy',
         };
+      case '/referrals':
+        return {
+          title: 'Referral Program',
+          description: 'Invite friends to PairCam and earn coins! Share your unique referral code and both you and your friend get bonus coins.',
+          url: 'https://paircam.live/referrals',
+        };
       default:
         return {};
     }
@@ -177,6 +186,9 @@ function AppRoutes({
             {/* Blog Pages */}
             <Route path="/blog" element={<BlogList />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+
+            {/* Referral Page */}
+            <Route path="/referrals" element={<ReferralPage />} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -14,6 +14,7 @@ import { UsersModule } from './users/users.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { GamesModule } from './games/games.module'; // 🆕 Games & Gamification
+import { ReferralModule } from './referrals/referral.module'; // 🆕 Referral System
 import { HealthController } from './health/health.controller';
 import { env } from './env';
 
@@ -22,6 +23,7 @@ import { User } from './users/entities/user.entity';
 import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission } from './games/entities';
+import { Referral, ReferralSuccess } from './referrals/entities';
 
 @Module({
   imports: [
@@ -33,7 +35,7 @@ import { GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyM
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment, GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission],
+      entities: [User, Subscription, Payment, GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission, Referral, ReferralSuccess],
       synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
@@ -45,6 +47,7 @@ import { GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyM
     SubscriptionsModule,
     PaymentsModule,
     GamesModule, // 🆕 Games, gamification, mini-games, rewards
+    ReferralModule, // 🆕 Referral system
     AnalyticsModule, // 🆕 Match quality tracking
     SignalingModule,
     TurnModule,
