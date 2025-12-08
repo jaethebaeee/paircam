@@ -44,6 +44,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [isFormFocused, setIsFormFocused] = useState(false);
   const liveUserCount = useLiveUserCount();
 
   const handleStartChat = (textMode = false) => {
@@ -312,24 +313,38 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className="max-w-2xl mx-auto px-2">
 
         {/* Modern Options Box */}
-        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-luxury border border-gray-100 p-5 sm:p-8 md:p-10 mb-4 sm:mb-6 hover:shadow-luxury-hover transition-all duration-300 animate-fadeIn">
+        <div className={`bg-white rounded-2xl sm:rounded-3xl shadow-luxury border-2 transition-all duration-300 p-5 sm:p-8 md:p-10 mb-4 sm:mb-6 animate-fadeIn ${
+          isFormFocused ? 'border-pink-300 shadow-lg shadow-pink-200/30 scale-[1.01]' : 'border-gray-100 hover:shadow-luxury-hover'
+        }`}>
           <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 tracking-tight">Start chatting:</h3>
           
           <div className="space-y-4 sm:space-y-6">
             {/* Name Input */}
             <div className="space-y-2 sm:space-y-3">
-              <label className="block text-sm font-semibold text-gray-900">
-                What's your name? <span className="text-pink-600">*</span>
-              </label>
+              <div className="flex items-center justify-between gap-3">
+                <label className="block text-sm font-semibold text-gray-900">
+                  What's your name? <span className="text-pink-600">*</span>
+                </label>
+                <span className={`text-xs sm:text-sm font-medium transition-colors ${
+                  userName.length === 30 ? 'text-orange-600' : 'text-gray-500'
+                }`}>
+                  {userName.length}/30
+                </span>
+              </div>
               <div className="relative group">
                 <input
                   type="text"
                   value={userName}
                   onChange={(e) => {
-                    setUserName(e.target.value);
+                    setUserName(e.target.value.slice(0, 30));
                     setShowNameError(false);
                   }}
+                  onFocus={() => setIsFormFocused(true)}
+                  onBlur={() => setIsFormFocused(false)}
                   placeholder="Enter your name or nickname"
+                  aria-label="Your name or nickname"
+                  aria-required="true"
+                  aria-invalid={showNameError}
                   className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 ${
                     showNameError
                       ? 'border-red-400 bg-red-50/30 focus:border-red-500'
@@ -338,7 +353,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   maxLength={30}
                 />
                 {userName && !showNameError && (
-                  <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-green-500">
+                  <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-green-500 animate-scaleIn">
                     <svg className="w-4 sm:w-5 h-4 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
@@ -346,7 +361,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 )}
               </div>
               {showNameError && (
-                <p className="text-xs sm:text-sm text-red-600 flex items-center gap-2 animate-fadeIn">
+                <p className="text-xs sm:text-sm text-red-600 flex items-center gap-2 animate-fadeIn" role="alert">
                   <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -356,12 +371,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
 
             {/* Modern Toggle Switch for Video */}
-            <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl shadow-inner border border-gray-100 hover:shadow-md transition-all duration-200 group">
-              <label className="flex items-center cursor-pointer flex-1" onClick={() => setIsVideoEnabled(!isVideoEnabled)}>
+            <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl shadow-inner border-2 border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 group">
+              <label className="flex items-center cursor-pointer flex-1">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
                     <span className="text-sm sm:text-base font-semibold text-gray-900">Enable video</span>
-                    <svg className={`w-4 h-4 transition-colors ${isVideoEnabled ? 'text-pink-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-4 h-4 transition-colors ${isVideoEnabled ? 'text-pink-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                   </div>
@@ -370,6 +385,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </label>
               <button
                 onClick={() => setIsVideoEnabled(!isVideoEnabled)}
+                role="switch"
+                aria-checked={isVideoEnabled}
+                aria-label={`Video ${isVideoEnabled ? 'enabled' : 'disabled'}`}
                 className={`relative inline-flex h-7 sm:h-9 w-12 sm:w-16 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-pink-100 shadow-sm flex-shrink-0 ml-3 ${
                   isVideoEnabled ? 'bg-gradient-to-r from-pink-500 to-purple-500 shadow-pink-200' : 'bg-gray-300 hover:bg-gray-400'
                 }`}
@@ -383,16 +401,22 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
 
             {/* Modern Checkbox for Adult Confirmation */}
-            <div
-              onClick={() => {
-                setIsAdultConfirmed(!isAdultConfirmed);
-                if (isAdultConfirmed) {
-                  setUserAge('');
-                  setShowAgeError(false);
-                }
-              }}
-              className="flex items-start p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl cursor-pointer hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200/50 transition-all duration-200 shadow-inner border border-gray-100 group hover:shadow-md"
+            <label
+              className="flex items-start p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl cursor-pointer hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200/50 transition-all duration-200 shadow-inner border-2 border-gray-100 hover:border-gray-200 group hover:shadow-md"
             >
+              <input
+                type="checkbox"
+                checked={isAdultConfirmed}
+                onChange={() => {
+                  setIsAdultConfirmed(!isAdultConfirmed);
+                  if (isAdultConfirmed) {
+                    setUserAge('');
+                    setShowAgeError(false);
+                  }
+                }}
+                className="sr-only"
+                aria-label="Confirm you are 18 years or older"
+              />
               <div className="flex items-center h-5 sm:h-6 mt-0.5 sm:mt-1">
                 <div className={`h-6 sm:h-7 w-6 sm:w-7 rounded-lg sm:rounded-xl border-2 flex items-center justify-center transition-all duration-300 shadow-sm ${
                   isAdultConfirmed
@@ -410,7 +434,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 <span className="text-sm sm:text-base font-semibold text-gray-900">I'm 18 years or older</span>
                 <p className="text-xs sm:text-sm text-gray-600 mt-0.5">Required for unmoderated video chat</p>
               </div>
-            </div>
+            </label>
 
             {/* Age Input - Shows when 18+ is confirmed */}
             {isAdultConfirmed && (
@@ -426,9 +450,14 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                       setUserAge(e.target.value);
                       setShowAgeError(false);
                     }}
+                    onFocus={() => setIsFormFocused(true)}
+                    onBlur={() => setIsFormFocused(false)}
                     placeholder="Enter your age"
                     min="18"
                     max="120"
+                    aria-label="Your age"
+                    aria-required="true"
+                    aria-invalid={showAgeError}
                     className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 ${
                       showAgeError
                         ? 'border-red-400 bg-red-50/30 focus:border-red-500'
@@ -444,7 +473,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   )}
                 </div>
                 {showAgeError && (
-                  <p className="text-xs sm:text-sm text-red-600 flex items-center gap-2 animate-fadeIn">
+                  <p className="text-xs sm:text-sm text-red-600 flex items-center gap-2 animate-fadeIn" role="alert">
                     <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
@@ -459,16 +488,17 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <div className="pt-4 sm:pt-6">
               <button
                 onClick={() => handleStartChat(false)}
-                className="group relative w-full py-4 sm:py-5 px-6 sm:px-8 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 hover:from-pink-600 hover:via-purple-600 hover:to-purple-700 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-xl shadow-pink-500/40 hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.97] focus:outline-none focus:ring-4 focus:ring-pink-300 overflow-hidden"
+                disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
+                className="group relative w-full py-4 sm:py-5 px-6 sm:px-8 bg-gradient-to-r from-pink-500 via-pink-600 to-purple-600 hover:from-pink-600 hover:via-purple-600 hover:to-purple-700 disabled:from-gray-400 disabled:via-gray-400 disabled:to-gray-400 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl shadow-xl shadow-pink-500/40 hover:shadow-2xl hover:shadow-pink-500/50 disabled:shadow-gray-300/30 transition-all duration-300 transform hover:scale-[1.02] hover:disabled:scale-100 active:scale-[0.97] active:disabled:scale-100 focus:outline-none focus:ring-4 focus:ring-pink-300 disabled:cursor-not-allowed overflow-hidden"
               >
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:animate-pulse" />
+                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 disabled:opacity-0 transition-opacity duration-500" />
+                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/10 opacity-0 group-hover:animate-pulse disabled:opacity-0" />
                 <span className="relative flex items-center justify-center gap-2 sm:gap-3">
-                  <svg className="w-5 sm:w-6 h-5 sm:h-6 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 sm:w-6 h-5 sm:h-6 group-hover:scale-110 disabled:group-hover:scale-100 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                   <span className="tracking-wide">Start Video Chat</span>
-                  <svg className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 disabled:group-hover:translate-x-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </span>
@@ -479,12 +509,14 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <div className="text-center pt-1 sm:pt-2">
               <button
                 onClick={() => handleStartChat(true)}
-                className="group inline-flex items-center gap-2 text-pink-600 hover:text-purple-700 font-semibold text-sm sm:text-base transition-all duration-200 hover:gap-3 px-4 py-2 rounded-xl hover:bg-pink-50"
+                disabled={!userName.trim()}
+                aria-label="Start text only chat mode"
+                className="group inline-flex items-center gap-2 text-pink-600 hover:text-purple-700 disabled:text-gray-400 font-semibold text-sm sm:text-base transition-all duration-200 hover:gap-3 disabled:hover:gap-2 px-4 py-2 rounded-xl hover:bg-pink-50 disabled:hover:bg-transparent disabled:cursor-not-allowed"
               >
                 <span className="text-lg sm:text-xl">💬</span>
                 <span className="relative">
                   Text only mode
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-600 to-purple-700 group-hover:w-full transition-all duration-300"></span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-600 to-purple-700 group-hover:w-full disabled:group-hover:w-0 transition-all duration-300"></span>
                 </span>
               </button>
             </div>
