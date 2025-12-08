@@ -44,24 +44,24 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
                 key={difficulty}
                 onClick={() => onSelectDifficulty(difficulty)}
                 disabled={isLoading}
-                className={`w-full p-4 rounded-xl border-2 transition-all text-left font-medium flex items-center justify-between ${
+                className={`w-full p-4 rounded-2xl transition-all text-left font-semibold flex items-center justify-between shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] ${
                   difficulty === 'easy'
-                    ? 'border-emerald-300 hover:bg-emerald-50'
+                    ? 'bg-gradient-to-r from-emerald-400 to-green-500 text-white'
                     : difficulty === 'medium'
-                      ? 'border-amber-300 hover:bg-amber-50'
-                      : 'border-red-300 hover:bg-red-50'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white'
+                      : 'bg-gradient-to-r from-red-400 to-rose-500 text-white'
+                } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
               >
                 <span className="flex items-center gap-3">
-                  <span className="text-2xl">
-                    {difficulty === 'easy' ? '🟢' : difficulty === 'medium' ? '🟡' : '🔴'}
+                  <span className="text-2xl bg-white/20 p-2 rounded-xl">
+                    {difficulty === 'easy' ? '🌱' : difficulty === 'medium' ? '⚡' : '🔥'}
                   </span>
-                  <span>{DIFFICULTY_LABELS[difficulty]}</span>
+                  <span className="text-lg">{DIFFICULTY_LABELS[difficulty]}</span>
                 </span>
-                <span className="text-sm text-gray-500">
-                  {difficulty === 'easy' && '1-3 stars'}
-                  {difficulty === 'medium' && '4-6 stars'}
-                  {difficulty === 'hard' && '7-9 stars'}
+                <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
+                  {difficulty === 'easy' && '1-3 ⭐'}
+                  {difficulty === 'medium' && '4-6 ⭐'}
+                  {difficulty === 'hard' && '7-9 ⭐'}
                 </span>
               </button>
             ))}
@@ -75,7 +75,7 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
 
           <button
             onClick={onClose}
-            className="w-full mt-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+            className="w-full mt-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             Cancel
           </button>
