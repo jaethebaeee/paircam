@@ -29,7 +29,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-6" role="menubar">
+          <div className="hidden md:flex items-center gap-4" role="menubar">
             {navLinks.map(link => (
               <a
                 key={link.href}
@@ -43,6 +43,16 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
+            {/* CTA Button */}
+            <a
+              href="/"
+              className="ml-2 px-5 py-2.5 bg-white text-purple-600 font-bold text-sm rounded-xl shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Start Chatting
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
