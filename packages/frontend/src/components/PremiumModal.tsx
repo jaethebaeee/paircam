@@ -11,9 +11,13 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
   const handleUpgrade = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('paircam_access_token');
+      if (!token) {
+        throw new Error('Please sign in to upgrade');
+      }
+
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3333';
-      
+
       const response = await fetch(`${apiUrl}/payments/create-checkout`, {
         method: 'POST',
         headers: {
@@ -27,13 +31,17 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
         throw new Error('Failed to create checkout session');
       }
 
-      const { url } = await response.json();
-      
+      const data = await response.json();
+      if (!data.url) {
+        throw new Error('Invalid checkout response');
+      }
+
       // Redirect to Stripe Checkout
-      window.location.href = url;
+      window.location.href = data.url;
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Failed to start checkout. Please try again or contact support.');
+      const message = error instanceof Error ? error.message : 'Failed to start checkout';
+      alert(`${message}. Please try again or contact support.`);
     } finally {
       setLoading(false);
     }

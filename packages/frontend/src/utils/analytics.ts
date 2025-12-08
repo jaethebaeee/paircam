@@ -12,11 +12,14 @@
  * - Copy the Measurement ID (starts with G-)
  */
 
+// GA4 event parameters type
+type GtagEventParams = Record<string, string | number | boolean | object | undefined>;
+
 // Extend window interface for gtag
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void;
-    dataLayer: any[];
+    gtag: (command: 'event' | 'config' | 'set', target: string, params?: GtagEventParams) => void;
+    dataLayer: Array<unknown>;
   }
 }
 
@@ -30,7 +33,7 @@ const isAnalyticsAvailable = (): boolean => {
  */
 export const trackEvent = (
   eventName: string,
-  parameters?: Record<string, any>
+  parameters?: GtagEventParams
 ): void => {
   if (!isAnalyticsAvailable()) return;
 

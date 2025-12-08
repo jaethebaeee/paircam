@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: paircam-postgres
+    environment:
+      POSTGRES_USER: paircam
+      POSTGRES_PASSWORD: paircam_secret
+      POSTGRES_DB: paircam
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paircam"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - paircam-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: paircam-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - paircam-network
+
+  # Backend (NestJS)
+  backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    container_name: paircam-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3333
+      DATABASE_URL: postgresql://paircam:paircam_secret@postgres:5432/paircam
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-secure-secret-in-production}
+      TURN_SHARED_SECRET: ${TURN_SHARED_SECRET:-change-this-turn-secret-in-production}
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      FRONTEND_URL: http://localhost:5173
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_ID_WEEKLY: ${STRIPE_PRICE_ID_WEEKLY:-}
+      STRIPE_PRICE_ID_MONTHLY: ${STRIPE_PRICE_ID_MONTHLY:-}
+    ports:
+      - "3333:3333"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - paircam-network
+
+  # Frontend (React/Vite)
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+    container_name: paircam-frontend
+    environment:
+      VITE_API_URL: http://localhost:3333
+      VITE_WS_URL: ws://localhost:3333
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - paircam-network
+
+  # TURN Server (coturn) - Optional for NAT traversal
+  coturn:
+    image: coturn/coturn:latest
+    container_name: paircam-coturn
+    command: >
+      -n
+      --log-file=stdout
+      --min-port=49152
+      --max-port=65535
+      --realm=paircam.local
+      --fingerprint
+      --lt-cred-mech
+      --use-auth-secret
+      --static-auth-secret=${TURN_SHARED_SECRET:-change-this-turn-secret-in-production}
+      --listening-port=3478
+      --tls-listening-port=5349
+      --external-ip=${EXTERNAL_IP:-127.0.0.1}
+    ports:
+      - "3478:3478"         # TURN/STUN UDP
+      - "3478:3478/udp"
+      - "5349:5349"         # TURN/STUN TLS
+      - "5349:5349/udp"
+      - "49152-49200:49152-49200/udp"  # Media relay ports (limited range for dev)
+    networks:
+      - paircam-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  paircam-network:
+    driver: bridge
