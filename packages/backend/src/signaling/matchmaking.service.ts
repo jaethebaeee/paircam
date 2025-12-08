@@ -1,8 +1,9 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, Optional } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { SignalingGateway } from './signaling.gateway';
 import { LoggerService } from '../services/logger.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
+import { GorseService } from '../gorse/gorse.service';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface QueueUser {
@@ -54,6 +55,8 @@ export class MatchmakingService {
     private readonly signalingGateway: SignalingGateway,
     @Inject(forwardRef(() => MatchAnalyticsService))
     private readonly analyticsService: MatchAnalyticsService,
+    @Optional()
+    private readonly gorseService?: GorseService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -431,13 +434,27 @@ export class MatchmakingService {
       const commonInterests = user1.interests.filter(i => user2.interests?.includes(i));
       const interestScore = Math.min(commonInterests.length * 7, 20); // 7 points per common interest, max 20
       score += interestScore;
-      
+
       if (commonInterests.length > 0) {
         this.logger.debug('Common interests found', {
           user1: user1.userId,
           user2: user2.userId,
           common: commonInterests,
           score: interestScore,
+        });
+      }
+    }
+
+    // 🆕 4a. ML Recommendation Bonus (up to 15 points) - Gorse-based recommendations
+    if (this.gorseService) {
+      const gorseScore = await this.calculateGorseScore(user1, user2);
+      score += gorseScore;
+
+      if (gorseScore > 0) {
+        this.logger.debug('Gorse recommendation applied', {
+          user1: user1.userId,
+          user2: user2.userId,
+          gorseScore,
         });
       }
     }
@@ -496,8 +513,49 @@ export class MatchmakingService {
     else if (user1.learningLanguage === user2.learningLanguage) {
       score += 10; // Practice together
     }
-    
+
     return score;
+  }
+
+  // 🆕 Calculate Gorse ML recommendation bonus
+  private async calculateGorseScore(user1: QueueUser, user2: QueueUser): Promise<number> {
+    if (!this.gorseService) {
+      return 0;
+    }
+
+    try {
+      // Get Gorse recommendations for user1
+      const recommendations1 = await this.gorseService.getRecommendations(user1.userId, 20);
+
+      // Check if user2 is recommended for user1
+      const isRecommendedForUser1 = recommendations1.includes(user2.userId);
+
+      // Get Gorse recommendations for user2
+      const recommendations2 = await this.gorseService.getRecommendations(user2.userId, 20);
+
+      // Check if user1 is recommended for user2
+      const isRecommendedForUser2 = recommendations2.includes(user1.userId);
+
+      // Scoring:
+      // - Both ways recommendation: 15 points (strong match)
+      // - One way recommendation: 10 points (decent match)
+      // - No recommendation: 0 points
+      if (isRecommendedForUser1 && isRecommendedForUser2) {
+        return 15; // Mutual recommendation
+      } else if (isRecommendedForUser1 || isRecommendedForUser2) {
+        return 10; // One-way recommendation
+      }
+
+      return 0;
+    } catch (error) {
+      // If Gorse is unavailable or errors, just return 0
+      this.logger.debug('Gorse score calculation failed, using fallback', {
+        user1: user1.userId,
+        user2: user2.userId,
+        error: error.message,
+      });
+      return 0;
+    }
   }
 
   private async areCompatible(user1: QueueUser, user2: QueueUser): Promise<boolean> {

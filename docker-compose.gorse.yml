@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # Gorse Server - ML Recommendation Engine
+  gorse:
+    image: zhenghaoz/gorse:latest
+    container_name: gorse-server
+    ports:
+      - "8088:8088"  # API port
+      - "8089:8089"  # Worker port
+    environment:
+      GORSE_POSTGRES_URL: "postgresql://gorse:gorse@postgres:5432/gorse"
+      GORSE_REDIS_URL: "redis://redis:6379"
+      GORSE_CACHE_ENABLED: "true"
+      GORSE_CACHE_SIZE: "1000"
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8088/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - gorse-network
+    volumes:
+      - ./gorse-config.yml:/etc/gorse/config.yml:ro
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # PostgreSQL - Gorse Data Storage
+  postgres:
+    image: postgres:15-alpine
+    container_name: gorse-postgres
+    environment:
+      POSTGRES_USER: gorse
+      POSTGRES_PASSWORD: gorse
+      POSTGRES_DB: gorse
+    ports:
+      - "5433:5432"  # Different port to avoid conflict with main DB
+    volumes:
+      - gorse_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U gorse" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gorse-network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Redis - Gorse Cache (for fast ML operations)
+  redis:
+    image: redis:7-alpine
+    container_name: gorse-redis
+    ports:
+      - "6380:6379"  # Different port to avoid conflict
+    volumes:
+      - gorse_redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gorse-network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Optional: Redis Insight for Redis monitoring
+  redis-insight:
+    image: redisinsight/redisinsight:latest
+    container_name: gorse-redis-insight
+    ports:
+      - "5540:5540"
+    environment:
+      REDISINSIGHT_LOGFILE: ""
+      REDISINSIGHT_LOGLEVEL: "notice"
+    networks:
+      - gorse-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+networks:
+  gorse-network:
+    driver: bridge
+
+volumes:
+  gorse_postgres_data:
+  gorse_redis_data:

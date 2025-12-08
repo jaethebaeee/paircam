@@ -10,6 +10,8 @@ import { TurnModule } from './turn/turn.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { AnalyticsModule } from './analytics/analytics.module'; // 🆕 Analytics
+import { FeedbackModule } from './feedback/feedback.module'; // 🆕 Feedback & ML training data
+import { GorseModule } from './gorse/gorse.module'; // 🆕 ML recommendations
 import { UsersModule } from './users/users.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
@@ -20,6 +22,7 @@ import { env } from './env';
 import { User } from './users/entities/user.entity';
 import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
+import { MatchFeedback } from './feedback/entities/match-feedback.entity';
 
 @Module({
   imports: [
@@ -31,7 +34,7 @@ import { Payment } from './payments/entities/payment.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment],
+      entities: [User, Subscription, Payment, MatchFeedback],
       synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
@@ -43,6 +46,8 @@ import { Payment } from './payments/entities/payment.entity';
     SubscriptionsModule,
     PaymentsModule,
     AnalyticsModule, // 🆕 Match quality tracking
+    FeedbackModule, // 🆕 User feedback for ML training
+    GorseModule, // 🆕 ML recommendation engine
     SignalingModule,
     TurnModule,
     ReportingModule,

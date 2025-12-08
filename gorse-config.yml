@@ -1,0 +1,149 @@
+# Gorse Configuration File
+# Docs: https://gorse.io/docs/server-admin-guide/configuration
+
+database:
+  # PostgreSQL connection string
+  data_store: postgresql://gorse:gorse@postgres:5432/gorse?sslmode=disable
+
+cache:
+  # Redis connection string for caching
+  cache_store: redis://redis:6379
+
+server:
+  # Server bind address and port
+  host: 0.0.0.0
+  port: 8088
+  api_key: ""  # Leave empty for development, set for production
+
+# Master node configuration
+master:
+  # Number of workers for recommendation tasks
+  num_workers: 1
+
+  # Metadata cache size (number of items to keep in memory)
+  meta_timeout: 1440  # 1 day
+
+# Recommendation engine configuration
+recommend:
+  # Filter size for candidate generation
+  # Higher = slower but potentially better recommendations
+  filter_size: 100
+
+  # Number of neighbor candidates for collaborative filtering
+  # Higher values = slower, better accuracy
+  num_candidate_neighbors: 20
+
+  # Number of item candidates for content-based filtering
+  num_item_candidates: 20
+
+# Model configuration
+model:
+  # Recommendation model type
+  # Options: als, bpr, warp, implicit
+  # als (Alternating Least Squares) is most popular and stable
+  # bpr (Bayesian Personalized Ranking) is good for rankings
+  type: als
+
+  # Training parameters
+  hyper_parameters:
+    # Number of latent factors
+    n_factors: 20
+
+    # Learning regularization
+    reg_l1: 0
+    reg_l2: 0.001
+
+    # Learning rate
+    learning_rate: 0.05
+
+    # Number of training epochs
+    n_epochs: 20
+
+    # Batch size for training
+    batch_size: 256
+
+    # Verbose output during training
+    verbose: 10
+
+# Recommendation evaluation
+eval:
+  # Number of top recommendations to evaluate
+  top_k: 10
+
+  # Evaluation metrics
+  metrics:
+    - ndcg@10  # Normalized Discounted Cumulative Gain
+    - recall@10  # Recall at 10
+    - precision@10  # Precision at 10
+
+# Ranking model for scoring
+ranking:
+  type: als  # Can be different from recommendation model
+
+# Top-N recommendation settings
+popular:
+  # Use popularity for cold-start users (new users with no history)
+  enable: true
+
+  # Window size for popularity calculation (in days)
+  window: 30
+
+# Experimental features
+experimental:
+  # Enable implicit feedback (views, interactions without explicit ratings)
+  implicit_feedback: true
+
+  # Use item similarity
+  enable_similarity: true
+
+  # Cache size for similarity matrix
+  similarity_cache_size: 10000
+
+# Task scheduling
+task:
+  # How often to retrain the model (in minutes)
+  # Smaller = more up-to-date but slower
+  # Larger = faster but slower to adapt
+  retention: 60
+
+  # Number of workers for background tasks
+  num_workers: 4
+
+# Logging
+log:
+  level: info  # debug, info, warn, error
+  format: json  # text, json
+
+# HTTP endpoints
+api:
+  # Enable authentication
+  auth_enabled: false
+
+  # CORS settings
+  cors_allow_origins:
+    - "*"  # Allow all origins (restrict in production)
+
+  # Rate limiting
+  rate_limit: 10000  # Requests per minute
+
+# Monitoring
+metrics:
+  # Enable Prometheus metrics
+  enable: true
+  port: 8089
+
+# Backup and restore
+backup:
+  # Backup directory
+  path: /data/backup
+
+  # Backup interval (in hours)
+  interval: 24
+
+# Development settings (remove in production)
+development:
+  # Enable debug endpoints
+  debug: false
+
+  # Enable profiling
+  profile: false
