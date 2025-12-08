@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Socket } from 'socket.io-client';
 import GameLobby from './GameLobby';
 import TriviaQuestion from './TriviaQuestion';
 import GameResults from './GameResults';
-import { useGameSocket, UseGameSocketReturn } from '../../hooks/useGameSocket';
+import { useGameSocket } from '../../hooks/useGameSocket';
 import { useGameState } from '../../hooks/useGameState';
-import { Difficulty, TriviaQuestion as TriviaQuestionType, GameResult } from '../../types/games';
+import { Difficulty } from '../../types/games';
 import { GAME_CONFIG } from '../../constants/games';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 
@@ -19,7 +19,7 @@ interface TriviaGameProps {
 
 type GamePhase = 'lobby' | 'playing' | 'results' | 'closed';
 
-export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisible }: TriviaGameProps) {
+export default function TriviaGame({ socket, sessionId, peerId: _peerId, onClose, isVisible }: TriviaGameProps) {
   const [gamePhase, setGamePhase] = useState<GamePhase>('lobby');
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
@@ -31,7 +31,7 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
   const gameSocket = useGameSocket({
     socket,
     sessionId,
-    onGameStarted: (data) => {
+    onGameStarted: (_data) => {
       console.log('Game started, waiting for first question');
       setGamePhase('playing');
       setCurrentQuestionNumber(1);
@@ -47,8 +47,8 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
       setIsCurrentPlayerWinner(result.winner_id === sessionId);
       setGamePhase('results');
     },
-    onScoreUpdate: (data) => {
-      console.log('Score updated:', data);
+    onScoreUpdate: (scoreData) => {
+      console.log('Score updated:', scoreData);
     },
     onError: (error) => {
       console.error('Game error:', error);
