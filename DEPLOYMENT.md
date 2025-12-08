@@ -1,10 +1,8 @@
 # Deployment Guide - Connect Backend
 
-This guide covers deployment options for the Connect backend, from local development to global production.
+Railway is the recommended deployment platform. It's already configured and costs only **$5-40/month**.
 
-## Quick Start
-
-### Option 1: Local Development
+## Quick Start - Local Development
 
 ```bash
 # 1. Install dependencies
@@ -20,157 +18,185 @@ npm run start:dev
 ```
 
 **Server**: http://localhost:3000
-**API Docs**: http://localhost:3000/api
 
 ---
 
-## Deployment Options
+## Production Deployment - Railway ⭐
 
-### Option 1: Railway (Current Setup) ⭐ Recommended
+Your project is already configured via `railway.toml` for Railway deployment.
 
-Your project is already configured for Railway deployment via `railway.toml`.
+### Why Railway?
 
-**Pros**:
-- ✅ Zero-config (Railway autodetects Node.js)
-- ✅ Automatic SSL/TLS certificates
-- ✅ Built-in environment variable management
-- ✅ One-click deploy from GitHub
-- ✅ Automatic builds on push
-- ✅ Integrated PostgreSQL addon
-- ✅ Global CDN
-- ✅ Pay-per-use (no fixed costs)
+| Feature | Railway | Heroku | Self-Hosted |
+|---------|---------|--------|-------------|
+| **Cost** | **$5-40/mo** | $7-500/mo | $5-500/mo |
+| Setup | 1 click | Medium | Complex |
+| Auto-deploy | ✅ Yes | ✅ Yes | ❌ No |
+| PostgreSQL | ✅ Included | $9-50/mo | DIY |
+| Redis | ✅ $5-10/mo | $30+/mo | DIY |
+| Scalability | ✅ Excellent | Good | Excellent |
+| **WebRTC Support** | **✅ Yes** | ✅ Yes | ✅ Yes |
 
-**Deploy to Railway**:
-1. Push code to GitHub
-2. Connect your GitHub repo to Railway
-3. Railway auto-builds and deploys
-4. Environment variables auto-synced
+### Deploy to Railway (5 minutes)
 
-**Cost**: ~$5-50/month depending on usage
+1. **Connect your GitHub repository**
+   - Go to https://railway.app
+   - Sign in with GitHub
+   - Select `paircam` repository
 
-### Option 2: Docker + Container Registry (CI/CD)
+2. **Railway auto-detects your setup**
+   - Reads `railway.toml`
+   - Installs dependencies
+   - Builds the backend
+   - Deploys automatically
 
-Push Docker images to GitHub Container Registry (GHCR) for manual deployment.
+3. **Add PostgreSQL**
+   ```bash
+   railway add postgresql
+   # Railway automatically sets DATABASE_URL
+   ```
 
-**Dockerfile**: Already created at `packages/backend/Dockerfile`
+4. **Add Redis** (optional but recommended)
+   ```bash
+   railway add redis
+   # Railway automatically sets REDIS_URL
+   ```
 
-**GitHub Actions Workflow**: `.github/workflows/build-backend.yml`
+5. **Configure environment variables**
+   - Dashboard → Variables
+   - Add: JWT_SECRET, CORS_ORIGINS, etc.
+   - See `.env.example` for all variables
 
-**Manual Docker Build**:
-```bash
-# Build image
-docker build -t connect-backend:latest packages/backend
+6. **Push code to deploy**
+   ```bash
+   git push origin main
+   # Railway auto-deploys in ~2 minutes
+   ```
 
-# Run locally
-docker run -e DATABASE_URL=postgresql://... \
-           -e REDIS_URL=redis://... \
-           -p 3000:3000 \
-           connect-backend:latest
+### Railway Features
 
-# Push to registry
-docker tag connect-backend:latest ghcr.io/yourusername/connect-backend:latest
-docker push ghcr.io/yourusername/connect-backend:latest
+- ✅ **Auto-deployments** - Every `git push`
+- ✅ **Automatic SSL/TLS** - HTTPS out of the box
+- ✅ **Database backups** - Daily automatic backups
+- ✅ **Environment management** - UI for secrets
+- ✅ **Logs & monitoring** - Built-in dashboards
+- ✅ **Global CDN** - Fast worldwide
+- ✅ **Zero downtime** - Blue-green deployments
+- ✅ **Rollbacks** - One-click rollback to previous version
+- ✅ **Scaling** - Add replicas with a click
+
+### Railway Pricing Breakdown
+
+```
+Monthly allowance: $5 credit
+Usage-based billing after that:
+
+Backend (Node.js):
+- CPU: $0.000231 per CPU-hour
+- Memory: $0.000115 per GB-hour
+- Typical usage: $5-15/month
+
+PostgreSQL:
+- Included in $5 credit
+
+Redis:
+- Add-on: $5-10/month
+
+Total typical cost: $10-25/month
+(vs Heroku $50+, AWS $100+)
 ```
 
-**Deploy to**:
-- AWS ECS
-- Heroku
-- DigitalOcean App Platform
-- Google Cloud Run
-- Azure Container Instances
-- Self-hosted Docker Swarm/Kubernetes
+### Deploy from GitHub Actions (Optional)
 
-### Option 3: Kubernetes (Enterprise)
-
-For global scale, high availability.
-
-**Prerequisites**: Kubernetes cluster (AWS EKS, GKE, AKS, etc.)
-
-**Create Deployment**:
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: connect-backend
-spec:
-  replicas: 3
-  template:
-    spec:
-      containers:
-      - name: backend
-        image: ghcr.io/yourusername/connect-backend:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: backend-secrets
-              key: database-url
-        resources:
-          requests:
-            cpu: 500m
-            memory: 512Mi
-          limits:
-            cpu: 1000m
-            memory: 1Gi
-```
-
-**Cost**: $50-500+/month depending on scale
-
-### Option 4: Heroku (Legacy)
-
-Still supported, but Railway is cheaper and better.
+If you want automated builds to a registry:
 
 ```bash
-# Install Heroku CLI
-# heroku login
-# heroku create your-app-name
-# heroku addons:create heroku-postgresql:hobby-dev
-# git push heroku main
+railway link  # Link to Railway project
+railway up    # Deploy current code
+railway logs  # View logs
+railway env   # Manage variables
 ```
 
-**Cost**: $7-500+/month
+### Rollback a Deployment
+
+```bash
+# Via Railway dashboard:
+# 1. Deployments tab
+# 2. Select previous version
+# 3. Click "Redeploy"
+
+# Or via CLI:
+railway rollback
+```
+
+---
+
+## Custom Domain Setup
+
+1. **Get your Railway domain**
+   - Dashboard → Settings → Domains
+   - See your `yourapp.up.railway.app` URL
+
+2. **Add custom domain**
+   - Dashboard → Settings → Domains
+   - Add your domain (e.g., `api.connect.chat`)
+   - Railway generates SSL certificate
+
+3. **Update DNS**
+   ```
+   CNAME: yourapp.up.railway.app
+   ```
+
+---
+
+## Scaling on Railway
+
+### Vertical Scaling (More powerful)
+```bash
+# Dashboard → Deployments → Settings
+# Increase CPU/Memory allocation
+# Done! No restart needed.
+```
+
+### Horizontal Scaling (More replicas)
+```bash
+# Dashboard → Deployments → Settings
+# Set replicas: 1 → 3
+# Railway distributes traffic automatically
+```
+
+### Auto-scaling (Based on load)
+```bash
+# Coming soon in Railway
+# Currently: manual scaling via dashboard
+```
 
 ---
 
 ## Environment Variables
 
-### Required (All Deployments)
+Railway automatically sets `DATABASE_URL` and `REDIS_URL` when you add services.
+
+### Required to Configure
+
+Go to Railway Dashboard → Variables and add:
 
 ```env
-# Node environment
-NODE_ENV=production
-PORT=3000
-LOG_LEVEL=info
-
-# Database (PostgreSQL)
-DATABASE_URL=postgresql://user:password@host:5432/connect
-
-# Cache (Redis)
-REDIS_URL=redis://user:password@host:6379/0
-
-# Authentication
-JWT_SECRET=your-secret-key-min-32-chars
+JWT_SECRET=your-random-secret-32+-characters
 JWT_EXPIRATION=5m
-
-# CORS
 CORS_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
+LOG_LEVEL=info
+```
 
-# TURN Server
+### Optional (Recommended)
+
+```env
+# TURN Server (WebRTC)
 TURN_PROVIDER=coturn
 TURN_HOST=turn.yourdomain.com
 TURN_PORT=3478
 TURN_TLS_PORT=5349
 TURN_SHARED_SECRET=your-secret
-```
-
-### Optional (Recommended for Production)
-
-```env
-# Monitoring
-PROMETHEUS_PORT=9090
-OTEL_ENABLED=true
 
 # Stripe (Payments)
 STRIPE_SECRET_KEY=sk_live_...
@@ -183,239 +209,185 @@ GOOGLE_CLIENT_SECRET=...
 # Gorse ML
 GORSE_API_URL=https://gorse.yourdomain.com
 GORSE_SYNC_INTERVAL_MINUTES=60
+
+# Monitoring
+PROMETHEUS_PORT=9090
+OTEL_ENABLED=true
 ```
 
 ---
 
-## Scaling Strategies
+## Monitoring & Logs
 
-### Stage 1: Single Instance (0-10K users)
-
-```
-Users → Load Balancer → Backend (1) → PostgreSQL → Redis
-```
-
-- **Cost**: $5-50/month
-- **Latency**: 50-200ms
-- **Setup**: Railway default
-
-### Stage 2: Multi-Region (10K-100K users)
-
-```
-Users
-├── North America → Backend (US) → PostgreSQL (US)
-├── Europe → Backend (EU) → PostgreSQL (EU)
-└── Asia → Backend (APAC) → PostgreSQL (APAC)
-
-All regions ↔ Redis Cluster (global)
-```
-
-- **Cost**: $50-500/month
-- **Latency**: 10-50ms (regional)
-- **Setup**: Railway Regions or multi-cloud
-
-### Stage 3: Global High-Availability (100K+ users)
-
-```
-Cloudflare/Route53 (global DNS)
-│
-├── Region 1: Backend × 3 replicas + PostgreSQL + Redis
-├── Region 2: Backend × 3 replicas + PostgreSQL + Redis
-└── Region 3: Backend × 3 replicas + PostgreSQL + Redis
-
-Shared: Analytics DB, Gorse ML
-```
-
-- **Cost**: $500-5000+/month
-- **Latency**: <10ms (geo-optimized)
-- **Setup**: Kubernetes or multi-region Railway
-
----
-
-## Monitoring & Alerts
-
-### Health Checks
+### View Logs
 
 ```bash
-# Endpoint
-GET /health
+# Via Railway CLI
+railway logs
 
-# Response
-{
-  "status": "ok",
-  "timestamp": "2025-12-08T10:00:00Z"
-}
+# Via Railway Dashboard
+# → Logs tab (real-time streaming)
 ```
 
-### Metrics (Prometheus)
+### Health Check
 
 ```bash
-# Endpoint
-GET /metrics
-
-# Metrics
-- video_chat_connections_total
-- video_chat_connection_time_seconds
-- matchmaking_queue_length
-- api_requests_total
-- api_request_duration_seconds
+curl https://yourapp.up.railway.app/health
 ```
 
-### Logging
+### Metrics
 
-- Railway: Integrated logs
-- Docker: `docker logs <container>`
-- Kubernetes: `kubectl logs <pod>`
-
-### Recommended Monitoring Tools
-
-- **Error tracking**: Sentry
-- **APM**: New Relic or DataDog
-- **Metrics**: Prometheus + Grafana
-- **Alerts**: PagerDuty
+```bash
+curl https://yourapp.up.railway.app/metrics
+```
 
 ---
 
 ## Database Backups
 
-### PostgreSQL Backups
+Railway automatically backs up PostgreSQL daily.
 
-```bash
-# Manual backup
-pg_dump postgresql://user:pass@host/dbname > backup.sql
-
-# Restore
-psql postgresql://user:pass@host/dbname < backup.sql
-
-# Automated (Railway)
-# Railway manages automated daily backups
-# Access: Dashboard → Data → Backups
-```
-
-### Redis Persistence
-
-```bash
-# Enable AOF (Append-Only File) for durability
-redis-cli CONFIG SET appendonly yes
-```
-
----
-
-## Security Checklist
-
-- [ ] JWT_SECRET is >32 random characters
-- [ ] DATABASE_URL uses strong password
-- [ ] CORS_ORIGINS restricted to your domain
-- [ ] HTTPS enforced (automatic on Railway)
-- [ ] Database backups enabled
-- [ ] Environment variables not in git
-- [ ] Rate limiting enabled
-- [ ] TURN server credentials rotated monthly
-- [ ] PostgreSQL port not exposed publicly
-- [ ] Redis requires authentication
+**Access backups**:
+1. Railway Dashboard → Data
+2. Select PostgreSQL instance
+3. Backups tab
+4. Download or restore
 
 ---
 
 ## Troubleshooting
 
-### Service Won't Start
+### App Won't Start
 
 ```bash
-# Check logs
-railway logs  # Railway
-docker logs <container>  # Docker
+# 1. Check logs
+railway logs
 
-# Common issues:
-# 1. Database connection failed
-#    → Check DATABASE_URL and network access
-# 2. Redis not available
-#    → Check REDIS_URL and Redis service
-# 3. Port already in use
-#    → Change PORT env var
+# 2. Common issues:
+# - DATABASE_URL missing → Add PostgreSQL via Railway
+# - REDIS_URL missing → Add Redis via Railway
+# - JWT_SECRET missing → Add to Variables
+
+# 3. Restart
+# Dashboard → Deployments → Restart
 ```
 
-### High Latency
+### High Memory Usage
 
 ```bash
-# Check region
-curl https://api.yourdomain.com/health
-
-# Measure latency
-ping api.yourdomain.com
+# Check metrics
+railway logs --tail=50
 
 # Solutions:
-# 1. Deploy to region closer to users
-# 2. Enable caching (Redis)
-# 3. Use CDN for static assets
+# 1. Increase RAM → Dashboard → Settings
+# 2. Check for memory leaks in code
+# 3. Reduce Gorse sync frequency
 ```
 
-### Database Too Large
+### Database Connection Errors
 
-```sql
--- Check size
-SELECT pg_size_pretty(pg_database_size('connect'));
+```bash
+# 1. Verify DATABASE_URL is set
+railway env
 
--- Archive old data
-DELETE FROM match_feedback WHERE created_at < NOW() - INTERVAL '1 year';
-DELETE FROM sessions WHERE created_at < NOW() - INTERVAL '30 days';
+# 2. Check PostgreSQL service is running
+# Dashboard → Services → PostgreSQL → Status
 
--- Vacuum to reclaim space
-VACUUM ANALYZE;
+# 3. Restart PostgreSQL
+railway down postgresql
+railway up postgresql
 ```
 
 ---
 
-## Cost Comparison
+## Scaling
 
-| Platform | Monthly Cost | Scaling | Best For |
-|----------|-------------|---------|----------|
-| **Railway** | $5-100 | Good | Production ⭐ |
-| Heroku | $7-500 | OK | Simple apps |
-| AWS EC2 | $5-500 | Excellent | Enterprise |
-| AWS Fargate | $10-500 | Excellent | Containers |
-| Vercel | $0-150 | Good | Serverless |
-| DigitalOcean | $5-480 | Good | Developers |
-| Render | $7-100 | Good | Simple apps |
+### Increase Resources
+
+1. Dashboard → Deployments
+2. Settings → CPU/Memory
+3. Increase slider
+4. Save (zero-downtime upgrade)
+
+### Add More Replicas
+
+1. Dashboard → Deployments
+2. Settings → Replicas
+3. Change 1 → 3
+4. Save (load balanced automatically)
+
+### Add More Regions
+
+Contact Railway support to deploy in additional regions.
+
+---
+
+## Cost Optimization
+
+**Current typical cost**:
+- Backend: $5-15/month
+- PostgreSQL: Included in $5 credit
+- Redis: $5-10/month
+- **Total: $10-25/month**
+
+**To reduce costs**:
+1. Use PostgreSQL (no separate charge)
+2. Use Redis for caching (better than dedicated expensive tools)
+3. Monitor resource usage
+4. Remove unused services
+5. Archive old match_feedback data
+
+**Compared to alternatives**:
+- Heroku: $50-500/month
+- AWS: $100-1000+/month
+- Docker (self-hosted): $100-500+/month
+- **Railway saves 80-95%** ✅
 
 ---
 
 ## Deployment Checklist
 
-- [ ] Environment variables configured
-- [ ] Database created and migrated
-- [ ] Redis instance running
+Before going live:
+
+- [ ] GitHub repo connected to Railway
+- [ ] PostgreSQL database created
+- [ ] Redis cache created
+- [ ] JWT_SECRET configured (32+ chars)
+- [ ] CORS_ORIGINS set to your domain
 - [ ] TURN server configured
-- [ ] SSL/TLS certificates valid
 - [ ] Health check passing
-- [ ] Monitoring enabled
-- [ ] Backups configured
-- [ ] Team notified of deployment
-- [ ] Rollback plan prepared
+- [ ] Custom domain added (if using)
+- [ ] Backups enabled (automatic)
+- [ ] Logs accessible
 
 ---
 
 ## Useful Commands
 
 ```bash
-# Railway
-railway up
+# Install Railway CLI
+npm i -g @railway/cli
+
+# Login to Railway
+railway login
+
+# Link to your project
+railway link
+
+# View logs
 railway logs
+
+# Deploy latest code
+railway up
+
+# Manage environment variables
 railway env
 
-# Docker
-docker build -t connect-backend packages/backend
-docker run -p 3000:3000 connect-backend
-docker push ghcr.io/username/connect-backend
+# View service status
+railway status
 
-# Kubernetes
-kubectl apply -f deployment.yaml
-kubectl logs deployment/connect-backend
-kubectl scale deployment/connect-backend --replicas=5
-
-# Development
-npm run start:dev    # With hot reload
-npm run build        # Build for production
-npm run typeorm      # Run migrations
+# Rollback to previous version
+railway rollback
 ```
 
 ---
@@ -423,11 +395,12 @@ npm run typeorm      # Run migrations
 ## Support
 
 - **Railway Docs**: https://docs.railway.app/
-- **Docker Docs**: https://docs.docker.com/
-- **PostgreSQL Docs**: https://www.postgresql.org/docs/
-- **Redis Docs**: https://redis.io/documentation/
+- **Railway Community**: https://railway.app/discord
+- **Your GitHub**: https://github.com/jaethebaeee/paircam
 
 ---
 
-**Last Updated**: 2025-12-08
+**Deployment**: Railway ⭐
+**Cost**: $10-25/month
 **Status**: Production Ready ✅
+**Last Updated**: 2025-12-08
