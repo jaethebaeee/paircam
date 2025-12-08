@@ -138,6 +138,45 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  // Bulk fetch recent matches for multiple users (optimized for matchmaking)
+  async getRecentMatchesBulk(userIds: string[]): Promise<Map<string, Set<string>>> {
+    const result = new Map<string, Set<string>>();
+
+    if (userIds.length === 0) {
+      return result;
+    }
+
+    try {
+      // Use pipeline for efficient bulk fetch
+      const pipeline = this.client.multi();
+
+      for (const userId of userIds) {
+        pipeline.sMembers(`recent-matches:${userId}`);
+      }
+
+      const responses = await pipeline.exec();
+
+      for (let i = 0; i < userIds.length; i++) {
+        const userId = userIds[i];
+        const matches = responses[i] as string[] || [];
+        result.set(userId, new Set(matches));
+      }
+
+      this.logger.debug('Bulk fetched recent matches', {
+        userCount: userIds.length,
+        totalMatches: Array.from(result.values()).reduce((sum, set) => sum + set.size, 0)
+      });
+    } catch (error) {
+      this.logger.error('Failed to bulk fetch recent matches', error.stack);
+      // Return empty sets on error
+      for (const userId of userIds) {
+        result.set(userId, new Set());
+      }
+    }
+
+    return result;
+  }
+
   async clearRecentMatches(userId: string): Promise<void> {
     try {
       const key = `recent-matches:${userId}`;
@@ -172,7 +211,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         };
       }
       
-      return JSON.parse(data);
+      try {
+        return JSON.parse(data);
+      } catch (parseError) {
+        this.logger.error(`Failed to parse reputation data for ${userId}`, parseError.stack);
+        return {
+          rating: 70,
+          totalRatings: 0,
+          skipRate: 0,
+          reportCount: 0,
+          averageCallDuration: 0,
+          lastUpdated: Date.now(),
+        };
+      }
     } catch (error) {
       this.logger.error(`Failed to get reputation for ${userId}`, error.stack);
       return {
@@ -495,7 +546,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try {
       const data = await this.client.get(`client:${deviceId}`);
       if (!data) return null;
-      return JSON.parse(data);
+      try {
+        return JSON.parse(data);
+      } catch (parseError) {
+        this.logger.error(`Failed to parse client instance data for ${deviceId}`, parseError.stack);
+        return null;
+      }
     } catch (error) {
       this.logger.error(`Failed to get client instance for ${deviceId}`, error.stack);
       return null;
