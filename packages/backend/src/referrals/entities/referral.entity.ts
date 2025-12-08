@@ -65,8 +65,8 @@ export class ReferralSuccess {
   @JoinColumn({ name: 'referral_id' })
   referral: Referral;
 
-  // The user who was referred
-  @Column({ name: 'referred_user_id' })
+  // The user who was referred (unique constraint prevents race condition)
+  @Column({ name: 'referred_user_id', unique: true })
   @Index()
   referredUserId: string;
 

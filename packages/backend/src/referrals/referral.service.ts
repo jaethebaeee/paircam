@@ -82,7 +82,7 @@ export class ReferralService {
 
     if (!referral) {
       // Generate unique code
-      let code: string;
+      let code = this.generateReferralCode();
       let exists = true;
       let attempts = 0;
 

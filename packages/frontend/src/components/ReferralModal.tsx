@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useReferral } from '../hooks/useReferral';
 import { useReferralCode } from '../hooks/useReferralCode';
@@ -17,6 +17,16 @@ export default function ReferralModal({ onClose, onSkip }: ReferralModalProps) {
   const [isApplying, setIsApplying] = useState(false);
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [validationMessage, setValidationMessage] = useState('');
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup debounce timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Pre-fill with pending referral code from URL
   useEffect(() => {
@@ -53,10 +63,14 @@ export default function ReferralModal({ onClose, onSkip }: ReferralModalProps) {
     setIsValid(null);
     setValidationMessage('');
 
+    // Clear previous timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
     // Debounced validation
     if (upperValue.length >= 6) {
-      const timeout = setTimeout(() => handleValidate(upperValue), 500);
-      return () => clearTimeout(timeout);
+      debounceTimeoutRef.current = setTimeout(() => handleValidate(upperValue), 500);
     }
   };
 

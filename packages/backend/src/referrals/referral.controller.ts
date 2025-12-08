@@ -7,7 +7,9 @@ import {
   Req,
   BadRequestException,
 } from '@nestjs/common';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from '../auth/public.decorator';
 import { ReferralService } from './referral.service';
 import { UsersService } from '../users/users.service';
 import { ApplyReferralCodeDto } from './dto';
@@ -67,8 +69,10 @@ export class ReferralController {
 
   /**
    * APPLY A REFERRAL CODE
+   * Rate limited: 5 requests per minute per user
    */
   @Post('apply')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async applyReferralCode(
     @Req() req: { user: { deviceId: string } },
     @Body() dto: ApplyReferralCodeDto,
@@ -89,8 +93,11 @@ export class ReferralController {
 
   /**
    * VALIDATE A REFERRAL CODE (check if it exists)
+   * Public endpoint with strict rate limiting: 10 requests per minute
    */
   @Post('validate')
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   async validateReferralCode(@Body() dto: ApplyReferralCodeDto) {
     const referral = await this.referralService.getReferralByCode(dto.referralCode);
 

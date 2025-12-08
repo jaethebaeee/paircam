@@ -73,12 +73,15 @@ export function useReferral(): UseReferralReturn {
       const response = await fetch(`${API_URL}/referrals/me`, {
         headers: getAuthHeaders(),
       });
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
+      const data = await response.json();
+      setStats(data);
     } catch (err) {
       console.error('Failed to fetch referral stats:', err);
+      throw err;
     }
   }, []);
 
@@ -87,12 +90,15 @@ export function useReferral(): UseReferralReturn {
       const response = await fetch(`${API_URL}/referrals/history`, {
         headers: getAuthHeaders(),
       });
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data.history || []);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
+      const data = await response.json();
+      setHistory(data.history || []);
     } catch (err) {
       console.error('Failed to fetch referral history:', err);
+      throw err;
     }
   }, []);
 
@@ -101,12 +107,15 @@ export function useReferral(): UseReferralReturn {
       const response = await fetch(`${API_URL}/referrals/tiers`, {
         headers: getAuthHeaders(),
       });
-      if (response.ok) {
-        const data = await response.json();
-        setTiers(data.tiers || []);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
+      const data = await response.json();
+      setTiers(data.tiers || []);
     } catch (err) {
       console.error('Failed to fetch referral tiers:', err);
+      throw err;
     }
   }, []);
 
@@ -115,12 +124,15 @@ export function useReferral(): UseReferralReturn {
       const response = await fetch(`${API_URL}/referrals/status`, {
         headers: getAuthHeaders(),
       });
-      if (response.ok) {
-        const data = await response.json();
-        setStatus(data);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
+      const data = await response.json();
+      setStatus(data);
     } catch (err) {
       console.error('Failed to fetch referral status:', err);
+      throw err;
     }
   }, []);
 
@@ -128,9 +140,26 @@ export function useReferral(): UseReferralReturn {
     setIsLoading(true);
     setError(null);
     try {
-      await Promise.all([fetchStats(), fetchHistory(), fetchTiers(), fetchStatus()]);
+      // Use allSettled to continue even if some requests fail
+      const results = await Promise.allSettled([
+        fetchStats(),
+        fetchHistory(),
+        fetchTiers(),
+        fetchStatus(),
+      ]);
+
+      // Check if any critical requests failed
+      const failures = results.filter((r) => r.status === 'rejected');
+      if (failures.length > 0) {
+        const firstError = failures[0] as PromiseRejectedResult;
+        const message = firstError.reason instanceof Error
+          ? firstError.reason.message
+          : 'Failed to load referral data';
+        setError(message);
+      }
     } catch (err) {
-      setError('Failed to load referral data');
+      const message = err instanceof Error ? err.message : 'Failed to load referral data';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
