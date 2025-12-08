@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { verifyDTLSSRTP, monitorConnectionSecurity } from '../utils/security';
+import {
+  setCodecPreferences,
+  applyBitrateLimit,
+  getBitrateConfig,
+  shouldAcceptIceCandidate,
+  getVideoStats,
+  type VideoStats,
+} from '../utils/codecOptimization';
+import { NetworkQuality } from './useNetworkQuality';
 
 export interface WebRTCConfig {
   iceServers: RTCIceServer[];
@@ -20,6 +29,8 @@ export interface UseWebRTCReturn {
   toggleAudio: (enabled: boolean) => void;
   toggleVideo: (enabled: boolean) => void;
   endCall: () => void;
+  optimizeForNetwork: (quality: NetworkQuality) => Promise<void>;
+  getStats: () => Promise<VideoStats>;
 }
 
 export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTCIceCandidate) => void): UseWebRTCReturn {
@@ -134,6 +145,11 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
         pc.addTrack(track, localStream);
       });
 
+      // Set codec preferences for all transceivers
+      pc.getTransceivers().forEach((transceiver) => {
+        setCodecPreferences(transceiver, transceiver.mid ? true : false);
+      });
+
       const offer = await pc.createOffer({
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
@@ -164,6 +180,12 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
         });
 
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
+
+        // Set codec preferences for all transceivers
+        pc.getTransceivers().forEach((transceiver) => {
+          setCodecPreferences(transceiver, transceiver.mid ? true : false);
+        });
+
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         setError(null);
@@ -191,12 +213,21 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
     }
   }, []);
 
-  // Add ICE candidate
+  // Add ICE candidate with filtering for better connectivity
   const addIceCandidate = useCallback(async (candidate: RTCIceCandidateInit) => {
     try {
       const pc = peerRef.current;
       if (!pc) throw new Error('Peer connection not initialized');
-      await pc.addIceCandidate(new RTCIceCandidate(candidate));
+
+      const iceCandidate = new RTCIceCandidate(candidate);
+
+      // Filter candidates to improve connection speed
+      if (!shouldAcceptIceCandidate(iceCandidate)) {
+        console.debug('[ICE] Filtered candidate:', iceCandidate.candidate);
+        return;
+      }
+
+      await pc.addIceCandidate(iceCandidate);
     } catch (err) {
       // Ignore duplicate/invalid candidates
       if (!(err instanceof Error) || !err.message.includes('duplicate')) {
@@ -288,6 +319,55 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
     }
   }, [localStream, remoteStream]);
 
+  // Optimize connection for network quality
+  const optimizeForNetwork = useCallback(
+    async (quality: NetworkQuality) => {
+      try {
+        const pc = peerRef.current;
+        if (!pc) {
+          console.warn('[Optimize] Peer connection not initialized');
+          return;
+        }
+
+        // Get bitrate config for this network quality
+        const bitrateConfig = getBitrateConfig(quality);
+
+        // Apply bitrate limits
+        await applyBitrateLimit(pc, bitrateConfig);
+
+        // Adjust codec preferences if needed
+        pc.getTransceivers().forEach((transceiver) => {
+          setCodecPreferences(transceiver, transceiver.mid ? true : false);
+        });
+
+        console.log('[Optimize] Applied network optimization for:', quality);
+      } catch (err) {
+        console.error('[Optimize] Failed to optimize for network:', err);
+      }
+    },
+    []
+  );
+
+  // Get current connection statistics
+  const getStats = useCallback(async (): Promise<VideoStats> => {
+    const pc = peerRef.current;
+    if (!pc) {
+      return {
+        bytesReceived: 0,
+        bytesSent: 0,
+        bandwidth: 0,
+        packetsLost: 0,
+        jitter: 0,
+        latency: 0,
+        frameRate: 0,
+        frameWidth: 0,
+        frameHeight: 0,
+      };
+    }
+
+    return getVideoStats(pc);
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -310,5 +390,7 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
     toggleAudio,
     toggleVideo,
     endCall,
+    optimizeForNetwork,
+    getStats,
   };
 }
