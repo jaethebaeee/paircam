@@ -8,6 +8,8 @@ import {
   ChatBubbleLeftIcon,
   SpeakerWaveIcon,
   UserPlusIcon,
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
 } from '@heroicons/react/24/solid';
 
 interface VideoControlsProps {
@@ -27,6 +29,10 @@ interface VideoControlsProps {
   onSwitchToAudioOnly?: () => void;
   isConnected?: boolean;
   isGamingMode?: boolean;
+  // Picture-in-Picture
+  isPiPSupported?: boolean;
+  isPiPActive?: boolean;
+  onTogglePiP?: () => void;
 }
 
 export default function VideoControls({
@@ -46,6 +52,9 @@ export default function VideoControls({
   onSwitchToAudioOnly,
   isConnected = false,
   isGamingMode = false,
+  isPiPSupported = false,
+  isPiPActive = false,
+  onTogglePiP,
 }: VideoControlsProps) {
   return (
     <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
@@ -199,6 +208,37 @@ export default function VideoControls({
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
                   Chat
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-black/90"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Picture-in-Picture - Only show when supported, connected, and not in text mode */}
+          {!isTextMode && isPiPSupported && isConnected && onTogglePiP && (
+            <div className="relative group">
+              <button
+                onClick={onTogglePiP}
+                className={`relative p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 ${
+                  isPiPActive
+                    ? 'bg-indigo-500 hover:bg-indigo-600 shadow-lg shadow-indigo-500/30'
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                aria-label={isPiPActive ? 'Exit Picture-in-Picture' : 'Enter Picture-in-Picture'}
+              >
+                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {isPiPActive ? (
+                  <ArrowsPointingInIcon className="h-6 w-6 text-white relative z-10" />
+                ) : (
+                  <ArrowsPointingOutIcon className="h-6 w-6 text-white relative z-10" />
+                )}
+              </button>
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
+                  {isPiPActive ? 'Exit mini player' : 'Pop out video'}
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                     <div className="border-4 border-transparent border-t-black/90"></div>
                   </div>

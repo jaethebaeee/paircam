@@ -227,8 +227,8 @@ describe('useReferral', () => {
         (call) => call[0].includes('/referrals/apply')
       );
       expect(applyCall).toBeDefined();
-      expect(applyCall[1]?.method).toBe('POST');
-      expect(JSON.parse(applyCall[1]?.body)).toEqual({ referralCode: 'PAIRXYZ123' });
+      expect(applyCall![1]?.method).toBe('POST');
+      expect(JSON.parse(applyCall![1]?.body as string)).toEqual({ referralCode: 'PAIRXYZ123' });
     });
 
     it('should throw error for invalid referral code', async () => {

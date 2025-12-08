@@ -5,6 +5,7 @@ import { useSignaling } from '../../hooks/useSignaling';
 import { useWebRTC } from '../../hooks/useWebRTC';
 import { useNetworkQuality } from '../../hooks/useNetworkQuality';
 import { useAdaptiveMediaConstraints } from '../../hooks/useAdaptiveMediaConstraints';
+import { usePictureInPicture } from '../../hooks/usePictureInPicture';
 import useGeolocation from '../../hooks/useGeolocation';
 import { STUN_SERVERS, DEFAULT_MEDIA_CONSTRAINTS, AUDIO_ONLY_CONSTRAINTS, API_URL } from '../../config/api';
 import VideoControls from './VideoControls';
@@ -128,6 +129,9 @@ export default function VideoChat({
       }
     }
   );
+
+  // Picture-in-Picture for remote video
+  const pip = usePictureInPicture(webrtc.remoteVideoRef);
 
   // Initialize
   useEffect(() => {
@@ -403,6 +407,9 @@ export default function VideoChat({
         onSwitchToAudioOnly={handleSwitchToAudioOnly}
         isConnected={!!signaling.matched}
         isGamingMode={queueType === 'gaming'}
+        isPiPSupported={pip.isPiPSupported}
+        isPiPActive={pip.isPiPActive}
+        onTogglePiP={pip.togglePiP}
       />
 
       {/* Game Modal */}
