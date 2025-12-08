@@ -138,6 +138,45 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  // Bulk fetch recent matches for multiple users (optimized for matchmaking)
+  async getRecentMatchesBulk(userIds: string[]): Promise<Map<string, Set<string>>> {
+    const result = new Map<string, Set<string>>();
+
+    if (userIds.length === 0) {
+      return result;
+    }
+
+    try {
+      // Use pipeline for efficient bulk fetch
+      const pipeline = this.client.multi();
+
+      for (const userId of userIds) {
+        pipeline.sMembers(`recent-matches:${userId}`);
+      }
+
+      const responses = await pipeline.exec();
+
+      for (let i = 0; i < userIds.length; i++) {
+        const userId = userIds[i];
+        const matches = responses[i] as string[] || [];
+        result.set(userId, new Set(matches));
+      }
+
+      this.logger.debug('Bulk fetched recent matches', {
+        userCount: userIds.length,
+        totalMatches: Array.from(result.values()).reduce((sum, set) => sum + set.size, 0)
+      });
+    } catch (error) {
+      this.logger.error('Failed to bulk fetch recent matches', error.stack);
+      // Return empty sets on error
+      for (const userId of userIds) {
+        result.set(userId, new Set());
+      }
+    }
+
+    return result;
+  }
+
   async clearRecentMatches(userId: string): Promise<void> {
     try {
       const key = `recent-matches:${userId}`;
