@@ -65,12 +65,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   };
 
   return (
-    <div className="min-h-screen py-8 sm:py-12 px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:py-16 px-4 relative overflow-hidden">
       {/* Animated Background */}
       <AnimatedBackground variant="gradient-orbs" />
 
       {/* Top Right Actions */}
-      <div className="fixed top-20 sm:top-24 right-4 z-10 flex items-center gap-3">
+      <div className="fixed top-4 sm:top-6 right-4 sm:right-6 z-10 flex items-center gap-3">
         <a
           href="/login"
           className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
@@ -79,7 +79,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         </a>
         <button
           onClick={() => setShowPremiumModal(true)}
-          className="group bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden text-sm sm:text-base"
+          className="group bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden text-sm sm:text-base"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <span className="relative flex items-center gap-1.5 sm:gap-2">
@@ -89,37 +89,36 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         </button>
       </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-xl mx-auto w-full relative z-10">
         {/* Hero Section */}
-        <div className="text-center mb-8 sm:mb-12 pt-16 sm:pt-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight px-2">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 leading-tight">
             No profiles. No swiping.
-            <span className="block bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mt-2">Just people.</span>
+            <span className="block bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mt-1">Just people.</span>
           </h1>
 
           {/* Social Proof - User Count */}
           {liveUserCount > 0 && (
-            <div className="flex items-center justify-center gap-2 mb-6 sm:mb-8">
+            <div className="flex items-center justify-center gap-2">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
-              <span className="text-gray-600 text-base sm:text-lg">
-                <span className="font-semibold text-gray-900">{liveUserCount.toLocaleString()}</span> people online right now
+              <span className="text-gray-600">
+                <span className="font-semibold text-gray-900">{liveUserCount.toLocaleString()}</span> online now
               </span>
             </div>
           )}
         </div>
 
-
         {/* Start Chat Form Section */}
-        <div className="max-w-2xl mx-auto px-2">
+        <div className="px-2">
 
         {/* Clean Form Card */}
-        <div className={`bg-white rounded-2xl sm:rounded-3xl shadow-xl border transition-all duration-300 p-6 sm:p-8 mb-4 sm:mb-6 ${
+        <div className={`bg-white rounded-2xl shadow-xl border transition-all duration-300 p-6 sm:p-8 ${
           isFormFocused ? 'border-pink-200 shadow-2xl' : 'border-gray-100'
         }`}>
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Google Sign In */}
             <button
               onClick={async () => {
@@ -138,9 +137,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </button>
 
             {/* Divider */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 my-1">
               <div className="flex-1 h-px bg-gray-200"></div>
-              <span className="text-sm text-gray-400">or continue anonymously</span>
+              <span className="text-xs text-gray-400 uppercase tracking-wide">or</span>
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
 
@@ -155,66 +154,67 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 }}
                 onFocus={() => setIsFormFocused(true)}
                 onBlur={() => setIsFormFocused(false)}
-                placeholder="Pick a name, any name"
+                placeholder="Enter a nickname"
                 aria-label="Your nickname"
                 aria-required="true"
                 aria-invalid={showNameError}
-                className={`w-full px-4 py-4 rounded-xl border-2 text-lg ${
+                className={`w-full px-4 py-3.5 rounded-xl border-2 ${
                   showNameError
                     ? 'border-red-400 bg-red-50/50'
                     : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 focus:border-pink-500'
-                } focus:ring-4 focus:ring-pink-100 outline-none transition-all placeholder:text-gray-400`}
+                } focus:ring-2 focus:ring-pink-100 outline-none transition-all placeholder:text-gray-400`}
                 maxLength={30}
               />
               {showNameError && (
-                <p className="mt-2 text-sm text-red-600" role="alert">Enter a name to continue</p>
+                <p className="mt-1.5 text-sm text-red-600" role="alert">Enter a name to continue</p>
               )}
             </div>
 
-            {/* Video Toggle - Simplified */}
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-3">
+            {/* Options Row */}
+            <div className="flex items-center justify-between py-1">
+              {/* Video Toggle */}
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsVideoEnabled(!isVideoEnabled)}
                   role="switch"
                   aria-checked={isVideoEnabled}
-                  className={`relative w-11 h-6 rounded-full transition-colors ${
+                  className={`relative w-10 h-5 rounded-full transition-colors ${
                     isVideoEnabled ? 'bg-pink-500' : 'bg-gray-300'
                   }`}
                 >
-                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
                     isVideoEnabled ? 'translate-x-5' : ''
                   }`} />
                 </button>
-                <span className="text-gray-700">Video on</span>
+                <span className="text-sm text-gray-600">Video</span>
               </div>
-            </div>
 
-            {/* 18+ Checkbox - Simplified */}
-            <label className="flex items-center gap-3 py-2 cursor-pointer">
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                isAdultConfirmed ? 'bg-pink-500 border-pink-500' : 'border-gray-300'
-              }`}>
-                {isAdultConfirmed && (
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-              <input
-                type="checkbox"
-                checked={isAdultConfirmed}
-                onChange={() => {
-                  setIsAdultConfirmed(!isAdultConfirmed);
-                  if (isAdultConfirmed) {
-                    setUserAge('');
-                    setShowAgeError(false);
-                  }
-                }}
-                className="sr-only"
-              />
-              <span className="text-gray-700">I'm 18+</span>
-            </label>
+              {/* 18+ Checkbox */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                  isAdultConfirmed ? 'bg-pink-500 border-pink-500' : 'border-gray-300'
+                }`}>
+                  {isAdultConfirmed && (
+                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <input
+                  type="checkbox"
+                  checked={isAdultConfirmed}
+                  onChange={() => {
+                    setIsAdultConfirmed(!isAdultConfirmed);
+                    if (isAdultConfirmed) {
+                      setUserAge('');
+                      setShowAgeError(false);
+                    }
+                  }}
+                  className="sr-only"
+                />
+                <span className="text-sm text-gray-600">18+</span>
+              </label>
+            </div>
 
             {/* Age Input - Shows when 18+ is confirmed */}
             {isAdultConfirmed && (
@@ -231,12 +231,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   placeholder="Your age"
                   min="18"
                   max="120"
-                  className={`w-full px-4 py-4 rounded-xl border-2 text-lg ${
+                  className={`w-full px-4 py-3.5 rounded-xl border-2 ${
                     showAgeError ? 'border-red-400 bg-red-50/50' : 'border-gray-200 bg-gray-50/50 focus:border-pink-500'
-                  } focus:ring-4 focus:ring-pink-100 outline-none transition-all placeholder:text-gray-400`}
+                  } focus:ring-2 focus:ring-pink-100 outline-none transition-all placeholder:text-gray-400`}
                 />
                 {showAgeError && (
-                  <p className="mt-2 text-sm text-red-600">Must be 18 or older</p>
+                  <p className="mt-1.5 text-sm text-red-600">Must be 18 or older</p>
                 )}
               </div>
             )}
@@ -245,7 +245,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <button
               onClick={() => handleStartChat(false)}
               disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
-              className="w-full py-4 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white font-semibold text-lg rounded-xl transition-all disabled:cursor-not-allowed"
+              className="w-full py-3.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white font-semibold rounded-xl transition-all disabled:cursor-not-allowed"
             >
               Start chatting →
             </button>
@@ -254,22 +254,17 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <button
               onClick={() => handleStartChat(true)}
               disabled={!userName.trim()}
-              className="w-full text-center text-gray-500 hover:text-gray-700 disabled:text-gray-300 text-sm transition-colors"
+              className="w-full text-center text-gray-400 hover:text-gray-600 disabled:text-gray-300 text-sm transition-colors"
             >
-              or text only
+              text only
             </button>
           </div>
         </div>
 
         {/* Minimal Footer */}
-        <div className="text-center mt-6 sm:mt-8 text-xs sm:text-sm text-gray-500">
-          <p>
-            Moderated 24/7. Be kind, stay anonymous.{' '}
-            <a href="/terms-of-service" className="text-gray-600 hover:text-gray-800 underline">Terms</a>
-            {' '}&{' '}
-            <a href="/privacy-policy" className="text-gray-600 hover:text-gray-800 underline">Privacy</a>
-          </p>
-        </div>
+        <p className="text-center mt-6 text-xs text-gray-400">
+          Moderated 24/7 · <a href="/terms-of-service" className="hover:text-gray-600 underline">Terms</a> · <a href="/privacy-policy" className="hover:text-gray-600 underline">Privacy</a>
+        </p>
         </div>
       </div>
 
