@@ -213,9 +213,9 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
         {/* Help Text */}
         <p className="text-center text-xs text-gray-500 mt-4">
           By continuing, you agree to our{' '}
-          <a href="#" className="text-primary-600 hover:underline">Terms of Service</a>
+          <a href="/terms-of-service" className="text-primary-600 hover:underline">Terms of Service</a>
           {' '}and{' '}
-          <a href="#" className="text-primary-600 hover:underline">Privacy Policy</a>
+          <a href="/privacy-policy" className="text-primary-600 hover:underline">Privacy Policy</a>
         </p>
       </div>
     </div>

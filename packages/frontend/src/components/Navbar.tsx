@@ -101,27 +101,6 @@ export default function Navbar() {
             Start Chatting
           </a>
         </div>
-
-        {/* Mobile Menu Dropdown */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-white/20 mt-2">
-            <div className="flex flex-col gap-1 pt-3">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-white/90 hover:text-white hover:bg-white/10 font-medium text-sm transition-colors flex items-center gap-2 px-3 py-2.5 rounded-lg"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={link.icon} />
-                  </svg>
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );

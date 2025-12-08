@@ -188,9 +188,9 @@ export default function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         {/* Help Link */}
         <p className="text-center text-xs text-gray-500 mt-4">
           Questions? Read our{' '}
-          <a href="#" className="text-primary-600 hover:underline font-medium">Safety Center</a>
+          <a href="/#faq" className="text-primary-600 hover:underline font-medium">FAQ</a>
           {' '}or{' '}
-          <a href="#" className="text-primary-600 hover:underline font-medium">Contact Support</a>
+          <a href="mailto:support@paircam.live" className="text-primary-600 hover:underline font-medium">Contact Support</a>
         </p>
       </div>
     </div>
