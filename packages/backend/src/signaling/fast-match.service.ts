@@ -24,6 +24,7 @@ export class FastMatchService {
   private readonly QUEUE_KEY = 'fast-match:queue';
   private readonly SESSION_PREFIX = 'fast-session:';
   private readonly SESSION_TTL = 300; // 5 minutes
+  private readonly MAX_QUEUE_SIZE = 1000; // Prevent memory exhaustion attack
 
   constructor(
     private readonly redisService: RedisService,
@@ -52,6 +53,13 @@ export class FastMatchService {
     const waitingUser = await this.redisService.lpop(this.QUEUE_KEY) as FastQueueUser | null;
 
     if (!waitingUser) {
+      // Check queue size limit (Edge Case 8 - prevent memory exhaustion)
+      const queueLength = await this.redisService.llen(this.QUEUE_KEY);
+      if (queueLength >= this.MAX_QUEUE_SIZE) {
+        this.logger.warn('Fast match queue full', { userId, queueLength });
+        return { matched: false }; // Silently reject to prevent spam
+      }
+
       // No one waiting, add this user to queue
       await this.redisService.rpush(this.QUEUE_KEY, queueUser);
       this.logger.debug('User joined fast queue', { userId });
@@ -66,12 +74,19 @@ export class FastMatchService {
       createdAt: Date.now(),
     };
 
-    // Store session
-    await this.redisService.set(
-      `${this.SESSION_PREFIX}${sessionId}`,
-      sessionData,
-      this.SESSION_TTL,
-    );
+    // Store session (Edge Case 2 - verify before emitting)
+    try {
+      await this.redisService.set(
+        `${this.SESSION_PREFIX}${sessionId}`,
+        sessionData,
+        this.SESSION_TTL,
+      );
+    } catch (error) {
+      this.logger.error('Failed to create session', (error as Error).stack);
+      // If session creation fails, add user back to queue
+      await this.redisService.rpush(this.QUEUE_KEY, waitingUser);
+      return { matched: false };
+    }
 
     this.logger.log('Fast match found!', {
       user1: waitingUser.userId,
@@ -79,7 +94,12 @@ export class FastMatchService {
       sessionId,
     });
 
-    // Notify both users of match
+    // Notify both users of match (Edge Case 5 - null check on gateway)
+    if (!this.signalingGateway?.server) {
+      this.logger.error('Gateway server not initialized', '', { sessionId });
+      return { matched: false };
+    }
+
     await this.signalingGateway.server
       .to(waitingUser.socketId)
       .emit('matched', {

@@ -148,6 +148,9 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       // Remove from matchmaking queue if in queue
       await this.matchmakingService.removeFromQueue(deviceId);
 
+      // Remove from fast match queue if in queue (Edge Case 4 fix)
+      await this.fastMatchService.leaveFastQueue(deviceId);
+
       // Clean up session if active
       if (client.data.sessionId) {
         // 🆕 Track reputation for unexpected disconnects (treat as skip)
