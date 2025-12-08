@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Primary gradient (pink to purple) */
+  --gradient-primary: linear-gradient(to right, #db2777, #9333ea);
+  --gradient-primary-hover: linear-gradient(to right, #be185d, #7e22ce);
+
+  /* Secondary gradient (indigo to blue) */
+  --gradient-secondary: linear-gradient(to right, #4f46e5, #2563eb);
+  --gradient-secondary-hover: linear-gradient(to right, #4338ca, #1d4ed8);
+
+  /* Upgrade gradient (yellow to orange) */
+  --gradient-upgrade: linear-gradient(to right, #facc15, #f97316);
+  --gradient-upgrade-hover: linear-gradient(to right, #eab308, #ea580c);
+
+  /* Danger gradient (orange to red) */
+  --gradient-danger: linear-gradient(to right, #f97316, #ef4444);
+  --gradient-danger-hover: linear-gradient(to right, #ea580c, #dc2626);
+}
+
 @layer base {
   * {
     @apply box-border;
@@ -60,6 +78,35 @@
   /* Glass effect */
   .glass {
     @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-2xl;
+  }
+
+  /* Gradient backgrounds using CSS variables */
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  .bg-gradient-primary:hover {
+    background: var(--gradient-primary-hover);
+  }
+
+  .bg-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  .bg-gradient-secondary:hover {
+    background: var(--gradient-secondary-hover);
+  }
+
+  .bg-gradient-upgrade {
+    background: var(--gradient-upgrade);
+  }
+  .bg-gradient-upgrade:hover {
+    background: var(--gradient-upgrade-hover);
+  }
+
+  .bg-gradient-danger {
+    background: var(--gradient-danger);
+  }
+  .bg-gradient-danger:hover {
+    background: var(--gradient-danger-hover);
   }
 }
 
