@@ -1,25 +1,21 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import Stripe from 'stripe';
 import { env } from '../env';
 import { UsersService } from '../users/users.service';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { LoggerService } from '../services/logger.service';
+import { STRIPE_CLIENT, STRIPE_WEBHOOK_EVENTS, STRIPE_PAYMENT_STATUS } from './stripe';
 
 @Injectable()
 export class PaymentsService {
-  private stripe: Stripe;
-
   constructor(
+    @Inject(STRIPE_CLIENT) private readonly stripe: Stripe | null,
     private readonly usersService: UsersService,
     private readonly subscriptionsService: SubscriptionsService,
     private readonly logger: LoggerService,
   ) {
-    if (!env.STRIPE_SECRET_KEY) {
-      this.logger.warn('Stripe secret key not configured');
-    } else {
-      this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-        apiVersion: '2024-06-20',
-      });
+    if (!this.stripe) {
+      this.logger.warn('Stripe client not configured - payment features disabled');
     }
   }
 
@@ -102,26 +98,26 @@ export class PaymentsService {
 
     try {
       switch (event.type) {
-        case 'checkout.session.completed':
+        case STRIPE_WEBHOOK_EVENTS.CHECKOUT_SESSION_COMPLETED:
           await this.handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
           break;
-        
-        case 'customer.subscription.updated':
+
+        case STRIPE_WEBHOOK_EVENTS.SUBSCRIPTION_UPDATED:
           await this.handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
           break;
-        
-        case 'customer.subscription.deleted':
+
+        case STRIPE_WEBHOOK_EVENTS.SUBSCRIPTION_DELETED:
           await this.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
           break;
-        
-        case 'invoice.payment_succeeded':
+
+        case STRIPE_WEBHOOK_EVENTS.PAYMENT_SUCCEEDED:
           await this.handlePaymentSucceeded(event.data.object as Stripe.Invoice);
           break;
-        
-        case 'invoice.payment_failed':
+
+        case STRIPE_WEBHOOK_EVENTS.PAYMENT_FAILED:
           await this.handlePaymentFailed(event.data.object as Stripe.Invoice);
           break;
-        
+
         default:
           this.logger.debug('Unhandled webhook event', { type: event.type });
       }
@@ -134,6 +130,8 @@ export class PaymentsService {
   }
 
   private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+    if (!this.stripe) return;
+
     const userId = session.metadata?.userId;
     const plan = session.metadata?.plan as 'weekly' | 'monthly';
 
@@ -277,7 +275,7 @@ export class PaymentsService {
       }
 
       // Check if payment was successful
-      if (session.payment_status !== 'paid') {
+      if (session.payment_status !== STRIPE_PAYMENT_STATUS.PAID) {
         throw new BadRequestException('Payment not completed');
       }
 

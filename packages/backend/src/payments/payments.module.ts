@@ -6,6 +6,7 @@ import { Payment } from './entities/payment.entity';
 import { LoggerModule } from '../services/logger.module';
 import { UsersModule } from '../users/users.module';
 import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
+import { StripeProvider } from './stripe';
 
 @Module({
   imports: [
@@ -15,8 +16,8 @@ import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
     SubscriptionsModule,
   ],
   controllers: [PaymentsController],
-  providers: [PaymentsService],
-  exports: [PaymentsService],
+  providers: [StripeProvider, PaymentsService],
+  exports: [PaymentsService, StripeProvider],
 })
 export class PaymentsModule {}
 
