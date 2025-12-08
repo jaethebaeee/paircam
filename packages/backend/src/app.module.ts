@@ -11,7 +11,8 @@ import { ReportingModule } from './reporting/reporting.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { UsersModule } from './users/users.module';
-import { FriendsModule } from './friends/friends.module'; // 🆕 Friends & Social
+import { FriendsModule } from './friends/friends.module';
+import { MessagesModule } from './messages/messages.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { HealthController } from './health/health.controller';
@@ -23,6 +24,7 @@ import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission } from './games/entities';
 import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
+import { Message, Conversation } from './messages/entities';
 
 @Module({
   imports: [
@@ -34,7 +36,7 @@ import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment, GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission, FriendRequest, Friendship, BlockedUser],
+      entities: [User, Subscription, Payment, GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission, FriendRequest, Friendship, BlockedUser, Message, Conversation],
       synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
@@ -51,6 +53,7 @@ import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
     TurnModule,
     ReportingModule,
     MonitoringModule,
+    MessagesModule, // 🆕 Direct Messaging
   ],
   controllers: [HealthController],
 })
