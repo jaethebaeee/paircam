@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import Spinner from './ui/Spinner';
 import CloseButton from './ui/CloseButton';
-import { CheckCircleIcon } from './ui/icons';
+import PrimaryButton from './ui/PrimaryButton';
+import { CheckCircleIcon, LockIcon } from './ui/icons';
 
 interface PremiumModalProps {
   onClose: () => void;
@@ -138,20 +138,15 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
         </div>
 
         {/* CTA Button */}
-        <button
+        <PrimaryButton
           onClick={handleUpgrade}
-          disabled={loading}
-          className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          loading={loading}
+          loadingText="Loading..."
+          size="lg"
+          fullWidth
         >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <Spinner size="md" color="white" />
-              Loading...
-            </span>
-          ) : (
-            'Upgrade Now'
-          )}
-        </button>
+          Upgrade Now
+        </PrimaryButton>
 
         {/* Trust signals */}
         <div className="mt-6 space-y-3">
@@ -165,9 +160,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
               No hidden fees
             </span>
             <span className="flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
+              <LockIcon className="w-4 h-4 text-green-500" />
               Secure payment
             </span>
           </div>

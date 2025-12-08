@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
 import AnimatedBackground from './ui/AnimatedBackground';
 import AdBanner from './ads/AdBanner';
+import { StepCard, CompactFeature } from './ui/FeatureCard';
+import SafetyFeatureItem from './ui/SafetyFeatureItem';
 
 interface LandingPageProps {
   onStartCall: (data: {
@@ -190,38 +192,24 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           <p className="text-center text-gray-600 mb-8 sm:mb-12 text-base sm:text-lg">Get started in three simple steps</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
-            {/* Step 1 */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-pink-100 p-5 sm:p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-pink-500 to-pink-600 w-12 sm:w-16 h-12 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                <span className="text-2xl sm:text-3xl font-bold text-white">1</span>
-              </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Enter Your Name</h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Choose a name or nickname. No signup required. Stay anonymous.
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-purple-100 p-5 sm:p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 w-12 sm:w-16 h-12 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                <span className="text-2xl sm:text-3xl font-bold text-white">2</span>
-              </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Get Matched</h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Instantly paired with someone online. Takes just seconds.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-blue-100 p-5 sm:p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-12 sm:w-16 h-12 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                <span className="text-2xl sm:text-3xl font-bold text-white">3</span>
-              </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Start Chatting</h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Video, voice, or text. Skip anytime with one click.
-              </p>
-            </div>
+            <StepCard
+              stepNumber={1}
+              title="Enter Your Name"
+              description="Choose a name or nickname. No signup required. Stay anonymous."
+              color="pink"
+            />
+            <StepCard
+              stepNumber={2}
+              title="Get Matched"
+              description="Instantly paired with someone online. Takes just seconds."
+              color="purple"
+            />
+            <StepCard
+              stepNumber={3}
+              title="Start Chatting"
+              description="Video, voice, or text. Skip anytime with one click."
+              color="blue"
+            />
           </div>
         </div>
 
@@ -244,61 +232,46 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-green-500 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">24/7 Moderation</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">AI and human moderators monitor content</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Anonymous by Default</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Your privacy is always protected</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-purple-500 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Report & Block</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Instantly report rule violators</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">18+ Verification</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Age verification for video chat</p>
-                </div>
-              </div>
+              <SafetyFeatureItem
+                icon={
+                  <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                }
+                title="24/7 Moderation"
+                description="AI and human moderators monitor content"
+                color="green"
+              />
+              <SafetyFeatureItem
+                icon={
+                  <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                }
+                title="Anonymous by Default"
+                description="Your privacy is always protected"
+                color="blue"
+              />
+              <SafetyFeatureItem
+                icon={
+                  <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                }
+                title="Report & Block"
+                description="Instantly report rule violators"
+                color="purple"
+              />
+              <SafetyFeatureItem
+                icon={
+                  <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                }
+                title="18+ Verification"
+                description="Age verification for video chat"
+                color="orange"
+              />
             </div>
 
             <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-white/70 rounded-xl sm:rounded-2xl border border-green-300">
@@ -555,35 +528,36 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div id="about" className="max-w-5xl mx-auto mt-10 sm:mt-16 mb-8 sm:mb-12 px-2 scroll-mt-24">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">Why Choose Us?</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-pink-500 to-pink-600 w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+            <CompactFeature
+              icon={
                 <svg className="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Lightning Fast</h3>
-              <p className="text-sm sm:text-base text-gray-600">Connect in seconds. No waiting, just instant conversations.</p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+              }
+              title="Lightning Fast"
+              description="Connect in seconds. No waiting, just instant conversations."
+              color="pink"
+            />
+            <CompactFeature
+              icon={
                 <svg className="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Global Reach</h3>
-              <p className="text-sm sm:text-base text-gray-600">Meet people from 195+ countries worldwide.</p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+              }
+              title="Global Reach"
+              description="Meet people from 195+ countries worldwide."
+              color="purple"
+            />
+            <CompactFeature
+              icon={
                 <svg className="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                 </svg>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Your Choice</h3>
-              <p className="text-sm sm:text-base text-gray-600">Video, voice, or text – switch modes anytime.</p>
-            </div>
+              }
+              title="Your Choice"
+              description="Video, voice, or text – switch modes anytime."
+              color="blue"
+            />
           </div>
         </div>
 

@@ -80,3 +80,39 @@ export function SpinnerIcon({ className = 'h-3 w-3', color = 'currentColor' }: S
     </svg>
   );
 }
+
+// Back arrow icon - for navigation
+export function BackIcon({ className = 'w-4 h-4' }: IconProps) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+    </svg>
+  );
+}
+
+// Lock icon - for secure payment / privacy
+export function LockIcon({ className = 'w-4 h-4' }: IconProps) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+      <path
+        fillRule="evenodd"
+        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
+// Globe icon - for logo
+export function GlobeIcon({ className = 'w-8 h-8' }: IconProps) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+  );
+}

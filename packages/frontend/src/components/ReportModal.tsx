@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { FlagIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import Spinner from './ui/Spinner';
+import { FlagIcon } from '@heroicons/react/24/solid';
+import CloseButton from './ui/CloseButton';
+import PrimaryButton from './ui/PrimaryButton';
+import { BackIcon } from './ui/icons';
 
 interface ReportModalProps {
   onSubmit: (reason: string, comment?: string) => void;
@@ -46,13 +48,7 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
               <p className="text-white/80 text-[10px] sm:text-xs">Help keep our community safe</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-white/80 hover:text-white hover:bg-white/20 p-1.5 sm:p-2 rounded-full transition-all"
-            aria-label="Close"
-          >
-            <XMarkIcon className="h-5 w-5" />
-          </button>
+          <CloseButton onClick={onClose} variant="light" size="md" />
         </div>
 
         {/* Content */}
@@ -85,9 +81,7 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
                 onClick={() => setStep('reason')}
                 className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-3 sm:mb-4 text-xs sm:text-sm"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <BackIcon />
                 Back
               </button>
 
@@ -117,20 +111,16 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
               </p>
 
               <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
-                <button
+                <PrimaryButton
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base min-h-[48px]"
+                  loading={isLoading}
+                  loadingText="Submitting..."
+                  variant="danger"
+                  fullWidth
                 >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <Spinner size="sm" color="white" />
-                      Submitting...
-                    </span>
-                  ) : (
-                    'Submit Report'
-                  )}
-                </button>
+                  Submit Report
+                </PrimaryButton>
                 <button
                   onClick={onClose}
                   className="w-full py-2.5 sm:py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors text-sm sm:text-base min-h-[44px]"
