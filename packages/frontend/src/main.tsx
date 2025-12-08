@@ -5,6 +5,25 @@ import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { enforceSecureConnection, validateSecurityConfig } from './utils/security';
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
+import * as Sentry from '@sentry/react';
+
+// ═══════════════════════════════════════════════════════════════════
+// 🐛 ERROR MONITORING: Initialize Sentry for production error tracking
+// ═══════════════════════════════════════════════════════════════════
+if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    environment: import.meta.env.MODE,
+    // Ignore certain errors that aren't actionable
+    ignoreErrors: [
+      // Browser extensions and plugins
+      'chrome-extension://',
+      'moz-extension://',
+      // Third-party scripts
+      'top.GLOBALS',
+    ],
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // 🔒 SECURITY: Enforce HTTPS in production
