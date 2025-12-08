@@ -16,7 +16,7 @@ export default function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
       <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-8 animate-scaleIn max-h-[90vh] overflow-y-auto custom-scrollbar">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-600 rounded-full mb-4">
             <ShieldCheckIcon className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -45,7 +45,7 @@ export default function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         {/* Safety Rules */}
         <div className="space-y-4 mb-6">
           <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-            <ShieldCheckIcon className="w-6 h-6 text-pink-600" />
+            <ShieldCheckIcon className="w-6 h-6 text-primary-600" />
             Safety Rules
           </h3>
           
@@ -149,9 +149,9 @@ export default function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         </div>
 
         {/* Acceptance Checkbox */}
-        <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-5 mb-6 border-2 border-pink-200">
+        <div className="bg-gradient-to-r from-primary-50 to-secondary-50 rounded-2xl p-5 mb-6 border-2 border-primary-200">
           <div className="flex items-start gap-3">
-            <CheckCircleIcon className="w-6 h-6 text-pink-600 flex-shrink-0 mt-1" />
+            <CheckCircleIcon className="w-6 h-6 text-primary-600 flex-shrink-0 mt-1" />
             <div className="flex-1">
               <p className="text-sm text-gray-800 font-medium leading-relaxed">
                 By clicking "I Accept", you confirm that:
@@ -178,7 +178,7 @@ export default function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
           </button>
           <button
             onClick={onAccept}
-            className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold hover:from-pink-700 hover:to-purple-700 shadow-lg shadow-pink-500/30 transition-all flex items-center justify-center gap-2"
+            className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold hover:from-primary-700 hover:to-secondary-700 shadow-lg shadow-primary-500/30 transition-all flex items-center justify-center gap-2"
           >
             <CheckCircleIcon className="w-5 h-5" />
             I Accept & Continue
@@ -188,9 +188,9 @@ export default function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         {/* Help Link */}
         <p className="text-center text-xs text-gray-500 mt-4">
           Questions? Read our{' '}
-          <a href="#" className="text-pink-600 hover:underline font-medium">Safety Center</a>
+          <a href="#" className="text-primary-600 hover:underline font-medium">Safety Center</a>
           {' '}or{' '}
-          <a href="#" className="text-pink-600 hover:underline font-medium">Contact Support</a>
+          <a href="#" className="text-primary-600 hover:underline font-medium">Contact Support</a>
         </p>
       </div>
     </div>

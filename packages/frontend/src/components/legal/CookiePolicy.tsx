@@ -69,26 +69,26 @@ export default function CookiePolicy() {
               </div>
 
               {/* Analytics Cookies */}
-              <div className="bg-purple-50 border-l-4 border-purple-500 p-6 rounded-r-xl">
-                <h3 className="text-xl font-bold text-purple-900 mb-3">📊 Analytics Cookies (Optional)</h3>
-                <p className="text-purple-800 mb-3">
+              <div className="bg-secondary-50 border-l-4 border-secondary-500 p-6 rounded-r-xl">
+                <h3 className="text-xl font-bold text-secondary-900 mb-3">📊 Analytics Cookies (Optional)</h3>
+                <p className="text-secondary-800 mb-3">
                   These cookies help us understand how visitors use our website so we can improve it.
                 </p>
                 <table className="w-full text-sm">
-                  <thead className="bg-purple-100">
+                  <thead className="bg-secondary-100">
                     <tr>
                       <th className="p-2 text-left font-semibold">Cookie Name</th>
                       <th className="p-2 text-left font-semibold">Purpose</th>
                       <th className="p-2 text-left font-semibold">Duration</th>
                     </tr>
                   </thead>
-                  <tbody className="text-purple-900">
-                    <tr className="border-t border-purple-200">
+                  <tbody className="text-secondary-900">
+                    <tr className="border-t border-secondary-200">
                       <td className="p-2 font-mono text-xs">_ga</td>
                       <td className="p-2">Google Analytics - tracks visitors</td>
                       <td className="p-2">2 years</td>
                     </tr>
-                    <tr className="border-t border-purple-200">
+                    <tr className="border-t border-secondary-200">
                       <td className="p-2 font-mono text-xs">_gid</td>
                       <td className="p-2">Google Analytics - session tracking</td>
                       <td className="p-2">24 hours</td>
@@ -200,12 +200,12 @@ export default function CookiePolicy() {
               You have several options to manage cookies:
             </p>
             
-            <div className="bg-gradient-to-r from-pink-50 to-purple-50 border-2 border-pink-200 rounded-xl p-6 mb-4">
-              <h3 className="font-bold text-pink-900 mb-3">🎛️ Cookie Preference Center</h3>
-              <p className="text-pink-800 mb-4">
+            <div className="bg-gradient-to-r from-primary-50 to-secondary-50 border-2 border-primary-200 rounded-xl p-6 mb-4">
+              <h3 className="font-bold text-primary-900 mb-3">🎛️ Cookie Preference Center</h3>
+              <p className="text-primary-800 mb-4">
                 Click the button below to open our Cookie Preference Center where you can enable/disable optional cookies:
               </p>
-              <button className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
+              <button className="bg-gradient-to-r from-primary-500 to-secondary-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
                 Manage Cookie Preferences
               </button>
             </div>
@@ -270,7 +270,7 @@ export default function CookiePolicy() {
         <div className="mt-12 pt-8 border-t border-gray-200">
           <a 
             href="/" 
-            className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-semibold transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

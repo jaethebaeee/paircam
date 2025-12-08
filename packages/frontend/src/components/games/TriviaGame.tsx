@@ -157,7 +157,7 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fadeIn">
         <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 flex items-center justify-between z-10">
+          <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-secondary-500 px-6 py-4 flex items-center justify-between z-10">
             <div className="flex items-center gap-4">
               <div className="flex-grow">
                 <h2 className="text-white font-bold text-lg">Trivia Battle</h2>

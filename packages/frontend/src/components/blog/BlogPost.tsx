@@ -85,11 +85,11 @@ export default function BlogPost() {
         <nav className="mb-8" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-gray-500">
             <li>
-              <Link to="/" className="hover:text-pink-600 transition-colors">Home</Link>
+              <Link to="/" className="hover:text-primary-600 transition-colors">Home</Link>
             </li>
             <li>/</li>
             <li>
-              <Link to="/blog" className="hover:text-pink-600 transition-colors">Blog</Link>
+              <Link to="/blog" className="hover:text-primary-600 transition-colors">Blog</Link>
             </li>
             <li>/</li>
             <li className="text-gray-900 font-medium truncate max-w-xs">{post.title}</li>
@@ -99,7 +99,7 @@ export default function BlogPost() {
         {/* Article Header */}
         <header className="mb-10">
           <div className="flex items-center gap-3 mb-4">
-            <span className="px-4 py-1.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-sm font-semibold rounded-full">
+            <span className="px-4 py-1.5 bg-gradient-to-r from-primary-500 to-secondary-600 text-white text-sm font-semibold rounded-full">
               {post.category}
             </span>
             <span className="text-gray-500 text-sm">{post.readTime} min read</span>
@@ -115,7 +115,7 @@ export default function BlogPost() {
 
           <div className="flex items-center justify-between flex-wrap gap-4 pb-8 border-b border-gray-200">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-500 to-secondary-600 flex items-center justify-center text-white font-bold text-lg">
                 {post.author.charAt(0)}
               </div>
               <div>
@@ -178,7 +178,7 @@ export default function BlogPost() {
         </header>
 
         {/* Article Content */}
-        <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-p:text-gray-600 prose-p:leading-relaxed prose-a:text-pink-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-li:text-gray-600 prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-ul:my-4 prose-ol:my-4">
+        <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-p:text-gray-600 prose-p:leading-relaxed prose-a:text-primary-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-li:text-gray-600 prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-ul:my-4 prose-ol:my-4">
           <ReactMarkdown>{post.content}</ReactMarkdown>
         </div>
 
@@ -188,7 +188,7 @@ export default function BlogPost() {
             {post.tags.map(tag => (
               <span
                 key={tag}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-pink-100 hover:text-pink-700 transition-colors"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-primary-100 hover:text-primary-700 transition-colors"
               >
                 #{tag}
               </span>
@@ -197,14 +197,14 @@ export default function BlogPost() {
         </div>
 
         {/* CTA Box */}
-        <div className="mt-12 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-2xl p-8 text-center text-white">
+        <div className="mt-12 bg-gradient-to-r from-primary-500 via-secondary-500 to-blue-500 rounded-2xl p-8 text-center text-white">
           <h3 className="text-2xl font-bold mb-3">Ready to Try PairCam?</h3>
           <p className="text-white/90 mb-6">
             Connect with people worldwide instantly. No signup required.
           </p>
           <Link
             to="/"
-            className="inline-block bg-white text-purple-600 font-bold px-8 py-3 rounded-full hover:shadow-xl transition-all hover:scale-105"
+            className="inline-block bg-white text-secondary-600 font-bold px-8 py-3 rounded-full hover:shadow-xl transition-all hover:scale-105"
           >
             Start Free Video Chat
           </Link>
@@ -222,7 +222,7 @@ export default function BlogPost() {
                   className="group block"
                 >
                   <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100">
-                    <div className="h-32 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center">
+                    <div className="h-32 bg-gradient-to-br from-primary-100 via-secondary-100 to-blue-100 flex items-center justify-center">
                       <span className="text-4xl">
                         {related.category === 'Guides' ? '📚' :
                          related.category === 'Safety' ? '🛡️' :
@@ -233,8 +233,8 @@ export default function BlogPost() {
                       </span>
                     </div>
                     <div className="p-4">
-                      <span className="text-xs text-purple-600 font-medium">{related.category}</span>
-                      <h3 className="font-semibold text-gray-900 mt-1 line-clamp-2 group-hover:text-purple-600 transition-colors">
+                      <span className="text-xs text-secondary-600 font-medium">{related.category}</span>
+                      <h3 className="font-semibold text-gray-900 mt-1 line-clamp-2 group-hover:text-secondary-600 transition-colors">
                         {related.title}
                       </h3>
                       <p className="text-sm text-gray-500 mt-2">{related.readTime} min read</p>
@@ -250,7 +250,7 @@ export default function BlogPost() {
         <div className="mt-12 text-center">
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 text-pink-600 hover:text-purple-600 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-primary-600 hover:text-secondary-600 font-semibold transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

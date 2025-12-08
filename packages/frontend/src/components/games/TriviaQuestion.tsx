@@ -60,7 +60,7 @@ export default function TriviaQuestion({
       </div>
 
       {/* Question text */}
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5 border border-blue-200">
+      <div className="bg-gradient-to-br from-blue-50 to-secondary-50 rounded-xl p-5 border border-blue-200">
         <p className="text-lg font-semibold text-gray-800 leading-relaxed">
           {decodeURIComponent(question.question)}
         </p>
@@ -100,7 +100,7 @@ export default function TriviaQuestion({
       {!isAnswered && selectedAnswer && (
         <button
           disabled={isLoading}
-          className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full py-3 bg-gradient-to-r from-blue-500 to-secondary-500 hover:from-blue-600 hover:to-secondary-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
         >
           {isLoading ? 'Submitting...' : 'Submit Answer'}
         </button>

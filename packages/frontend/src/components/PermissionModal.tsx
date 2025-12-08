@@ -81,7 +81,7 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
       <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-8 animate-scaleIn">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-primary-500 to-secondary-600 rounded-full mb-4">
             <ShieldCheckIcon className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -100,7 +100,7 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
               : 'border-gray-200 bg-gray-50'
           }`}>
             <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-              cameraGranted ? 'bg-green-500' : 'bg-pink-500'
+              cameraGranted ? 'bg-green-500' : 'bg-primary-500'
             }`}>
               {cameraGranted ? (
                 <CheckCircleIcon className="w-6 h-6 text-white" />
@@ -122,7 +122,7 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
               : 'border-gray-200 bg-gray-50'
           }`}>
             <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-              micGranted ? 'bg-green-500' : 'bg-purple-500'
+              micGranted ? 'bg-green-500' : 'bg-secondary-500'
             }`}>
               {micGranted ? (
                 <CheckCircleIcon className="w-6 h-6 text-white" />
@@ -194,7 +194,7 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
           <button
             onClick={requestPermissions}
             disabled={isRequesting}
-            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold hover:from-pink-700 hover:to-purple-700 shadow-lg shadow-pink-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-primary-600 to-secondary-600 text-white font-semibold hover:from-primary-700 hover:to-secondary-700 shadow-lg shadow-primary-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isRequesting ? (
               <span className="flex items-center justify-center gap-2">
@@ -213,9 +213,9 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
         {/* Help Text */}
         <p className="text-center text-xs text-gray-500 mt-4">
           By continuing, you agree to our{' '}
-          <a href="#" className="text-pink-600 hover:underline">Terms of Service</a>
+          <a href="#" className="text-primary-600 hover:underline">Terms of Service</a>
           {' '}and{' '}
-          <a href="#" className="text-pink-600 hover:underline">Privacy Policy</a>
+          <a href="#" className="text-primary-600 hover:underline">Privacy Policy</a>
         </p>
       </div>
     </div>

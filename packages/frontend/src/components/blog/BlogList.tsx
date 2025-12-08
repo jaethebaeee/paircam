@@ -62,7 +62,7 @@ export default function BlogList() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <header className="text-center mb-12">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary-600 via-secondary-600 to-blue-600 bg-clip-text text-transparent mb-4">
             PairCam Blog
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -78,7 +78,7 @@ export default function BlogList() {
               placeholder="Search articles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-5 py-4 pl-12 rounded-2xl border-2 border-gray-200 bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-base transition-all placeholder:text-gray-400 shadow-sm"
+              className="w-full px-5 py-4 pl-12 rounded-2xl border-2 border-gray-200 bg-white focus:border-secondary-500 focus:ring-4 focus:ring-secondary-100 outline-none text-base transition-all placeholder:text-gray-400 shadow-sm"
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2"
@@ -109,7 +109,7 @@ export default function BlogList() {
               onClick={() => setSelectedCategory(null)}
               className={`px-4 sm:px-5 py-2 rounded-full font-medium text-sm sm:text-base transition-all ${
                 selectedCategory === null
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-primary-500 to-secondary-600 text-white shadow-lg'
                   : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
               }`}
             >
@@ -121,7 +121,7 @@ export default function BlogList() {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 sm:px-5 py-2 rounded-full font-medium text-sm sm:text-base transition-all ${
                   selectedCategory === category
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-primary-500 to-secondary-600 text-white shadow-lg'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
@@ -149,7 +149,7 @@ export default function BlogList() {
             >
               <div className="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow border border-gray-100">
                 <div className="md:flex">
-                  <div className="md:w-1/2 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-8 flex items-center justify-center">
+                  <div className="md:w-1/2 bg-gradient-to-br from-primary-100 via-secondary-100 to-blue-100 p-8 flex items-center justify-center">
                     <div className="text-center">
                       <span className="text-6xl mb-4 block">
                         {filteredPosts[0].category === 'Guides' ? '📚' :
@@ -157,21 +157,21 @@ export default function BlogList() {
                          filteredPosts[0].category === 'Community' ? '👥' :
                          filteredPosts[0].category === 'Education' ? '🎓' : '📝'}
                       </span>
-                      <span className="inline-block px-4 py-1 bg-white/80 rounded-full text-sm font-medium text-purple-600">
+                      <span className="inline-block px-4 py-1 bg-white/80 rounded-full text-sm font-medium text-secondary-600">
                         Featured
                       </span>
                     </div>
                   </div>
                   <div className="md:w-1/2 p-8">
                     <div className="flex items-center gap-3 mb-4">
-                      <span className="px-3 py-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-semibold rounded-full">
+                      <span className="px-3 py-1 bg-gradient-to-r from-primary-500 to-secondary-600 text-white text-xs font-semibold rounded-full">
                         {filteredPosts[0].category}
                       </span>
                       <span className="text-sm text-gray-500">
                         {filteredPosts[0].readTime} min read
                       </span>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 group-hover:text-purple-600 transition-colors">
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 group-hover:text-secondary-600 transition-colors">
                       {filteredPosts[0].title}
                     </h2>
                     <p className="text-gray-600 mb-6 leading-relaxed">
@@ -179,7 +179,7 @@ export default function BlogList() {
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-secondary-600 flex items-center justify-center text-white font-bold">
                           {filteredPosts[0].author.charAt(0)}
                         </div>
                         <div>
@@ -193,7 +193,7 @@ export default function BlogList() {
                           </p>
                         </div>
                       </div>
-                      <span className="text-pink-600 font-semibold group-hover:translate-x-2 transition-transform inline-flex items-center gap-1">
+                      <span className="text-primary-600 font-semibold group-hover:translate-x-2 transition-transform inline-flex items-center gap-1">
                         Read More
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -215,7 +215,7 @@ export default function BlogList() {
             <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
             <button
               onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
-              className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-full hover:shadow-lg transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-600 text-white font-medium rounded-full hover:shadow-lg transition-all"
             >
               Clear Filters
             </button>
@@ -230,9 +230,9 @@ export default function BlogList() {
                 to={`/blog/${post.slug}`}
                 className="block group h-full"
               >
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all h-full flex flex-col border border-gray-100 hover:border-purple-200">
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all h-full flex flex-col border border-gray-100 hover:border-secondary-200">
                   {/* Thumbnail placeholder */}
-                  <div className="h-48 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center">
+                  <div className="h-48 bg-gradient-to-br from-primary-100 via-secondary-100 to-blue-100 flex items-center justify-center">
                     <span className="text-5xl">
                       {post.category === 'Guides' ? '📚' :
                        post.category === 'Safety' ? '🛡️' :
@@ -244,12 +244,12 @@ export default function BlogList() {
                   </div>
                   <div className="p-6 flex-1 flex flex-col">
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                      <span className="px-3 py-1 bg-secondary-100 text-secondary-700 text-xs font-semibold rounded-full">
                         {post.category}
                       </span>
                       <span className="text-xs text-gray-500">{post.readTime} min</span>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-purple-600 transition-colors line-clamp-2">
+                    <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-secondary-600 transition-colors line-clamp-2">
                       {post.title}
                     </h3>
                     <p className="text-gray-600 text-sm mb-4 flex-1 line-clamp-3">
@@ -263,7 +263,7 @@ export default function BlogList() {
                           year: 'numeric'
                         })}
                       </span>
-                      <span className="text-pink-600 text-sm font-medium group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                      <span className="text-primary-600 text-sm font-medium group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
                         Read
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -278,14 +278,14 @@ export default function BlogList() {
         </div>
 
         {/* CTA Section */}
-        <section className="mt-16 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-3xl p-10 text-center text-white">
+        <section className="mt-16 bg-gradient-to-r from-primary-500 via-secondary-500 to-blue-500 rounded-3xl p-10 text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Ready to Start Chatting?</h2>
           <p className="text-lg text-white/90 mb-6 max-w-xl mx-auto">
             Put these tips into practice. Connect with people from around the world in seconds.
           </p>
           <Link
             to="/"
-            className="inline-block bg-white text-purple-600 font-bold px-8 py-4 rounded-full hover:shadow-xl transition-all hover:scale-105"
+            className="inline-block bg-white text-secondary-600 font-bold px-8 py-4 rounded-full hover:shadow-xl transition-all hover:scale-105"
           >
             Start Free Video Chat
           </Link>

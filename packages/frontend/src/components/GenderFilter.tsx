@@ -37,8 +37,8 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
           onClick={() => handlePreferenceChange('any')}
           className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
             genderPreference === 'any'
-              ? 'border-pink-500 bg-pink-100/70 shadow-lg shadow-pink-200/50 scale-105'
-              : 'border-gray-200 hover:border-pink-300 bg-white hover:bg-pink-50 shadow-sm hover:shadow-md hover:scale-105'
+              ? 'border-primary-500 bg-primary-100/70 shadow-lg shadow-primary-200/50 scale-105'
+              : 'border-gray-200 hover:border-primary-300 bg-white hover:bg-primary-50 shadow-sm hover:shadow-md hover:scale-105'
           }`}
         >
           <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">🌍</div>
@@ -49,8 +49,8 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
           onClick={() => handlePreferenceChange('female')}
           className={`group p-4 rounded-xl border-2 transition-all duration-200 relative ${
             genderPreference === 'female'
-              ? 'border-pink-500 bg-pink-100/70 shadow-lg shadow-pink-200/50 scale-105'
-              : 'border-gray-200 hover:border-pink-300 bg-white hover:bg-pink-50 shadow-sm hover:shadow-md hover:scale-105'
+              ? 'border-primary-500 bg-primary-100/70 shadow-lg shadow-primary-200/50 scale-105'
+              : 'border-gray-200 hover:border-primary-300 bg-white hover:bg-primary-50 shadow-sm hover:shadow-md hover:scale-105'
           } ${!isPremium ? 'opacity-70 hover:opacity-80' : ''}`}
         >
           {!isPremium && (
@@ -64,8 +64,8 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
           onClick={() => handlePreferenceChange('male')}
           className={`group p-4 rounded-xl border-2 transition-all duration-200 relative ${
             genderPreference === 'male'
-              ? 'border-pink-500 bg-pink-100/70 shadow-lg shadow-pink-200/50 scale-105'
-              : 'border-gray-200 hover:border-pink-300 bg-white hover:bg-pink-50 shadow-sm hover:shadow-md hover:scale-105'
+              ? 'border-primary-500 bg-primary-100/70 shadow-lg shadow-primary-200/50 scale-105'
+              : 'border-gray-200 hover:border-primary-300 bg-white hover:bg-primary-50 shadow-sm hover:shadow-md hover:scale-105'
           } ${!isPremium ? 'opacity-70 hover:opacity-80' : ''}`}
         >
           {!isPremium && (
