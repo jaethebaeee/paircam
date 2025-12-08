@@ -1,16 +1,29 @@
-import { useState, useEffect } from 'react';
-import { SparklesIcon, UserGroupIcon, ClockIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect, useRef } from 'react';
+import { SparklesIcon, UserGroupIcon, ClockIcon, ShieldCheckIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 interface WaitingQueueProps {
   queuePosition?: number;
   estimatedWaitTime?: number; // seconds
   onCancel: () => void;
+  onRestart?: () => void;
+  warningThreshold?: number; // seconds before showing warning (default: 45)
+  criticalThreshold?: number; // seconds before showing critical warning (default: 90)
 }
 
-export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCancel }: WaitingQueueProps) {
+export default function WaitingQueue({
+  queuePosition,
+  estimatedWaitTime,
+  onCancel,
+  onRestart,
+  warningThreshold = 45,
+  criticalThreshold = 90,
+}: WaitingQueueProps) {
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [showWarning, setShowWarning] = useState(false);
+  const [warningDismissed, setWarningDismissed] = useState(false);
+  const queueJoinedAt = useRef(Date.now());
 
   const tips = [
     { icon: '🤝', text: 'Be respectful and kind to everyone you meet' },
@@ -49,6 +62,28 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
       setProgress(pulsingProgress);
     }
   }, [elapsedTime, estimatedWaitTime]);
+
+  // Show warning when waiting too long
+  useEffect(() => {
+    if (elapsedTime >= warningThreshold && !warningDismissed) {
+      setShowWarning(true);
+    }
+  }, [elapsedTime, warningThreshold, warningDismissed]);
+
+  const isCritical = elapsedTime >= criticalThreshold;
+
+  const handleRestartSearch = () => {
+    setElapsedTime(0);
+    setShowWarning(false);
+    setWarningDismissed(false);
+    queueJoinedAt.current = Date.now();
+    onRestart?.();
+  };
+
+  const dismissWarning = () => {
+    setWarningDismissed(true);
+    setShowWarning(false);
+  };
 
   const formatTime = (seconds: number) => {
     if (seconds < 60) return `${seconds}s`;
@@ -133,6 +168,63 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
               </div>
             </div>
           </div>
+
+          {/* Timeout Warning */}
+          {showWarning && (
+            <div
+              className={`rounded-xl p-4 mb-6 transition-all ${
+                isCritical
+                  ? 'bg-amber-100 border-2 border-amber-400'
+                  : 'bg-yellow-50 border border-yellow-200'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <ExclamationTriangleIcon
+                  className={`w-6 h-6 flex-shrink-0 ${
+                    isCritical ? 'text-amber-600' : 'text-yellow-600'
+                  }`}
+                />
+                <div className="flex-1">
+                  <h4
+                    className={`font-semibold text-sm ${
+                      isCritical ? 'text-amber-800' : 'text-yellow-800'
+                    }`}
+                  >
+                    {isCritical
+                      ? 'Taking Longer Than Expected'
+                      : 'Still Searching...'}
+                  </h4>
+                  <p
+                    className={`text-xs mt-1 ${
+                      isCritical ? 'text-amber-700' : 'text-yellow-700'
+                    }`}
+                  >
+                    {isCritical
+                      ? `You've been waiting for ${Math.floor(elapsedTime / 60)}+ minutes. Try restarting the search.`
+                      : "We're still looking. This might take a bit longer than usual."}
+                  </p>
+                  <div className="flex gap-2 mt-3">
+                    {isCritical && onRestart && (
+                      <button
+                        onClick={handleRestartSearch}
+                        className="bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors"
+                      >
+                        Restart Search
+                      </button>
+                    )}
+                    {!isCritical && (
+                      <button
+                        onClick={dismissWarning}
+                        className="text-yellow-700 hover:text-yellow-800 px-2 py-1 text-xs font-medium transition-colors"
+                      >
+                        Dismiss
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Safety Badge */}
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-6">
