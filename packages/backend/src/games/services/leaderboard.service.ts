@@ -5,7 +5,7 @@ import { GameSession } from '../entities';
 import { RedisService } from '../../redis/redis.service';
 import { UsersService } from '../../users/users.service';
 
-interface LeaderboardEntry {
+export interface LeaderboardEntry {
   rank: number;
   userId: string;
   username: string;
