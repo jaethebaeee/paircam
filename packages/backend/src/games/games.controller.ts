@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards, Req } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { GameAnalyticsService } from './services/game-analytics.service';
 import { PremiumFeaturesService } from './services/premium-features.service';
 import { TriviaService } from './services/trivia.service';
@@ -34,9 +34,10 @@ export class GamesController {
 
     // Get total games in database
     const totalGamesDb = await this.gameSessionRepository.count();
-    const completedGamesDb = await this.gameSessionRepository.count({
-      where: { completedAt: true },
-    });
+    const completedGamesDb = await this.gameSessionRepository
+      .createQueryBuilder('game')
+      .where('game.completedAt IS NOT NULL')
+      .getCount();
 
     // Get premium conversion metrics
     const totalUsers = await this.userRepository.count();
@@ -250,7 +251,7 @@ export class GamesController {
       },
       premiumStatus: {
         isPremium: premiumConfig.isPremium,
-        gamesRemainingToday: premiumConfig.gamesRemainingToday,
+        gamesRemainingToday: Math.max(0, premiumConfig.dailyLimit - premiumConfig.gamesPlayedToday),
         dailyLimit: premiumConfig.dailyLimit,
       },
       analyticsStats: userStats,

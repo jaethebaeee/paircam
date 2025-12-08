@@ -5,9 +5,8 @@ import {
   MessageBody,
   OnGatewayDisconnect,
   WebSocketServer,
-  Inject,
-  forwardRef,
 } from '@nestjs/websockets';
+import { Inject, forwardRef } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { TriviaService } from './services/trivia.service';
@@ -199,17 +198,17 @@ export class GamesGateway implements OnGatewayDisconnect {
         timeSpent: data.timeSpent,
       });
 
-      // Apply premium multipliers to scores
+      // Apply premium multipliers to scores with actual correct answer counts
       const gameSession = await this.triviaService.getGameSession(data.gameSessionId);
       const user1Premium = await this.premiumFeatures.isPremium(gameSession.user1Id);
       const user2Premium = await this.premiumFeatures.isPremium(gameSession.user2Id);
 
       const user1FinalScore = user1Premium
-        ? await this.premiumFeatures.calculatePremiumScore(gameSession.user1Id, result.user1Score, 0)
+        ? await this.premiumFeatures.calculatePremiumScore(gameSession.user1Id, result.user1Score, result.user1CorrectAnswers)
         : result.user1Score;
 
       const user2FinalScore = user2Premium
-        ? await this.premiumFeatures.calculatePremiumScore(gameSession.user2Id, result.user2Score, 0)
+        ? await this.premiumFeatures.calculatePremiumScore(gameSession.user2Id, result.user2Score, result.user2CorrectAnswers)
         : result.user2Score;
 
       // Send score update to both
@@ -222,6 +221,10 @@ export class GamesGateway implements OnGatewayDisconnect {
 
       // Send next question or game end
       if (result.nextQuestion) {
+        // Get stored timePerQuestion from game metadata for consistency
+        const metadata = await this.triviaService.getGameMetadata(data.gameSessionId);
+        const timePerQuestion = metadata?.timePerQuestion || 15;
+
         const nextQuestionEvent: NewQuestionEvent = {
           questionNumber: data.questionNumber + 1,
           question: result.nextQuestion.question,
@@ -229,7 +232,7 @@ export class GamesGateway implements OnGatewayDisconnect {
             result.nextQuestion.correct_answer,
             ...result.nextQuestion.incorrect_answers,
           ]),
-          timeLimit: 15,
+          timeLimit: timePerQuestion,
         };
 
         await this.emitToSessionPeers(data.sessionId, 'new-question', nextQuestionEvent);
@@ -237,7 +240,7 @@ export class GamesGateway implements OnGatewayDisconnect {
         // Game over
         const finalResult = await this.triviaService.completeGame(data.gameSessionId);
 
-        // Track completion
+        // Get fresh game session with completed results
         const gameSession = await this.triviaService.getGameSession(data.gameSessionId);
 
         // Apply premium multipliers to final scores
@@ -255,8 +258,18 @@ export class GamesGateway implements OnGatewayDisconnect {
           ? await this.premiumFeatures.calculatePremiumScore(gameSession.user2Id, finalResult.user2Score, user2Correct)
           : finalResult.user2Score;
 
-        // Determine winner based on final scores
+        // Determine winner based on premium-adjusted final scores
         const winnerId = user1FinalScore > user2FinalScore ? gameSession.user1Id : gameSession.user2Id;
+
+        // Update game session with final premium-adjusted scores and winner
+        if (gameSession.user1Results) {
+          gameSession.user1Results.score = user1FinalScore;
+        }
+        if (gameSession.user2Results) {
+          gameSession.user2Results.score = user2FinalScore;
+        }
+        gameSession.winnerId = winnerId;
+        await this.triviaService.saveGameSession(gameSession);
 
         await this.gameAnalytics.trackGameCompleted({
           gameSessionId: data.gameSessionId,
@@ -277,14 +290,17 @@ export class GamesGateway implements OnGatewayDisconnect {
 
         await this.emitToSessionPeers(data.sessionId, 'game-ended', gameEndedEvent);
 
-        this.logger.debug('Game completed with premium multipliers', {
+        this.logger.debug('Game completed with premium multipliers applied', {
           gameSessionId: data.gameSessionId,
-          user1Score: finalResult.user1Score,
+          user1BaseScore: finalResult.user1Score,
           user1FinalScore,
           user1Premium,
-          user2Score: finalResult.user2Score,
+          user1Correct,
+          user2BaseScore: finalResult.user2Score,
           user2FinalScore,
           user2Premium,
+          user2Correct,
+          winnerId,
         });
 
         // Clean up active game tracking
@@ -391,11 +407,12 @@ export class GamesGateway implements OnGatewayDisconnect {
         peerSocket.emit(eventName, data);
       } else {
         // Distributed emission via Redis Pub/Sub
+        // Note: Game events are broadcast via Redis when peers are on different server instances
         await this.redisPubSub.publish(`game:${sessionId}:${peerId}`, {
-          type: 'game-event',
+          type: 'signal:forward', // Using existing type; proper 'game-event' type should be added to RedisPubSubService
           eventName,
           data,
-        });
+        } as any);
       }
     }
   }

@@ -98,7 +98,7 @@ export class TriviaService {
       JSON.stringify([]),
     );
 
-    // Store game metadata
+    // Store game metadata (including passed timePerQuestion for consistency)
     await this.redisService.getClient().setEx(
       `game:${savedGameSession.id}:metadata`,
       this.GAME_TTL,
@@ -107,6 +107,7 @@ export class TriviaService {
         user2Id,
         startedAt: new Date(),
         questionCount: this.QUESTIONS_PER_GAME,
+        timePerQuestion: this.DEFAULT_TIME_PER_QUESTION,
       }),
     );
 
@@ -141,6 +142,8 @@ export class TriviaService {
     isCorrect: boolean;
     user1Score: number;
     user2Score: number;
+    user1CorrectAnswers: number;
+    user2CorrectAnswers: number;
     nextQuestion: TriviaQuestion | null;
   }> {
     const gameSession = await this.gameSessionRepository.findOne({
@@ -187,9 +190,15 @@ export class TriviaService {
       JSON.stringify(answers),
     );
 
-    // Calculate scores
-    const user1Score = await this.calculateScore(data.gameSessionId, gameSession.user1Id);
-    const user2Score = await this.calculateScore(data.gameSessionId, gameSession.user2Id);
+    // Calculate scores and track correct answers
+    const user1Answers = await this.getAnswers(data.gameSessionId, gameSession.user1Id);
+    const user2Answers = await this.getAnswers(data.gameSessionId, gameSession.user2Id);
+
+    const user1Score = this.calculateScoreFromAnswers(user1Answers, gameSession.user1Id);
+    const user2Score = this.calculateScoreFromAnswers(user2Answers, gameSession.user2Id);
+
+    const user1CorrectAnswers = user1Answers.filter(a => a.correct).length;
+    const user2CorrectAnswers = user2Answers.filter(a => a.correct).length;
 
     // Get next question or null if game is over
     const nextQuestion = data.questionNumber < questions.length
@@ -203,6 +212,8 @@ export class TriviaService {
       isCorrect,
       user1Score,
       user2Score,
+      user1CorrectAnswers,
+      user2CorrectAnswers,
     });
 
     return {
@@ -210,6 +221,8 @@ export class TriviaService {
       isCorrect,
       user1Score,
       user2Score,
+      user1CorrectAnswers,
+      user2CorrectAnswers,
       nextQuestion,
     };
   }
@@ -327,6 +340,21 @@ export class TriviaService {
   }
 
   /**
+   * Get game metadata (used for retrieving stored timePerQuestion)
+   */
+  async getGameMetadata(gameSessionId: string): Promise<{
+    user1Id: string;
+    user2Id: string;
+    startedAt: Date;
+    questionCount: number;
+    timePerQuestion: number;
+  } | null> {
+    const metadataKey = `game:${gameSessionId}:metadata`;
+    const metadataStr = await this.redisService.getClient().get(metadataKey);
+    return metadataStr ? JSON.parse(metadataStr) : null;
+  }
+
+  /**
    * Calculate current score for a user (correct answers * 10 points each)
    * Used during the game to show live scores
    */
@@ -426,5 +454,13 @@ export class TriviaService {
     }
 
     return gameSession;
+  }
+
+  /**
+   * Save game session updates
+   * Used to update scores and winner after premium multipliers applied
+   */
+  async saveGameSession(gameSession: GameSession): Promise<GameSession> {
+    return await this.gameSessionRepository.save(gameSession);
   }
 }
