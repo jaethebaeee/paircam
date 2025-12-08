@@ -18,7 +18,7 @@ export class UsersController {
     const { user, isPremium } = result;
     
     // Don't expose sensitive fields
-    const { subscriptions, ...userProfile } = user;
+    const { subscriptions: _subscriptions, ...userProfile } = user;
     
     return {
       ...userProfile,
@@ -35,7 +35,7 @@ export class UsersController {
     const isPremium = await this.usersService.isPremium(user.id);
     
     // Don't expose sensitive fields
-    const { subscriptions, ...userProfile } = user;
+    const { subscriptions: _subscriptions, ...userProfile } = user;
     
     return {
       ...userProfile,
@@ -71,7 +71,7 @@ export class UsersController {
     }
     
     const isPremium = await this.usersService.isPremium(user.id);
-    const { subscriptions, ...userProfile } = user;
+    const { subscriptions: _subscriptions, ...userProfile } = user;
     
     return {
       success: true,

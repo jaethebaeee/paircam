@@ -269,7 +269,7 @@ export class MatchmakingService {
     const scoredPairs: Array<{ user1: QueueUser; user2: QueueUser; score: number }> = [];
     let comparisons = 0;
 
-    for (const [bucketKey, bucketUsers] of Object.entries(buckets)) {
+    for (const [_bucketKey, bucketUsers] of Object.entries(buckets)) {
       if (bucketUsers.length < 2) continue;
 
       // Within bucket: still O(n²) but n is MUCH smaller (typically 5-20 users)

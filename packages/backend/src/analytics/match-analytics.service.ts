@@ -274,14 +274,14 @@ export class MatchAnalyticsService {
   /**
    * Get comprehensive analytics
    */
-  async getAnalytics(timeRange: '1h' | '24h' | '7d' = '24h'): Promise<MatchAnalytics> {
+  async getAnalytics(_timeRange: '1h' | '24h' | '7d' = '24h'): Promise<MatchAnalytics> {
     try {
       // Get basic counters
       const totalMatches = await this.redisService.getCounter('analytics:matches:total');
       const successfulConnections = await this.redisService.getCounter('analytics:connections:successful');
       const failedConnections = await this.redisService.getCounter('analytics:connections:failed');
       const skippedCalls = await this.redisService.getCounter('analytics:calls:skipped');
-      const completedCalls = await this.redisService.getCounter('analytics:calls:completed');
+      const _completedCalls = await this.redisService.getCounter('analytics:calls:completed');
 
       // Calculate rates
       const skipRate = totalMatches > 0 ? (skippedCalls / totalMatches) * 100 : 0;

@@ -63,6 +63,7 @@ describe('RedisPubSubService', () => {
     });
 
     it('should create two Redis clients', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { createClient } = require('redis');
 
       await service.onModuleInit();

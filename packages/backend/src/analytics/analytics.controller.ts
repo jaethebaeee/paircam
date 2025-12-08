@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { MatchAnalyticsService } from './match-analytics.service';
 
 // Simple admin guard (you should implement proper authentication)
