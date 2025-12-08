@@ -13,7 +13,7 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fadeIn">
       <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl animate-scaleIn">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 p-2 rounded-xl">
               <span className="text-2xl">🎮</span>
@@ -34,7 +34,7 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
 
         {/* Content */}
         <div className="p-6">
-          <p className="text-gray-600 mb-6 text-center font-medium">
+          <p className="text-neutral-600 mb-6 text-center font-medium">
             Choose your difficulty level
           </p>
 
@@ -58,7 +58,7 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
                   </span>
                   <span>{DIFFICULTY_LABELS[difficulty]}</span>
                 </span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-neutral-500">
                   {difficulty === 'easy' && '1-3 stars'}
                   {difficulty === 'medium' && '4-6 stars'}
                   {difficulty === 'hard' && '7-9 stars'}
@@ -67,15 +67,15 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
             ))}
           </div>
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-            <p className="text-xs text-blue-800 text-center">
+          <div className="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+            <p className="text-xs text-indigo-800 text-center">
               <strong>Game Rules:</strong> Answer 10 trivia questions correctly to win. You have 30 seconds per question. Good luck! 🍀
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="w-full mt-6 py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+            className="w-full mt-6 py-3 text-neutral-600 hover:text-neutral-800 font-medium transition-colors"
           >
             Cancel
           </button>

@@ -18,14 +18,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-gray-700 mb-1.5"
+            className="block text-sm font-medium text-neutral-700 mb-1.5"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400">
               {leftIcon}
             </div>
           )}
@@ -34,19 +34,19 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             className={clsx(
               'w-full px-4 py-3 rounded-xl border-2 bg-white transition-all duration-200',
-              'text-base placeholder:text-gray-400',
+              'text-base placeholder:text-neutral-400',
               'focus:outline-none focus:ring-0',
               leftIcon && 'pl-11',
               rightIcon && 'pr-11',
               error
                 ? 'border-red-500 focus:border-red-500'
-                : 'border-gray-200 hover:border-gray-300 focus:border-pink-500',
+                : 'border-neutral-200 hover:border-neutral-300 focus:border-indigo-500',
               className
             )}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
+            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-neutral-400">
               {rightIcon}
             </div>
           )}
@@ -64,7 +64,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           </p>
         )}
         {hint && !error && (
-          <p className="mt-1.5 text-sm text-gray-500">{hint}</p>
+          <p className="mt-1.5 text-sm text-neutral-500">{hint}</p>
         )}
       </div>
     );
