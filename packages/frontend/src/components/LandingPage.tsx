@@ -107,14 +107,14 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight px-2">
-            Instant Video Chat
-            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-1 sm:mt-2">with Strangers</span>
+            Meet Someone New
+            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-1 sm:mt-2">In Seconds</span>
           </h1>
           <h2 className="text-lg sm:text-xl md:text-2xl text-gray-800 mb-3 sm:mb-4 font-semibold max-w-3xl mx-auto px-4">
-            Meet new people instantly - No signup, 100% free
+            Free random video chat — no account needed
           </h2>
           <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-            Anonymous, instant connections with people worldwide. Choose video, voice, or text chat.
+            Connect face-to-face with people from around the world. Video, voice, or text — your choice.
           </p>
 
           {/* Live User Count Badge */}
@@ -135,19 +135,19 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-sm sm:text-base text-gray-700 mb-8 sm:mb-12 px-2">
             <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
               <span className="text-lg sm:text-2xl">⚡</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base">5 sec start</span>
+              <span className="font-medium text-xs sm:text-sm md:text-base">Instant</span>
             </div>
             <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
               <span className="text-lg sm:text-2xl">🔒</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base">Anonymous</span>
+              <span className="font-medium text-xs sm:text-sm md:text-base">Private</span>
             </div>
             <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
               <span className="text-lg sm:text-2xl">🌍</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base">Global</span>
+              <span className="font-medium text-xs sm:text-sm md:text-base">Worldwide</span>
             </div>
             <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
               <span className="text-lg sm:text-2xl">🛡️</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base">Safe</span>
+              <span className="font-medium text-xs sm:text-sm md:text-base">Moderated</span>
             </div>
           </div>
 
@@ -171,8 +171,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 </div>
                 <div className="relative z-10 text-center text-white px-4">
                   <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">👋</div>
-                  <p className="text-base sm:text-xl font-semibold mb-1">Connect face-to-face</p>
-                  <p className="text-xs sm:text-sm text-gray-300">with people from around the world</p>
+                  <p className="text-base sm:text-xl font-semibold mb-1">Your next conversation awaits</p>
+                  <p className="text-xs sm:text-sm text-gray-300">One click away from meeting someone new</p>
                 </div>
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         {/* How It Works Section */}
         <div id="features" className="mb-12 sm:mb-16 px-2 scroll-mt-24">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-2 sm:mb-4">How It Works</h2>
-          <p className="text-center text-gray-600 mb-8 sm:mb-12 text-base sm:text-lg">Get started in three simple steps</p>
+          <p className="text-center text-gray-600 mb-8 sm:mb-12 text-base sm:text-lg">Start chatting in three easy steps</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
             {/* Step 1 */}
@@ -195,9 +195,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               <div className="bg-gradient-to-br from-pink-500 to-pink-600 w-12 sm:w-16 h-12 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
                 <span className="text-2xl sm:text-3xl font-bold text-white">1</span>
               </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Enter Your Name</h3>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Pick a Nickname</h3>
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Choose a name or nickname. No signup required. Stay anonymous.
+                No account or signup needed. Just choose any name and go.
               </p>
             </div>
 
@@ -208,7 +208,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </div>
               <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Get Matched</h3>
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Instantly paired with someone online. Takes just seconds.
+                We'll pair you with someone online in seconds.
               </p>
             </div>
 
@@ -217,9 +217,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-12 sm:w-16 h-12 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
                 <span className="text-2xl sm:text-3xl font-bold text-white">3</span>
               </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Start Chatting</h3>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Start Talking</h3>
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Video, voice, or text. Skip anytime with one click.
+                Chat via video, voice, or text. Skip anytime to meet someone new.
               </p>
             </div>
           </div>
@@ -239,8 +239,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">Your Safety Matters</h2>
-              <p className="text-gray-700 text-sm sm:text-base md:text-lg">We're committed to creating a safe, respectful community</p>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">Your Safety Comes First</h2>
+              <p className="text-gray-700 text-sm sm:text-base md:text-lg">Built with your security and privacy in mind</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -253,8 +253,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">24/7 Moderation</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">AI and human moderators monitor content</p>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Always Monitored</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">AI + human moderation around the clock</p>
                 </div>
               </div>
 
@@ -267,8 +267,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Anonymous by Default</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Your privacy is always protected</p>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Stay Anonymous</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">No personal data required or stored</p>
                 </div>
               </div>
 
@@ -281,8 +281,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Report & Block</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Instantly report rule violators</p>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">One-Tap Report</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Block or report bad actors instantly</p>
                 </div>
               </div>
 
@@ -295,15 +295,15 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">18+ Verification</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Age verification for video chat</p>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Adults Only</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Age verification required for video</p>
                 </div>
               </div>
             </div>
 
             <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-white/70 rounded-xl sm:rounded-2xl border border-green-300">
               <p className="text-xs sm:text-sm text-gray-700 text-center">
-                <strong className="text-gray-900">Remember:</strong> Never share personal info with strangers online.
+                <strong className="text-gray-900">Pro tip:</strong> Keep personal details private and trust your instincts.
               </p>
             </div>
           </div>
@@ -316,14 +316,14 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className={`bg-white rounded-2xl sm:rounded-3xl shadow-luxury border-2 transition-all duration-300 p-5 sm:p-8 md:p-10 mb-4 sm:mb-6 animate-fadeIn ${
           isFormFocused ? 'border-pink-300 shadow-lg shadow-pink-200/30 scale-[1.01]' : 'border-gray-100 hover:shadow-luxury-hover'
         }`}>
-          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 tracking-tight">Start chatting:</h3>
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 tracking-tight">Ready to connect?</h3>
           
           <div className="space-y-4 sm:space-y-6">
             {/* Name Input */}
             <div className="space-y-2 sm:space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <label className="block text-sm font-semibold text-gray-900">
-                  What's your name? <span className="text-pink-600">*</span>
+                  Choose a nickname <span className="text-pink-600">*</span>
                 </label>
                 <span className={`text-xs sm:text-sm font-medium transition-colors ${
                   userName.length === 30 ? 'text-orange-600' : 'text-gray-500'
@@ -341,8 +341,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   }}
                   onFocus={() => setIsFormFocused(true)}
                   onBlur={() => setIsFormFocused(false)}
-                  placeholder="Enter your name or nickname"
-                  aria-label="Your name or nickname"
+                  placeholder="What should we call you?"
+                  aria-label="Your nickname"
                   aria-required="true"
                   aria-invalid={showNameError}
                   className={`w-full px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 ${
@@ -375,12 +375,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               <label className="flex items-center cursor-pointer flex-1">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
-                    <span className="text-sm sm:text-base font-semibold text-gray-900">Enable video</span>
+                    <span className="text-sm sm:text-base font-semibold text-gray-900">Video chat</span>
                     <svg className={`w-4 h-4 transition-colors ${isVideoEnabled ? 'text-pink-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-600">Share your camera during calls</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Turn on your camera for face-to-face chats</p>
                 </div>
               </label>
               <button
@@ -431,8 +431,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 </div>
               </div>
               <div className="ml-3 sm:ml-4 flex-1">
-                <span className="text-sm sm:text-base font-semibold text-gray-900">I'm 18 years or older</span>
-                <p className="text-xs sm:text-sm text-gray-600 mt-0.5">Required for unmoderated video chat</p>
+                <span className="text-sm sm:text-base font-semibold text-gray-900">I confirm I'm 18+</span>
+                <p className="text-xs sm:text-sm text-gray-600 mt-0.5">Required to access video chat features</p>
               </div>
             </label>
 
@@ -440,7 +440,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             {isAdultConfirmed && (
               <div className="space-y-2 sm:space-y-3 animate-slideUp">
                 <label className="block text-sm font-semibold text-gray-900">
-                  What's your age? <span className="text-pink-600">*</span>
+                  Your age <span className="text-pink-600">*</span>
                 </label>
                 <div className="relative group">
                   <input
@@ -497,7 +497,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   <svg className="w-5 sm:w-6 h-5 sm:h-6 group-hover:scale-110 disabled:group-hover:scale-100 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  <span className="tracking-wide">Start Video Chat</span>
+                  <span className="tracking-wide">Find Someone Now</span>
                   <svg className="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-1 disabled:group-hover:translate-x-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -515,7 +515,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               >
                 <span className="text-lg sm:text-xl">💬</span>
                 <span className="relative">
-                  Text only mode
+                  Prefer text chat instead
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-600 to-purple-700 group-hover:w-full disabled:group-hover:w-0 transition-all duration-300"></span>
                 </span>
               </button>
@@ -535,10 +535,10 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             </div>
             <div className="flex-1">
               <p className="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2.5">
-                Stay Safe, Be Respectful
+                Chat Smart, Stay Safe
               </p>
               <p className="text-xs sm:text-sm text-gray-700 mb-3 sm:mb-4 leading-relaxed">
-                Never share personal info with strangers. Report inappropriate behavior immediately.
+                Keep personal details private. If something feels off, skip or report — we've got your back.
               </p>
               <p className="text-xs text-gray-600 leading-relaxed">
                 By using this service, you agree to our{' '}
@@ -553,7 +553,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
 
         {/* Additional Features Section */}
         <div id="about" className="max-w-5xl mx-auto mt-10 sm:mt-16 mb-8 sm:mb-12 px-2 scroll-mt-24">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">Why Choose Us?</h2>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">Why People Love PairCam</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
             <div className="text-center">
               <div className="bg-gradient-to-br from-pink-500 to-pink-600 w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
@@ -561,8 +561,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Lightning Fast</h3>
-              <p className="text-sm sm:text-base text-gray-600">Connect in seconds. No waiting, just instant conversations.</p>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Zero Wait Time</h3>
+              <p className="text-sm sm:text-base text-gray-600">Get matched instantly — no queues, no delays, just conversations.</p>
             </div>
 
             <div className="text-center">
@@ -571,8 +571,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Global Reach</h3>
-              <p className="text-sm sm:text-base text-gray-600">Meet people from 195+ countries worldwide.</p>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">People Everywhere</h3>
+              <p className="text-sm sm:text-base text-gray-600">Chat with folks from 190+ countries — there's always someone online.</p>
             </div>
 
             <div className="text-center">
@@ -581,8 +581,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                 </svg>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Your Choice</h3>
-              <p className="text-sm sm:text-base text-gray-600">Video, voice, or text – switch modes anytime.</p>
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Chat Your Way</h3>
+              <p className="text-sm sm:text-base text-gray-600">Video, voice, or text — switch between modes whenever you want.</p>
             </div>
           </div>
         </div>
