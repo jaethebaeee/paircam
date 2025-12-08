@@ -10,6 +10,7 @@ import { STUN_SERVERS, DEFAULT_MEDIA_CONSTRAINTS, AUDIO_ONLY_CONSTRAINTS, API_UR
 import VideoControls from './VideoControls';
 import VideoStreams from './VideoStreams';
 import ChatPanel from './ChatPanel';
+import ConnectionStats from './ConnectionStats';
 import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
@@ -431,6 +432,15 @@ export default function VideoChat({
           onSendMessage={handleSendMessage}
           onClose={() => setShowChat(false)}
           isFullScreen={false}
+        />
+      )}
+
+      {/* Connection Statistics Dashboard */}
+      {!isTextMode && signaling.matched && (
+        <ConnectionStats
+          getStats={webrtc.getStats}
+          networkQuality={networkInfo.quality}
+          isVisible={import.meta.env.DEV}
         />
       )}
     </div>
