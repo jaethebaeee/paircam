@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import AnimatedBackground from './ui/AnimatedBackground';
 
 interface PremiumModalProps {
   onClose: () => void;
@@ -7,13 +8,28 @@ interface PremiumModalProps {
 export default function PremiumModal({ onClose }: PremiumModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly'>('monthly');
   const [loading, setLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 200);
+  };
 
   const handleUpgrade = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3333';
-      
+
       const response = await fetch(`${apiUrl}/payments/create-checkout`, {
         method: 'POST',
         headers: {
@@ -28,7 +44,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
       }
 
       const { url } = await response.json();
-      
+
       // Redirect to Stripe Checkout
       window.location.href = url;
     } catch (error) {
@@ -40,11 +56,25 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl max-w-4xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
+    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={handleClose}
+      />
+
+      {/* Modal */}
+      <div className={`relative bg-white/95 backdrop-blur-xl rounded-3xl max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl transition-all duration-300 ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+          <div className="absolute -top-32 -right-32 w-64 h-64 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-gradient-to-br from-pink-400/20 to-purple-400/20 rounded-full blur-3xl" />
+        </div>
+
+        {/* Close button */}
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          onClick={handleClose}
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200 z-10"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -113,31 +143,41 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
         </div>
 
         {/* Pricing Toggle */}
-        <div className="flex justify-center gap-4 mb-6">
+        <div className="flex justify-center gap-4 mb-6 relative">
           <button
             onClick={() => setSelectedPlan('weekly')}
-            className={`px-8 py-4 rounded-2xl font-semibold transition-all ${
+            className={`group relative px-8 py-5 rounded-2xl font-semibold transition-all duration-300 overflow-hidden ${
               selectedPlan === 'weekly'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-xl shadow-pink-500/30 scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-[1.02]'
             }`}
           >
-            <div className="text-2xl font-bold">$2.99</div>
-            <div className="text-sm opacity-90">per week</div>
+            {selectedPlan === 'weekly' && (
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full animate-shimmer" />
+            )}
+            <div className="relative">
+              <div className="text-2xl font-bold">$2.99</div>
+              <div className="text-sm opacity-90">per week</div>
+            </div>
           </button>
           <button
             onClick={() => setSelectedPlan('monthly')}
-            className={`px-8 py-4 rounded-2xl font-semibold transition-all relative ${
+            className={`group relative px-8 py-5 rounded-2xl font-semibold transition-all duration-300 overflow-hidden ${
               selectedPlan === 'monthly'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-xl shadow-pink-500/30 scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-[1.02]'
             }`}
           >
-            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg animate-bounce-subtle">
               Save 25%
             </div>
-            <div className="text-2xl font-bold">$9.99</div>
-            <div className="text-sm opacity-90">per month</div>
+            {selectedPlan === 'monthly' && (
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full animate-shimmer" />
+            )}
+            <div className="relative">
+              <div className="text-2xl font-bold">$9.99</div>
+              <div className="text-sm opacity-90">per month</div>
+            </div>
           </button>
         </div>
 
@@ -145,19 +185,32 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
         <button
           onClick={handleUpgrade}
           disabled={loading}
-          className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          className="group relative w-full py-5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white font-bold text-lg rounded-2xl shadow-xl shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] overflow-hidden"
         >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Loading...
-            </span>
-          ) : (
-            'Upgrade Now'
-          )}
+          {/* Animated gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Shimmer effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+          <span className="relative flex items-center justify-center gap-3">
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Processing...
+              </>
+            ) : (
+              <>
+                <span className="text-xl">⭐</span>
+                <span>Upgrade to Premium</span>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </>
+            )}
+          </span>
         </button>
 
         {/* Trust signals */}
