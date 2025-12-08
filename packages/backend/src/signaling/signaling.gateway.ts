@@ -13,6 +13,7 @@ import { LoggerService } from '../services/logger.service';
 import { RedisService } from '../redis/redis.service';
 import { RedisPubSubService, MatchNotifyEvent, SessionEndEvent, SignalForwardEvent } from '../redis/redis-pubsub.service';
 import { MatchmakingService } from './matchmaking.service';
+import { FastMatchService } from './fast-match.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
@@ -66,6 +67,8 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     private readonly redisPubSub: RedisPubSubService,
     @Inject(forwardRef(() => MatchmakingService))
     private readonly matchmakingService: MatchmakingService,
+    @Inject(forwardRef(() => FastMatchService))
+    private readonly fastMatchService: FastMatchService,
     @Inject(forwardRef(() => MatchAnalyticsService))
     private readonly analyticsService: MatchAnalyticsService,
     private readonly authService: AuthService,
@@ -263,6 +266,66 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
 
     await this.matchmakingService.removeFromQueue(deviceId);
     client.emit('queue-left', { timestamp: Date.now() });
+  }
+
+  /**
+   * FAST MATCH: Join a simple FIFO queue for instant random pairing
+   * Skips all matching logic - just pairs first two users
+   * Fastest way to connect two users
+   */
+  @SubscribeMessage('join-fast-queue')
+  async handleJoinFastQueue(
+    @ConnectedSocket() client: Socket,
+  ) {
+    const deviceId = client.data.deviceId;
+    if (!deviceId) {
+      client.emit('error', { message: 'Authentication required' });
+      return;
+    }
+
+    try {
+      const result = await this.fastMatchService.joinFastQueue(deviceId, {
+        deviceId,
+        socketId: client.id,
+      });
+
+      if (result.matched) {
+        // Match found immediately
+        this.logger.debug('Fast match succeeded', { deviceId, sessionId: result.sessionId });
+      } else {
+        // User added to queue, waiting
+        const queueLength = await this.fastMatchService.getQueueLength();
+        const estimatedWait = await this.fastMatchService.getEstimatedWaitTime();
+
+        client.emit('fast-queue-joined', {
+          position: queueLength,
+          estimatedWaitTime: estimatedWait,
+          timestamp: Date.now(),
+        });
+
+        this.logger.debug('User joined fast queue', { deviceId, position: queueLength });
+      }
+    } catch (error) {
+      this.logger.error('Fast queue join error', error.stack);
+      client.emit('error', { message: 'Failed to join fast queue' });
+    }
+  }
+
+  /**
+   * FAST MATCH: Leave the fast match queue
+   */
+  @SubscribeMessage('leave-fast-queue')
+  async handleLeaveFastQueue(@ConnectedSocket() client: Socket) {
+    const deviceId = client.data.deviceId;
+    if (!deviceId) return;
+
+    try {
+      await this.fastMatchService.leaveFastQueue(deviceId);
+      client.emit('fast-queue-left', { timestamp: Date.now() });
+      this.logger.debug('User left fast queue', { deviceId });
+    } catch (error) {
+      this.logger.error('Fast queue leave error', error.stack);
+    }
   }
 
   @SubscribeMessage('send-offer')

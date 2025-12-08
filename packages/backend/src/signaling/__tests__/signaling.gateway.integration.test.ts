@@ -24,10 +24,18 @@ describe('SignalingGateway integration', () => {
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
+    const fastMatchService = {
+      joinFastQueue: jest.fn(async () => ({ matched: false })),
+      leaveFastQueue: jest.fn(async () => {}),
+      getQueueLength: jest.fn(async () => 0),
+      getEstimatedWaitTime: jest.fn(async () => 0),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      fastMatchService,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
@@ -70,10 +78,18 @@ describe('SignalingGateway integration', () => {
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
+    const fastMatchService = {
+      joinFastQueue: jest.fn(async () => ({ matched: false })),
+      leaveFastQueue: jest.fn(async () => {}),
+      getQueueLength: jest.fn(async () => 0),
+      getEstimatedWaitTime: jest.fn(async () => 0),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      fastMatchService,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
@@ -124,10 +140,18 @@ describe('SignalingGateway integration', () => {
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
+    const fastMatchService = {
+      joinFastQueue: jest.fn(async () => ({ matched: false })),
+      leaveFastQueue: jest.fn(async () => {}),
+      getQueueLength: jest.fn(async () => 0),
+      getEstimatedWaitTime: jest.fn(async () => 0),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      fastMatchService,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
@@ -172,11 +196,19 @@ describe('SignalingGateway integration', () => {
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
+    const fastMatchService = {
+      joinFastQueue: jest.fn(async () => ({ matched: false })),
+      leaveFastQueue: jest.fn(async () => {}),
+      getQueueLength: jest.fn(async () => 0),
+      getEstimatedWaitTime: jest.fn(async () => 0),
+    } as any;
+
     // invalid token case
     const gatewayInvalid = new SignalingGateway(
       redis,
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      fastMatchService,
       analyticsService,
       { validateToken: jest.fn(async () => { throw new Error('bad'); }) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
@@ -192,6 +224,7 @@ describe('SignalingGateway integration', () => {
       redis,
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      fastMatchService,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
@@ -224,10 +257,18 @@ describe('SignalingGateway integration', () => {
       getInstanceId: jest.fn(() => 'test-instance'),
     } as any;
 
+    const fastMatchService = {
+      joinFastQueue: jest.fn(async () => ({ matched: false })),
+      leaveFastQueue: jest.fn(async () => {}),
+      getQueueLength: jest.fn(async () => 0),
+      getEstimatedWaitTime: jest.fn(async () => 0),
+    } as any;
+
     const gateway = new SignalingGateway(
       redis,
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
+      fastMatchService,
       analyticsService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,

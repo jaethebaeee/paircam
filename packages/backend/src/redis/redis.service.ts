@@ -542,4 +542,62 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       return 0;
     }
   }
+
+  // Fast match queue operations
+  async lpop<T = Record<string, unknown>>(key: string): Promise<T | null> {
+    try {
+      const value = await this.client.lPop(key);
+      return value ? JSON.parse(value) : null;
+    } catch (error) {
+      this.logger.error(`Failed to lpop from ${key}`, error.stack);
+      return null;
+    }
+  }
+
+  async rpush(key: string, item: unknown): Promise<void> {
+    try {
+      await this.client.rPush(key, JSON.stringify(item));
+    } catch (error) {
+      this.logger.error(`Failed to rpush to ${key}`, error.stack);
+    }
+  }
+
+  async lrange<T = Record<string, unknown>>(key: string, start: number, stop: number): Promise<T[]> {
+    try {
+      const values = await this.client.lRange(key, start, stop);
+      return values.map(v => JSON.parse(v));
+    } catch (error) {
+      this.logger.error(`Failed to lrange from ${key}`, error.stack);
+      return [];
+    }
+  }
+
+  async llen(key: string): Promise<number> {
+    try {
+      return await this.client.lLen(key);
+    } catch (error) {
+      this.logger.error(`Failed to get length of ${key}`, error.stack);
+      return 0;
+    }
+  }
+
+  async del(key: string): Promise<void> {
+    try {
+      await this.client.del(key);
+    } catch (error) {
+      this.logger.error(`Failed to delete ${key}`, error.stack);
+    }
+  }
+
+  async set<T = unknown>(key: string, value: T, ttlSeconds?: number): Promise<void> {
+    try {
+      if (ttlSeconds) {
+        await this.client.setEx(key, ttlSeconds, JSON.stringify(value));
+      } else {
+        await this.client.set(key, JSON.stringify(value));
+      }
+    } catch (error) {
+      this.logger.error(`Failed to set ${key}`, error.stack);
+    }
+  }
 }
