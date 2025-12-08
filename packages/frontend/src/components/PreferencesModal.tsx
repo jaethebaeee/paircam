@@ -50,18 +50,18 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-3 sm:px-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6 rounded-t-3xl">
+        <div className="sticky top-0 bg-gradient-to-r from-pink-500 to-purple-600 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-t-2xl sm:rounded-t-3xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl">
-                <SparklesIcon className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-white/20 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">Quick Setup</h2>
-                <p className="text-white/90 text-sm">Set your preferences (optional)</p>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Quick Setup</h2>
+                <p className="text-white/90 text-xs sm:text-sm">Set your preferences (optional)</p>
               </div>
             </div>
             <button
@@ -75,74 +75,74 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
         </div>
 
         {/* Body */}
-        <div className="p-8 space-y-6">
+        <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
           {/* Your Gender */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <div className="bg-purple-100 p-1.5 sm:p-2 rounded-lg">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Your Gender (Optional)</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">Your Gender (Optional)</h3>
+                <p className="text-xs sm:text-sm text-gray-600">
                   Helps premium users find you through filters
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
               {/* Male */}
               <button
                 onClick={() => setUserGender('male')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'male'
                     ? 'border-blue-500 bg-blue-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">👨</div>
-                <div className="text-sm font-semibold text-gray-700">Male</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">👨</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Male</div>
               </button>
 
               {/* Female */}
               <button
                 onClick={() => setUserGender('female')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'female'
                     ? 'border-pink-500 bg-pink-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">👩</div>
-                <div className="text-sm font-semibold text-gray-700">Female</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">👩</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Female</div>
               </button>
 
               {/* Other */}
               <button
                 onClick={() => setUserGender('other')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'other'
                     ? 'border-purple-500 bg-purple-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">✨</div>
-                <div className="text-sm font-semibold text-gray-700">Other</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">✨</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Other</div>
               </button>
 
               {/* Private */}
               <button
                 onClick={() => setUserGender(undefined)}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === undefined
                     ? 'border-gray-500 bg-gray-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">🔒</div>
-                <div className="text-sm font-semibold text-gray-700">Private</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">🔒</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Private</div>
               </button>
             </div>
 

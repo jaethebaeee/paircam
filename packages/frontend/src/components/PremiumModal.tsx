@@ -40,8 +40,8 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl max-w-4xl w-full p-8 relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl max-w-4xl w-full p-4 sm:p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -113,31 +113,31 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
         </div>
 
         {/* Pricing Toggle */}
-        <div className="flex justify-center gap-4 mb-6">
+        <div className="flex justify-center gap-2 sm:gap-4 mb-6">
           <button
             onClick={() => setSelectedPlan('weekly')}
-            className={`px-8 py-4 rounded-2xl font-semibold transition-all ${
+            className={`px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all ${
               selectedPlan === 'weekly'
                 ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            <div className="text-2xl font-bold">$2.99</div>
-            <div className="text-sm opacity-90">per week</div>
+            <div className="text-xl sm:text-2xl font-bold">$2.99</div>
+            <div className="text-xs sm:text-sm opacity-90">per week</div>
           </button>
           <button
             onClick={() => setSelectedPlan('monthly')}
-            className={`px-8 py-4 rounded-2xl font-semibold transition-all relative ${
+            className={`px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all relative ${
               selectedPlan === 'monthly'
                 ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-bold">
               Save 25%
             </div>
-            <div className="text-2xl font-bold">$9.99</div>
-            <div className="text-sm opacity-90">per month</div>
+            <div className="text-xl sm:text-2xl font-bold">$9.99</div>
+            <div className="text-xs sm:text-sm opacity-90">per month</div>
           </button>
         </div>
 
@@ -162,7 +162,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
 
         {/* Trust signals */}
         <div className="mt-6 space-y-3">
-          <div className="flex items-center justify-center gap-6 text-gray-500 text-xs">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-gray-500 text-xs">
             <span className="flex items-center gap-1.5">
               <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
