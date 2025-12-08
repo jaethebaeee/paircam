@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ArrowLeftIcon, NoSymbolIcon, TrashIcon } from '@heroicons/react/24/solid';
@@ -17,13 +17,7 @@ export default function BlockedUsersPage() {
     authenticate();
   }, [authenticate]);
 
-  useEffect(() => {
-    if (accessToken) {
-      loadBlockedUsers();
-    }
-  }, [accessToken]);
-
-  const loadBlockedUsers = async () => {
+  const loadBlockedUsers = useCallback(async () => {
     if (!accessToken) return;
 
     try {
@@ -36,7 +30,13 @@ export default function BlockedUsersPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (accessToken) {
+      loadBlockedUsers();
+    }
+  }, [accessToken, loadBlockedUsers]);
 
   const handleUnblock = async (blockedId: string) => {
     if (!accessToken) return;
