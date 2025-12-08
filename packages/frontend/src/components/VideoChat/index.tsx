@@ -14,6 +14,8 @@ import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
 import ReportModal from '../ReportModal';
+import PremiumUpsellModal from '../PremiumUpsellModal';
+import PremiumModal from '../PremiumModal';
 
 type TurnCredentials = {
   urls: string[];
@@ -65,6 +67,9 @@ export default function VideoChat({
   const [showReportModal, setShowReportModal] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
   const [matchedAt, setMatchedAt] = useState<Date | undefined>(undefined);
+  const [skipStats, setSkipStats] = useState<{ count: number; limit: number; remaining: number; isPremium: boolean } | null>(null);
+  const [showPremiumUpsell, setShowPremiumUpsell] = useState<'skip_limit' | 'gender_filter' | 'region_filter' | 'long_wait' | null>(null);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Geolocation for country flags
@@ -98,14 +103,21 @@ export default function VideoChat({
       await webrtc.addIceCandidate(data.candidate);
     },
     onMessage: (data) => {
-      setMessages((prev) => [...prev, { 
-        text: data.message, 
+      setMessages((prev) => [...prev, {
+        text: data.message,
         isMine: false,
         sender: data.sender || 'Stranger'
       }]);
     },
     onPeerDisconnected: () => {
       handleNext();
+    },
+    onSkipStats: (data) => {
+      setSkipStats(data);
+      // Show upsell if limit reached
+      if (!data.isPremium && data.remaining <= 0) {
+        setShowPremiumUpsell('skip_limit');
+      }
     },
   });
 
@@ -176,6 +188,13 @@ export default function VideoChat({
     }
   }, [accessToken]);
 
+  // Request skip stats when connected
+  useEffect(() => {
+    if (signaling.connected) {
+      signaling.getSkipStats();
+    }
+  }, [signaling.connected, signaling]);
+
   // Join queue when ready (in text mode, skip waiting for local stream)
   useEffect(() => {
     const canJoinQueue = isTextMode 
@@ -220,26 +239,32 @@ export default function VideoChat({
   const handleNext = useCallback(() => {
     // Prevent rapid clicking (debounce)
     if (isSkipping) return;
-    
+
+    // Check skip limit for non-premium users
+    if (skipStats && !skipStats.isPremium && skipStats.remaining <= 0) {
+      setShowPremiumUpsell('skip_limit');
+      return;
+    }
+
     setIsSkipping(true);
-    
+
     if (signaling.matched) {
-      signaling.endCall(signaling.matched.sessionId, true); // 🆕 Mark as skipped
+      signaling.endCall(signaling.matched.sessionId, true); // Mark as skipped
     }
     setMessages([]);
-    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage); // 🆕 Pass new params
-    
+    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage);
+
     // Clear any existing timeout
     if (skipTimeoutRef.current) {
       clearTimeout(skipTimeoutRef.current);
     }
-    
+
     // Re-enable after 2 seconds
     skipTimeoutRef.current = setTimeout(() => {
       setIsSkipping(false);
       skipTimeoutRef.current = null;
     }, 2000);
-  }, [isSkipping, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage]);
+  }, [isSkipping, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage, skipStats]);
   
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -438,6 +463,31 @@ export default function VideoChat({
           onClose={() => setShowChat(false)}
           isFullScreen={false}
         />
+      )}
+
+      {/* Premium Upsell Modal */}
+      {showPremiumUpsell && (
+        <PremiumUpsellModal
+          reason={showPremiumUpsell}
+          onClose={() => setShowPremiumUpsell(null)}
+          onUpgrade={() => {
+            setShowPremiumUpsell(null);
+            setShowPremiumModal(true);
+          }}
+          skipStats={skipStats || undefined}
+        />
+      )}
+
+      {/* Premium Modal - Stripe Checkout */}
+      {showPremiumModal && (
+        <PremiumModal onClose={() => setShowPremiumModal(false)} />
+      )}
+
+      {/* Skip Counter Badge - Show when close to limit */}
+      {skipStats && !skipStats.isPremium && skipStats.remaining <= 10 && skipStats.remaining > 0 && (
+        <div className="fixed top-4 left-4 z-40 bg-orange-500 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg animate-pulse">
+          {skipStats.remaining} skips left today
+        </div>
       )}
     </div>
   );

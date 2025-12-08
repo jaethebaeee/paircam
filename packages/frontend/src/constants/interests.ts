@@ -60,3 +60,13 @@ export const LANGUAGES = [
   { code: 'hi', name: 'Hindi' },
 ] as const;
 
+// Premium feature: Region filtering
+export const REGIONS = [
+  { id: 'global', name: 'Anywhere', emoji: '🌍', description: 'Match with anyone worldwide' },
+  { id: 'us-east', name: 'US East', emoji: '🗽', description: 'New York, Florida, etc.' },
+  { id: 'us-west', name: 'US West', emoji: '🌉', description: 'California, Washington, etc.' },
+  { id: 'europe', name: 'Europe', emoji: '🇪🇺', description: 'UK, Germany, France, etc.' },
+  { id: 'asia', name: 'Asia', emoji: '🏯', description: 'Japan, Korea, Singapore, etc.' },
+  { id: 'latam', name: 'Latin America', emoji: '🌴', description: 'Mexico, Brazil, Argentina, etc.' },
+] as const;
+

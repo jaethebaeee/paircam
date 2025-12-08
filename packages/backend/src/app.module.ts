@@ -42,7 +42,7 @@ import { Payment } from './payments/entities/payment.entity';
     UsersModule,
     SubscriptionsModule,
     PaymentsModule,
-    AnalyticsModule,
+    AnalyticsModule, // 🆕 Match quality tracking
     SignalingModule,
     TurnModule,
     ReportingModule,

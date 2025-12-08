@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { XMarkIcon, SparklesIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import GenderFilter from './GenderFilter';
-import { AVAILABLE_INTERESTS, QUEUE_TYPES, LANGUAGES } from '../constants/interests';
+import { AVAILABLE_INTERESTS, QUEUE_TYPES, LANGUAGES, REGIONS } from '../constants/interests';
 
 interface PreferencesModalProps {
   onStart: (preferences: {
     gender?: string;
     genderPreference: string;
+    region?: string;
     interests?: string[];
     queueType?: 'casual' | 'serious' | 'language' | 'gaming';
     nativeLanguage?: string;
@@ -20,6 +21,7 @@ interface PreferencesModalProps {
 export default function PreferencesModal({ onStart, onCancel, isPremium = false, onUpgrade }: PreferencesModalProps) {
   const [userGender, setUserGender] = useState<string | undefined>(undefined);
   const [genderPreference, setGenderPreference] = useState('any');
+  const [region, setRegion] = useState('global');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [queueType, setQueueType] = useState<'casual' | 'serious' | 'language' | 'gaming'>('casual');
   const [nativeLanguage, setNativeLanguage] = useState<string>('en');
@@ -38,7 +40,8 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
   const handleStart = () => {
     onStart({
       gender: userGender,
-      genderPreference: genderPreference,
+      genderPreference: isPremium ? genderPreference : 'any', // Only premium gets gender filter
+      region: isPremium ? region : 'global', // Only premium gets region filter
       interests: selectedInterests,
       queueType,
       nativeLanguage: queueType === 'language' ? nativeLanguage : undefined,
@@ -47,18 +50,18 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-3 sm:px-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6 rounded-t-3xl">
+        <div className="sticky top-0 bg-gradient-to-r from-pink-500 to-purple-600 px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-t-2xl sm:rounded-t-3xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl">
-                <SparklesIcon className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-white/20 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">Quick Setup</h2>
-                <p className="text-white/90 text-sm">Set your preferences (optional)</p>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Quick Setup</h2>
+                <p className="text-white/90 text-xs sm:text-sm">Set your preferences (optional)</p>
               </div>
             </div>
             <button
@@ -72,74 +75,74 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
         </div>
 
         {/* Body */}
-        <div className="p-8 space-y-6">
+        <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6">
           {/* Your Gender */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <div className="bg-purple-100 p-1.5 sm:p-2 rounded-lg">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Your Gender (Optional)</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">Your Gender (Optional)</h3>
+                <p className="text-xs sm:text-sm text-gray-600">
                   Helps premium users find you through filters
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
               {/* Male */}
               <button
                 onClick={() => setUserGender('male')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'male'
                     ? 'border-blue-500 bg-blue-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">👨</div>
-                <div className="text-sm font-semibold text-gray-700">Male</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">👨</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Male</div>
               </button>
 
               {/* Female */}
               <button
                 onClick={() => setUserGender('female')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'female'
                     ? 'border-pink-500 bg-pink-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">👩</div>
-                <div className="text-sm font-semibold text-gray-700">Female</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">👩</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Female</div>
               </button>
 
               {/* Other */}
               <button
                 onClick={() => setUserGender('other')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'other'
                     ? 'border-purple-500 bg-purple-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">✨</div>
-                <div className="text-sm font-semibold text-gray-700">Other</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">✨</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Other</div>
               </button>
 
               {/* Private */}
               <button
                 onClick={() => setUserGender(undefined)}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === undefined
                     ? 'border-gray-500 bg-gray-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">🔒</div>
-                <div className="text-sm font-semibold text-gray-700">Private</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">🔒</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Private</div>
               </button>
             </div>
 
@@ -182,7 +185,79 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
               isPremium={isPremium}
             />
 
-            {/* 🆕 Queue Type Selection */}
+            {/* Region Filter - Premium Feature */}
+            <div className="bg-gradient-to-br from-blue-50/50 via-cyan-50/50 to-teal-50/50 border-2 border-blue-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-2.5 shadow-md">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-gray-900 text-base mb-0.5">
+                      Match by Region
+                    </h3>
+                    {!isPremium && (
+                      <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                        Premium
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {isPremium ? 'Choose where to find matches' : 'Better connections with local matches'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {REGIONS.map((r) => {
+                  const isSelected = region === r.id;
+                  const isLocked = !isPremium && r.id !== 'global';
+
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => {
+                        if (isLocked) {
+                          onUpgrade?.();
+                        } else {
+                          setRegion(r.id);
+                        }
+                      }}
+                      className={`relative group p-3 rounded-xl border-2 transition-all duration-200 text-left ${
+                        isSelected && !isLocked
+                          ? 'border-blue-500 bg-blue-100/70 shadow-md'
+                          : isLocked
+                          ? 'border-gray-200 bg-gray-50 cursor-pointer hover:border-orange-300'
+                          : 'border-gray-200 hover:border-blue-300 bg-white hover:bg-blue-50'
+                      }`}
+                    >
+                      {isLocked && (
+                        <div className="absolute top-2 right-2">
+                          <LockClosedIcon className="w-3.5 h-3.5 text-orange-500" />
+                        </div>
+                      )}
+                      <div className={`text-xl mb-1 ${isLocked ? 'opacity-50' : ''}`}>{r.emoji}</div>
+                      <div className={`text-xs font-bold ${isLocked ? 'text-gray-400' : 'text-gray-800'}`}>{r.name}</div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {!isPremium && (
+                <button
+                  onClick={onUpgrade}
+                  className="w-full py-2.5 text-sm font-semibold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>⭐</span>
+                  <span>Unlock region filters with Premium</span>
+                </button>
+              )}
+            </div>
+
+            {/* Queue Type Selection */}
             <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-pink-50/50 border-2 border-purple-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
               <div className="flex items-start gap-3">
                 <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-2.5 shadow-md">

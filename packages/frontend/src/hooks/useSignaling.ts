@@ -51,6 +51,14 @@ export interface UseSignalingReturn {
   sendMessage: (sessionId: string, message: string, sender?: string) => void;
   sendReaction: (sessionId: string, emoji: string) => void;
   endCall: (sessionId: string, wasSkipped?: boolean) => void;
+  getSkipStats: () => void;
+}
+
+export interface SkipStats {
+  count: number;
+  limit: number;
+  remaining: number;
+  isPremium: boolean;
 }
 
 interface UseSignalingOptions {
@@ -61,7 +69,8 @@ interface UseSignalingOptions {
   onMessage?: (data: { sessionId: string; message: string; from: string; timestamp: number; sender?: string }) => void;
   onReaction?: (data: { sessionId: string; emoji: string; from: string; timestamp: number }) => void;
   onPeerDisconnected?: (data: { sessionId: string }) => void;
-  onCallEnded?: (data: { sessionId: string }) => void;
+  onCallEnded?: (data: { sessionId: string; skipStats?: SkipStats }) => void;
+  onSkipStats?: (data: SkipStats) => void;
 }
 
 export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
@@ -231,10 +240,20 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
       callbacksRef.current.onPeerDisconnected?.(data);
     });
 
-    newSocket.on('call-ended', (data: { sessionId: string }) => {
-      debugLog('Call ended:', data);
+    newSocket.on('call-ended', (data: { sessionId: string; skipStats?: SkipStats }) => {
+      console.log('Call ended:', data);
       setMatched(null);
       callbacksRef.current.onCallEnded?.(data);
+      // Also emit skip stats if present
+      if (data.skipStats) {
+        callbacksRef.current.onSkipStats?.(data.skipStats);
+      }
+    });
+
+    // Skip stats event (can be requested independently)
+    newSocket.on('skip-stats', (data: SkipStats) => {
+      console.log('Skip stats received:', data);
+      callbacksRef.current.onSkipStats?.(data);
     });
 
     // Error event
@@ -378,14 +397,22 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
   const endCall = useCallback(
     (sessionId: string, wasSkipped: boolean = false) => {
       if (socket?.connected) {
-        debugLog('Ending call for session:', sessionId, { wasSkipped });
-        socket.emit('end-call', { sessionId, wasSkipped }); // 🆕 Send skip status
+        console.log('Ending call for session:', sessionId, { wasSkipped });
+        socket.emit('end-call', { sessionId, wasSkipped });
         setMatched(null);
         setQueueStatus(null);
       }
     },
     [socket]
   );
+
+  // Get skip stats
+  const getSkipStats = useCallback(() => {
+    if (socket?.connected) {
+      console.log('Requesting skip stats');
+      socket.emit('get-skip-stats');
+    }
+  }, [socket]);
 
   return {
     socket,
@@ -402,6 +429,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
     sendMessage,
     sendReaction,
     endCall,
+    getSkipStats,
   };
 }
 

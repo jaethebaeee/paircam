@@ -16,6 +16,7 @@ import { MatchmakingService } from './matchmaking.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 export interface JoinQueueDto {
   region?: string;
@@ -70,6 +71,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     private readonly analyticsService: MatchAnalyticsService,
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
+    private readonly subscriptionsService: SubscriptionsService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -416,11 +418,50 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     const deviceId = client.data.deviceId;
     if (!deviceId) return;
 
-    // 🆕 Track reputation before cleanup
+    // 🆕 Track skip count if this was a skip
+    let skipStats = null;
+    if (data.wasSkipped) {
+      const user = await this.usersService.findOrCreate(deviceId);
+      const isPremium = await this.subscriptionsService.isUserPremium(user.id);
+      const newCount = await this.redisService.incrementDailySkipCount(user.id);
+      const limit = isPremium ? 999999 : 30; // Unlimited for premium
+      skipStats = {
+        count: newCount,
+        limit,
+        remaining: Math.max(0, limit - newCount),
+        isPremium,
+      };
+      this.logger.debug('Skip tracked', { userId: user.id, skipStats });
+    }
+
+    // Track reputation before cleanup
     await this.trackCallReputation(data.sessionId, deviceId, data.wasSkipped || false);
 
     await this.cleanupSession(data.sessionId, deviceId);
-    client.emit('call-ended', { sessionId: data.sessionId });
+    client.emit('call-ended', { sessionId: data.sessionId, skipStats });
+  }
+
+  @SubscribeMessage('get-skip-stats')
+  async handleGetSkipStats(@ConnectedSocket() client: Socket) {
+    const deviceId = client.data.deviceId;
+    if (!deviceId) return;
+
+    try {
+      const user = await this.usersService.findOrCreate(deviceId);
+      const isPremium = await this.subscriptionsService.isUserPremium(user.id);
+      const count = await this.redisService.getDailySkipCount(user.id);
+      const limit = isPremium ? 999999 : 30;
+
+      client.emit('skip-stats', {
+        count,
+        limit,
+        remaining: Math.max(0, limit - count),
+        isPremium,
+      });
+    } catch (error) {
+      this.logger.error('Get skip stats error', error.stack);
+      client.emit('skip-stats', { count: 0, limit: 30, remaining: 30, isPremium: false });
+    }
   }
 
   // Helper methods
