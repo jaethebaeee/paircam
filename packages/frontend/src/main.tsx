@@ -5,6 +5,12 @@ import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { enforceSecureConnection, validateSecurityConfig } from './utils/security';
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
+import { initSentry } from './lib/sentry';
+
+// ═══════════════════════════════════════════════════════════════════
+// 🔍 SENTRY: Initialize error tracking before anything else
+// ═══════════════════════════════════════════════════════════════════
+initSentry();
 
 // ═══════════════════════════════════════════════════════════════════
 // 🔒 SECURITY: Enforce HTTPS in production

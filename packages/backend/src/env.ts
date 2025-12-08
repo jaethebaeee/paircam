@@ -118,4 +118,8 @@ export const env = {
   ABUSE_DETECTION_ENABLED: process.env.ABUSE_DETECTION_ENABLED !== 'false',
   MAX_CALLS_PER_MINUTE: parseInt(process.env.MAX_CALLS_PER_MINUTE || '10', 10),
   MAX_SKIPS_PER_SESSION: parseInt(process.env.MAX_SKIPS_PER_SESSION || '5', 10),
+
+  // Sentry Error Tracking
+  SENTRY_DSN: process.env.SENTRY_DSN || '',
+  SENTRY_TRACES_SAMPLE_RATE: parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE || '0.1'),
 } as const;

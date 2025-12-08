@@ -24,7 +24,9 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false, // Disable in production for security and performance
+    // Enable source maps for Sentry error tracking (hidden from browser)
+    // Source maps are uploaded to Sentry but not served to clients
+    sourcemap: 'hidden',
     // Optimize chunk splitting for better caching and SEO
     rollupOptions: {
       output: {
@@ -37,6 +39,8 @@ export default defineConfig({
           'ui-vendor': ['@heroicons/react', 'flowbite', 'flowbite-react'],
           // Utilities
           'utils': ['uuid', 'clsx', 'date-fns', 'axios'],
+          // Sentry for error tracking (loaded async)
+          'sentry': ['@sentry/react'],
         },
       },
     },

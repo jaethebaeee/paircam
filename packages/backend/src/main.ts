@@ -2,9 +2,54 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import helmet from 'helmet';
+import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import { LoggerService } from './services/logger.service';
+import { SentryExceptionFilter } from './filters/sentry-exception.filter';
 import { env } from './env';
+
+// ═══════════════════════════════════════════════════════════════════
+// 🔍 SENTRY: Initialize error tracking before anything else
+// ═══════════════════════════════════════════════════════════════════
+if (env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    environment: env.NODE_ENV,
+    release: process.env.npm_package_version || '1.0.0',
+
+    // Performance monitoring
+    tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
+
+    // Filter out health checks and common noise
+    beforeSend(event, hint) {
+      // Don't send expected errors (4xx client errors)
+      const error = hint.originalException;
+      if (error instanceof Error && error.message?.includes('Cannot')) {
+        // Filter out 404s for favicon, etc.
+        return null;
+      }
+      return event;
+    },
+
+    // Sanitize sensitive data
+    beforeSendTransaction(event) {
+      // Remove sensitive headers
+      if (event.request?.headers) {
+        delete event.request.headers.authorization;
+        delete event.request.headers.cookie;
+      }
+      return event;
+    },
+
+    // Integrations
+    integrations: [
+      // Capture console.error calls
+      Sentry.captureConsoleIntegration({ levels: ['error', 'warn'] }),
+    ],
+  });
+
+  console.log('✅ Sentry initialized for error tracking');
+}
 
 async function bootstrap() {
   const logger = new LoggerService();
@@ -32,6 +77,11 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
+
+  // Global exception filter for Sentry error tracking
+  if (env.SENTRY_DSN) {
+    app.useGlobalFilters(new SentryExceptionFilter());
+  }
 
   // WebSocket adapter
   app.useWebSocketAdapter(new IoAdapter(app));
