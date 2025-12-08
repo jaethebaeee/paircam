@@ -21,7 +21,6 @@ import { env } from './env';
 import { User } from './users/entities/user.entity';
 import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
-import { GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission } from './games/entities';
 import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
 
 @Module({
@@ -34,7 +33,7 @@ import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment, GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission, FriendRequest, Friendship, BlockedUser],
+      entities: [User, Subscription, Payment, FriendRequest, Friendship, BlockedUser],
       synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
