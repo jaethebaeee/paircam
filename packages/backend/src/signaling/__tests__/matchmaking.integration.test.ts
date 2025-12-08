@@ -30,6 +30,8 @@ describe('MatchmakingService integration', () => {
     (redis as any).getQueueLength = async () => list.length;
     (redis as any).createSession = jest.fn(async () => {});
     (redis as any).incrementCounter = jest.fn(async () => 1);
+    (redis as any).getRecentMatches = jest.fn(async () => []);
+    (redis as any).addToRecentMatches = jest.fn(async () => {});
 
     const gateway = {
       notifyMatch: jest.fn(async () => {}),
@@ -42,7 +44,12 @@ describe('MatchmakingService integration', () => {
       trackConnectionFailed: jest.fn(async () => {}),
     } as any;
 
-    service = new MatchmakingService(redis, gateway, analyticsService, logger);
+    const blockingService = {
+      areBlocked: jest.fn(async () => false),
+      getBlockedDeviceIds: jest.fn(async () => []),
+    } as any;
+
+    service = new MatchmakingService(redis, gateway, analyticsService, blockingService, logger);
   });
 
   it('matches two users and creates a session', async () => {
