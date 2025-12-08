@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
 import AnimatedBackground from './ui/AnimatedBackground';
+import { signInWithGoogle } from '../lib/supabase';
 
 interface LandingPageProps {
   onStartCall: (data: {
@@ -121,7 +122,10 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           <div className="space-y-5">
             {/* Google Sign In */}
             <button
-              onClick={() => window.location.href = '/api/auth/google'}
+              onClick={async () => {
+                const { error } = await signInWithGoogle();
+                if (error) console.error('Google sign in error:', error);
+              }}
               className="w-full flex items-center justify-center gap-3 py-3.5 px-4 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all text-gray-700 font-medium"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">

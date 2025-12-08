@@ -25,6 +25,9 @@ const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
 const BlogList = lazy(() => import('./components/blog/BlogList'));
 const BlogPost = lazy(() => import('./components/blog/BlogPost'));
 
+// Auth callback
+const AuthCallback = lazy(() => import('./components/AuthCallback'));
+
 // Schema.org structured data for homepage
 const softwareAppSchema = {
   "@context": "https://schema.org",
@@ -177,6 +180,9 @@ function AppRoutes({
             {/* Blog Pages */}
             <Route path="/blog" element={<BlogList />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+
+            {/* Auth Callback */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />
