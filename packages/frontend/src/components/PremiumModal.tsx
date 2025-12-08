@@ -6,7 +6,7 @@ interface PremiumModalProps {
 
 // Stripe Payment Links - configure in .env
 const STRIPE_WEEKLY_LINK = import.meta.env.VITE_STRIPE_WEEKLY_LINK || 'https://buy.stripe.com/00wcN71x0bog2kugMW4F200';
-const STRIPE_MONTHLY_LINK = import.meta.env.VITE_STRIPE_MONTHLY_LINK || 'https://buy.stripe.com/test_monthly';
+const STRIPE_MONTHLY_LINK = import.meta.env.VITE_STRIPE_MONTHLY_LINK || 'https://buy.stripe.com/fZucN77VogIA6AKfIS4F201';
 
 export default function PremiumModal({ onClose }: PremiumModalProps) {
   const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly'>('monthly');
@@ -114,7 +114,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
             <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
               Save 25%
             </div>
-            <div className="text-2xl font-bold">$29.99</div>
+            <div className="text-2xl font-bold">$32.99</div>
             <div className="text-sm opacity-90">per month</div>
           </button>
         </div>
