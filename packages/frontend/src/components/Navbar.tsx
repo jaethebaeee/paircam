@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 interface NavbarProps {
   onPremiumClick?: () => void;
@@ -8,7 +8,10 @@ interface NavbarProps {
 export default function Navbar({ onPremiumClick }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { user, isAuthenticated, isPremium, signOut } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  // TODO: These will be added when full user profile is implemented
+  const user = null as { email?: string; username?: string } | null;
+  const isPremium = false;
 
   const navLinks = [
     { href: '/#features', label: 'Features' },
@@ -95,7 +98,7 @@ export default function Navbar({ onPremiumClick }: NavbarProps) {
                       <a href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Account Settings</a>
                       <a href="/billing" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Billing</a>
                       <button
-                        onClick={() => { signOut(); setIsUserMenuOpen(false); }}
+                        onClick={() => { logout(); setIsUserMenuOpen(false); }}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
                         Sign Out
@@ -180,7 +183,7 @@ export default function Navbar({ onPremiumClick }: NavbarProps) {
                     </button>
                   )}
                   <button
-                    onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
+                    onClick={() => { logout(); setIsMobileMenuOpen(false); }}
                     className="w-full px-4 py-3 text-red-600 font-medium rounded-lg hover:bg-red-50 text-center"
                   >
                     Sign Out
