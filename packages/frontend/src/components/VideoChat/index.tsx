@@ -14,7 +14,9 @@ import NetworkQualityIndicator from '../NetworkQualityIndicator';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
 import ReportModal from '../ReportModal';
+import BlockModal from '../BlockModal';
 import { TriviaGame } from '../games';
+import { blockUser } from '../../api/blocking';
 
 type TurnCredentials = {
   urls: string[];
@@ -65,6 +67,8 @@ export default function VideoChat({
   const [currentQuality] = useState<'auto' | 'high' | 'low'>('auto'); // Future: allow user to manually override
   const [showReportModal, setShowReportModal] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
+  const [showBlockModal, setShowBlockModal] = useState(false);
+  const [isBlocking, setIsBlocking] = useState(false);
   const [matchedAt, setMatchedAt] = useState<Date | undefined>(undefined);
   const [showGameModal, setShowGameModal] = useState(false);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -325,6 +329,37 @@ export default function VideoChat({
     }
   };
 
+  const handleOpenBlock = () => {
+    if (!accessToken || !signaling.matched) return;
+    setShowBlockModal(true);
+  };
+
+  const handleSubmitBlock = async (reason: string) => {
+    try {
+      if (!accessToken || !signaling.matched) return;
+      setIsBlocking(true);
+      await blockUser(
+        accessToken,
+        signaling.matched.peerId,
+        reason,
+        signaling.matched.sessionId,
+      );
+      setShowBlockModal(false);
+      toast.success('User blocked', {
+        description: 'You will no longer be matched with this user.',
+      });
+      // Skip to next user after blocking
+      handleNext();
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to block user', {
+        description: 'Please try again.',
+      });
+    } finally {
+      setIsBlocking(false);
+    }
+  };
+
   // Show waiting queue while searching for match
   if (showWaitingQueue && !signaling.matched) {
     return (
@@ -396,6 +431,7 @@ export default function VideoChat({
         onNext={handleNext}
         onToggleChat={() => setShowChat(!showChat)}
         onReport={handleOpenReport}
+        onBlock={handleOpenBlock}
         onPlayGame={() => setShowGameModal(true)}
         isSkipping={isSkipping}
         isTextMode={isTextMode}
@@ -422,6 +458,15 @@ export default function VideoChat({
           onSubmit={handleSubmitReport}
           onClose={() => setShowReportModal(false)}
           isLoading={isReporting}
+        />
+      )}
+
+      {/* Block Modal */}
+      {showBlockModal && (
+        <BlockModal
+          onBlock={handleSubmitBlock}
+          onClose={() => setShowBlockModal(false)}
+          isLoading={isBlocking}
         />
       )}
 

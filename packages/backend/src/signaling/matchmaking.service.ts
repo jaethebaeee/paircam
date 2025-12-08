@@ -3,6 +3,7 @@ import { RedisService } from '../redis/redis.service';
 import { SignalingGateway } from './signaling.gateway';
 import { LoggerService } from '../services/logger.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
+import { BlockingService } from '../blocking/blocking.service';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface QueueUser {
@@ -54,6 +55,8 @@ export class MatchmakingService {
     private readonly signalingGateway: SignalingGateway,
     @Inject(forwardRef(() => MatchAnalyticsService))
     private readonly analyticsService: MatchAnalyticsService,
+    @Inject(forwardRef(() => BlockingService))
+    private readonly blockingService: BlockingService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -511,13 +514,29 @@ export class MatchmakingService {
       return false;
     }
 
+    // CHECK IF USERS HAVE BLOCKED EACH OTHER
+    try {
+      const areBlocked = await this.blockingService.areBlocked(user1.deviceId, user2.deviceId);
+      if (areBlocked) {
+        this.logger.debug('Skipping blocked users', {
+          user1: user1.userId,
+          user2: user2.userId,
+          reason: 'One user has blocked the other',
+        });
+        return false;
+      }
+    } catch (error) {
+      // Log error but continue with matching (fail open)
+      this.logger.warn('Failed to check block status', { error: error.message });
+    }
+
     // 🆕 AVOID RECENT MATCHES - Don't match same people within 1 hour
     const user1Recent = await this.redisService.getRecentMatches(user1.userId);
     const user2Recent = await this.redisService.getRecentMatches(user2.userId);
-    
+
     if (user1Recent.includes(user2.userId) || user2Recent.includes(user1.userId)) {
-      this.logger.debug('Skipping recent match', { 
-        user1: user1.userId, 
+      this.logger.debug('Skipping recent match', {
+        user1: user1.userId,
         user2: user2.userId,
         reason: 'Matched within last hour'
       });
