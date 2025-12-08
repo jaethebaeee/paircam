@@ -65,7 +65,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   };
 
   return (
-    <div className="min-h-screen py-8 sm:py-12 px-4 relative overflow-hidden">
+    <div className="min-h-screen py-8 sm:py-12 px-4 relative">
       {/* Animated Background */}
       <AnimatedBackground variant="gradient-orbs" />
 
