@@ -15,6 +15,11 @@ vi.mock('../ui/AnimatedBackground', () => ({
   default: () => <div data-testid="animated-background" />,
 }));
 
+// Mock AdBanner
+vi.mock('../ads/AdBanner', () => ({
+  default: () => <div data-testid="ad-banner" />,
+}));
+
 // Mock PremiumModal
 vi.mock('../PremiumModal', () => ({
   default: ({ onClose }: { onClose: () => void }) => (
@@ -35,9 +40,7 @@ describe('LandingPage', () => {
     it('should render the landing page with hero section', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
-      expect(screen.getByText(/Instant Video Chat/i)).toBeInTheDocument();
-      // Use getAllByText for elements that may appear multiple times
-      expect(screen.getAllByText(/with Strangers/i).length).toBeGreaterThan(0);
+      expect(screen.getByText(/Video Chat with Strangers/i)).toBeInTheDocument();
     });
 
     it('should render the animated background', () => {
@@ -49,34 +52,23 @@ describe('LandingPage', () => {
     it('should display live user count', async () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
-      // Should show "online" text near the user count (may appear multiple times)
       await waitFor(() => {
         expect(screen.getAllByText(/online/i).length).toBeGreaterThan(0);
       });
     });
 
-    it('should render how it works section', () => {
+    it('should render value props', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
-      expect(screen.getByText('How It Works')).toBeInTheDocument();
-      expect(screen.getByText('Enter Your Name')).toBeInTheDocument();
-      expect(screen.getByText('Get Matched')).toBeInTheDocument();
-      expect(screen.getByText('Start Chatting')).toBeInTheDocument();
-    });
-
-    it('should render safety section', () => {
-      render(<LandingPage onStartCall={mockOnStartCall} />);
-
-      expect(screen.getByText('Your Safety Matters')).toBeInTheDocument();
-      expect(screen.getByText('24/7 Moderation')).toBeInTheDocument();
-      expect(screen.getByText('Anonymous by Default')).toBeInTheDocument();
+      expect(screen.getByText('Free')).toBeInTheDocument();
+      expect(screen.getByText('Anonymous')).toBeInTheDocument();
+      expect(screen.getByText('Instant')).toBeInTheDocument();
     });
 
     it('should render start chat form', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
-      expect(screen.getByText('Start chatting:')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/Enter your name or nickname/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Enter a nickname/i)).toBeInTheDocument();
     });
   });
 
@@ -85,10 +77,10 @@ describe('LandingPage', () => {
       const user = userEvent.setup();
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
-      const startButton = screen.getByRole('button', { name: /Start Video Chat/i });
+      const startButton = screen.getByRole('button', { name: /Start Chat/i });
       await user.click(startButton);
 
-      expect(screen.getByText(/Please enter your name to continue/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter a name/i)).toBeInTheDocument();
       expect(mockOnStartCall).not.toHaveBeenCalled();
     });
 
@@ -97,22 +89,22 @@ describe('LandingPage', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
       // Enter name
-      const nameInput = screen.getByPlaceholderText(/Enter your name or nickname/i);
+      const nameInput = screen.getByPlaceholderText(/Enter a nickname/i);
       await user.type(nameInput, 'TestUser');
 
       // Check 18+ checkbox
-      const adultCheckbox = screen.getByText(/I'm 18 years or older/i);
+      const adultCheckbox = screen.getByLabelText(/I'm 18 or older/i);
       await user.click(adultCheckbox);
 
       // Enter age under 18
-      const ageInput = screen.getByPlaceholderText(/Enter your age/i);
+      const ageInput = screen.getByPlaceholderText('18');
       await user.type(ageInput, '17');
 
       // Try to start
-      const startButton = screen.getByRole('button', { name: /Start Video Chat/i });
+      const startButton = screen.getByRole('button', { name: /Start Chat/i });
       await user.click(startButton);
 
-      expect(screen.getByText(/You must be 18 or older/i)).toBeInTheDocument();
+      expect(screen.getByText(/Must be 18 or older/i)).toBeInTheDocument();
       expect(mockOnStartCall).not.toHaveBeenCalled();
     });
 
@@ -121,11 +113,11 @@ describe('LandingPage', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
       // Enter name
-      const nameInput = screen.getByPlaceholderText(/Enter your name or nickname/i);
+      const nameInput = screen.getByPlaceholderText(/Enter a nickname/i);
       await user.type(nameInput, 'TestUser');
 
       // Start chat
-      const startButton = screen.getByRole('button', { name: /Start Video Chat/i });
+      const startButton = screen.getByRole('button', { name: /Start Chat/i });
       await user.click(startButton);
 
       expect(mockOnStartCall).toHaveBeenCalledWith({
@@ -140,19 +132,19 @@ describe('LandingPage', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
       // Enter name
-      const nameInput = screen.getByPlaceholderText(/Enter your name or nickname/i);
+      const nameInput = screen.getByPlaceholderText(/Enter a nickname/i);
       await user.type(nameInput, 'TestUser');
 
       // Check 18+ checkbox
-      const adultCheckbox = screen.getByText(/I'm 18 years or older/i);
+      const adultCheckbox = screen.getByLabelText(/I'm 18 or older/i);
       await user.click(adultCheckbox);
 
       // Enter valid age
-      const ageInput = screen.getByPlaceholderText(/Enter your age/i);
+      const ageInput = screen.getByPlaceholderText('18');
       await user.type(ageInput, '25');
 
       // Start chat
-      const startButton = screen.getByRole('button', { name: /Start Video Chat/i });
+      const startButton = screen.getByRole('button', { name: /Start Chat/i });
       await user.click(startButton);
 
       expect(mockOnStartCall).toHaveBeenCalledWith({
@@ -169,19 +161,17 @@ describe('LandingPage', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
       // Enter name
-      const nameInput = screen.getByPlaceholderText(/Enter your name or nickname/i);
+      const nameInput = screen.getByPlaceholderText(/Enter a nickname/i);
       await user.type(nameInput, 'TestUser');
 
-      // Find all buttons and look for a toggle that might control video
-      // The toggle might be rendered differently, so just test the start flow
-      const startButton = screen.getByRole('button', { name: /Start Video Chat/i });
+      const startButton = screen.getByRole('button', { name: /Start Chat/i });
       await user.click(startButton);
 
       // Default behavior with video enabled
       expect(mockOnStartCall).toHaveBeenCalledWith({
         name: 'TestUser',
         isTextMode: false,
-        isVideoEnabled: true, // Default is video enabled
+        isVideoEnabled: true,
       });
     });
   });
@@ -192,17 +182,17 @@ describe('LandingPage', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
       // Enter name
-      const nameInput = screen.getByPlaceholderText(/Enter your name or nickname/i);
+      const nameInput = screen.getByPlaceholderText(/Enter a nickname/i);
       await user.type(nameInput, 'TestUser');
 
       // Click text only mode
-      const textModeButton = screen.getByText(/Text only mode/i);
+      const textModeButton = screen.getByText(/or text only/i);
       await user.click(textModeButton);
 
       expect(mockOnStartCall).toHaveBeenCalledWith({
         name: 'TestUser',
         isTextMode: true,
-        isVideoEnabled: true, // Video toggle state is still preserved
+        isVideoEnabled: true,
       });
     });
   });
@@ -241,35 +231,23 @@ describe('LandingPage', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
       // Trigger error first
-      const startButton = screen.getByRole('button', { name: /Start Video Chat/i });
+      const startButton = screen.getByRole('button', { name: /Start Chat/i });
       await user.click(startButton);
-      expect(screen.getByText(/Please enter your name to continue/i)).toBeInTheDocument();
+      expect(screen.getByText(/Please enter a name/i)).toBeInTheDocument();
 
       // Start typing
-      const nameInput = screen.getByPlaceholderText(/Enter your name or nickname/i);
+      const nameInput = screen.getByPlaceholderText(/Enter a nickname/i);
       await user.type(nameInput, 'T');
 
       // Error should be cleared
-      expect(screen.queryByText(/Please enter your name to continue/i)).not.toBeInTheDocument();
-    });
-
-    it('should show checkmark when name is valid', async () => {
-      const user = userEvent.setup();
-      render(<LandingPage onStartCall={mockOnStartCall} />);
-
-      const nameInput = screen.getByPlaceholderText(/Enter your name or nickname/i);
-      await user.type(nameInput, 'TestUser');
-
-      // Should show green checkmark (svg with path)
-      const inputContainer = nameInput.closest('.relative');
-      expect(inputContainer?.querySelector('svg')).toBeInTheDocument();
+      expect(screen.queryByText(/Please enter a name/i)).not.toBeInTheDocument();
     });
 
     it('should limit name to 30 characters', async () => {
       const user = userEvent.setup();
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
-      const nameInput = screen.getByPlaceholderText(/Enter your name or nickname/i) as HTMLInputElement;
+      const nameInput = screen.getByPlaceholderText(/Enter a nickname/i) as HTMLInputElement;
       const longName = 'A'.repeat(35);
       await user.type(nameInput, longName);
 
@@ -283,14 +261,14 @@ describe('LandingPage', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
       // Initially no age input
-      expect(screen.queryByPlaceholderText(/Enter your age/i)).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText('18')).not.toBeInTheDocument();
 
       // Check 18+ checkbox
-      const adultCheckbox = screen.getByText(/I'm 18 years or older/i);
+      const adultCheckbox = screen.getByLabelText(/I'm 18 or older/i);
       await user.click(adultCheckbox);
 
       // Age input should appear
-      expect(screen.getByPlaceholderText(/Enter your age/i)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('18')).toBeInTheDocument();
     });
 
     it('should hide age input and clear age when 18+ is unchecked', async () => {
@@ -298,18 +276,18 @@ describe('LandingPage', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
       // Check 18+ checkbox
-      const adultCheckbox = screen.getByText(/I'm 18 years or older/i);
+      const adultCheckbox = screen.getByLabelText(/I'm 18 or older/i);
       await user.click(adultCheckbox);
 
       // Enter age
-      const ageInput = screen.getByPlaceholderText(/Enter your age/i);
+      const ageInput = screen.getByPlaceholderText('18');
       await user.type(ageInput, '25');
 
       // Uncheck 18+ checkbox
       await user.click(adultCheckbox);
 
       // Age input should be hidden
-      expect(screen.queryByPlaceholderText(/Enter your age/i)).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText('18')).not.toBeInTheDocument();
     });
   });
 
@@ -321,7 +299,7 @@ describe('LandingPage', () => {
         'href',
         '/terms-of-service'
       );
-      expect(screen.getByRole('link', { name: /Privacy Policy/i })).toHaveAttribute(
+      expect(screen.getByRole('link', { name: /Privacy/i })).toHaveAttribute(
         'href',
         '/privacy-policy'
       );
@@ -333,38 +311,14 @@ describe('LandingPage', () => {
       vi.useFakeTimers();
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
-      // Get initial count display - may have multiple "online" elements
       const onlineElements = screen.getAllByText(/online/i);
       expect(onlineElements.length).toBeGreaterThan(0);
 
-      // Advance timers
       vi.advanceTimersByTime(5000);
 
-      // The count should potentially change (it's random, so we just verify the component still renders)
       expect(screen.getAllByText(/online/i).length).toBeGreaterThan(0);
 
       vi.useRealTimers();
-    });
-  });
-
-  describe('feature sections', () => {
-    it('should render why choose us section', () => {
-      render(<LandingPage onStartCall={mockOnStartCall} />);
-
-      expect(screen.getByText('Why Choose Us?')).toBeInTheDocument();
-      expect(screen.getByText('Lightning Fast')).toBeInTheDocument();
-      expect(screen.getByText('Global Reach')).toBeInTheDocument();
-      expect(screen.getByText('Your Choice')).toBeInTheDocument();
-    });
-
-    it('should render value props badges', () => {
-      render(<LandingPage onStartCall={mockOnStartCall} />);
-
-      expect(screen.getByText(/5 sec start/i)).toBeInTheDocument();
-      // Use getAllBy for elements that may appear multiple times
-      expect(screen.getAllByText(/Anonymous/i).length).toBeGreaterThan(0);
-      expect(screen.getAllByText(/Global/i).length).toBeGreaterThan(0);
-      expect(screen.getAllByText(/Safe/i).length).toBeGreaterThan(0);
     });
   });
 });
