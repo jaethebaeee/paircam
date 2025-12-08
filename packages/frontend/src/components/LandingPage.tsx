@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
 import PremiumModal from './PremiumModal';
-import { useAuthContext } from '../contexts/AuthContext';
 import AnimatedBackground from './ui/AnimatedBackground';
 import AdBanner from './ads/AdBanner';
 
@@ -46,11 +44,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [showNameError, setShowNameError] = useState(false);
   const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const liveUserCount = useLiveUserCount();
-
-  // Auto-animate for FAQ expand/collapse
-  const [faqParent] = useAutoAnimate();
 
   const handleStartChat = (textMode = false) => {
     if (!userName.trim()) {
@@ -82,7 +76,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
           </span>
           <span className="text-sm font-semibold text-gray-700">
-            <span className="text-green-600">{liveUsers.toLocaleString()}</span> online
+            <span className="text-green-600">{liveUserCount.toLocaleString()}</span> online
           </span>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { ChatBubbleLeftIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
 
 interface ChatPanelProps {
   messages: Array<{ text: string; isMine: boolean; sender?: string }>;

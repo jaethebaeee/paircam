@@ -64,6 +64,7 @@ export default function VideoChat({
   const [currentQuality] = useState<'auto' | 'high' | 'low'>('auto'); // Future: allow user to manually override
   const [showReportModal, setShowReportModal] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
+  const [matchedAt, setMatchedAt] = useState<Date | undefined>(undefined);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Geolocation for country flags
@@ -178,7 +179,6 @@ export default function VideoChat({
   useEffect(() => {
     if (signaling.matched) {
       setMatchedAt(new Date());
-      setFriendRequestSent(false);
       if (onMatched) {
         onMatched();
       }
@@ -322,34 +322,6 @@ export default function VideoChat({
       setIsReporting(false);
     }
   };
-
-  const handleFriendRequest = useCallback(async () => {
-    if (friendRequestSent || !signaling.matched) return;
-
-    try {
-      // For now, show a success message - backend integration can be added later
-      setFriendRequestSent(true);
-
-      // TODO: Implement backend friend request API
-      // const res = await fetch(`${API_URL}/friends/request`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${accessToken}`,
-      //   },
-      //   body: JSON.stringify({
-      //     peerId: signaling.matched.peerId,
-      //     sessionId: signaling.matched.sessionId,
-      //   }),
-      // });
-
-      alert('Friend request sent! 🎉\n\nThey will be notified if they have an account.');
-    } catch (e) {
-      console.error(e);
-      setFriendRequestSent(false);
-      alert('Failed to send friend request.');
-    }
-  }, [friendRequestSent, signaling.matched]);
 
   // Show waiting queue while searching for match
   if (showWaitingQueue && !signaling.matched) {

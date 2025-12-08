@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run generate:sitemap && npm run generate:rss && tsc && vite build",
-    "build:prerender": "npm run generate:sitemap && npm run generate:rss && tsc && vite build && npm run postbuild",
-    "postbuild": "react-snap",
+    "build:prerender": "npm run generate:sitemap && npm run generate:rss && tsc && vite build && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm run snap",
+    "snap": "react-snap",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",

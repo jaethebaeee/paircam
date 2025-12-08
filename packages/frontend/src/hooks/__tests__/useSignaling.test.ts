@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useSignaling } from '../useSignaling';
 import { MockSocket } from '../../test/mocks/socket';
 
@@ -272,7 +272,7 @@ describe('useSignaling', () => {
 
     it('should call onOffer callback on offer event', async () => {
       const onOfferMock = vi.fn();
-      const { result } = renderHook(() =>
+      renderHook(() =>
         useSignaling({ ...defaultOptions, onOffer: onOfferMock })
       );
       const offerData = {
@@ -292,7 +292,7 @@ describe('useSignaling', () => {
 
     it('should call onAnswer callback on answer event', async () => {
       const onAnswerMock = vi.fn();
-      const { result } = renderHook(() =>
+      renderHook(() =>
         useSignaling({ ...defaultOptions, onAnswer: onAnswerMock })
       );
       const answerData = {
@@ -312,7 +312,7 @@ describe('useSignaling', () => {
 
     it('should call onCandidate callback on candidate event', async () => {
       const onCandidateMock = vi.fn();
-      const { result } = renderHook(() =>
+      renderHook(() =>
         useSignaling({ ...defaultOptions, onCandidate: onCandidateMock })
       );
       const candidateData = {
@@ -354,7 +354,7 @@ describe('useSignaling', () => {
 
     it('should call onMessage callback on message event', async () => {
       const onMessageMock = vi.fn();
-      const { result } = renderHook(() =>
+      renderHook(() =>
         useSignaling({ ...defaultOptions, onMessage: onMessageMock })
       );
       const messageData = {
@@ -464,7 +464,7 @@ describe('useSignaling', () => {
 
   describe('cleanup', () => {
     it('should close socket on unmount', async () => {
-      const { result, unmount } = renderHook(() => useSignaling(defaultOptions));
+      const { unmount } = renderHook(() => useSignaling(defaultOptions));
 
       await act(async () => {
         vi.advanceTimersByTime(10);

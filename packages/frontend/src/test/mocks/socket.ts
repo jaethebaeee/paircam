@@ -28,7 +28,7 @@ export class MockSocket {
     },
   };
 
-  emit = vi.fn((event: string, ..._data: unknown[]) => {
+  emit = vi.fn((_event: string, ..._data: unknown[]) => {
     // Mock emit behavior
     return this;
   });
