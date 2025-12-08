@@ -4,6 +4,7 @@ import { PaymentsService } from '../payments.service';
 import { UsersService } from '../../users/users.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import { LoggerService } from '../../services/logger.service';
+import { STRIPE_CLIENT } from '../stripe';
 
 // Mock env module
 jest.mock('../../env', () => ({
@@ -16,7 +17,7 @@ jest.mock('../../env', () => ({
   },
 }));
 
-// Mock Stripe
+// Mock Stripe client
 const mockStripe = {
   checkout: {
     sessions: {
@@ -32,10 +33,6 @@ const mockStripe = {
     constructEvent: jest.fn(),
   },
 };
-
-jest.mock('stripe', () => {
-  return jest.fn().mockImplementation(() => mockStripe);
-});
 
 describe('PaymentsService', () => {
   let service: PaymentsService;
@@ -65,6 +62,10 @@ describe('PaymentsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PaymentsService,
+        {
+          provide: STRIPE_CLIENT,
+          useValue: mockStripe,
+        },
         {
           provide: UsersService,
           useValue: {
