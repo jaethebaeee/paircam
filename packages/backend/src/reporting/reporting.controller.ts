@@ -1,18 +1,21 @@
-import { Controller, Post, Get, Body, UseGuards, Req, Query } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, Req, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
 import { ReportingService, ReportData } from './reporting.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { SubmitReportDto } from './dto/submit-report.dto';
 import { ModerateReportDto } from './dto/moderate-report.dto';
 
 @Controller('reports')
+@UseGuards(JwtAuthGuard)
 export class ReportingController {
   constructor(private readonly reportingService: ReportingService) {}
 
-  @UseGuards(JwtAuthGuard)
+  // Any authenticated user can submit a report
   @Post()
   async submitReport(@Body() body: SubmitReportDto, @Req() req: { user: { deviceId: string } }): Promise<{ reportId: string }> {
     const reporterId = req.user.deviceId;
-    
+
     const reportData: ReportData = {
       reporterId,
       reportedPeerId: body.reportedPeerId,
@@ -26,21 +29,29 @@ export class ReportingController {
     return { reportId };
   }
 
-  @UseGuards(JwtAuthGuard)
+  // Only moderators and admins can view reports
+  @UseGuards(RolesGuard)
+  @Roles('moderator', 'admin')
   @Get('next')
-  async getNextReport(@Req() _req: { user: { deviceId: string } }) {
-    // In a real implementation, you'd check if the user is a moderator
+  async getNextReport() {
     return await this.reportingService.getNextReport();
   }
 
-  @UseGuards(JwtAuthGuard)
+  // Only moderators and admins can view all reports
+  @UseGuards(RolesGuard)
+  @Roles('moderator', 'admin')
   @Get()
-  async getAllReports(@Query('limit') limit?: string) {
-    const limitNum = limit ? parseInt(limit, 10) : 50;
-    return await this.reportingService.getAllReports(limitNum);
+  async getAllReports(
+    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
+  ) {
+    // Enforce max limit of 100
+    const safeLimit = Math.min(Math.max(1, limit), 100);
+    return await this.reportingService.getAllReports(safeLimit);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // Only moderators and admins can moderate reports
+  @UseGuards(RolesGuard)
+  @Roles('moderator', 'admin')
   @Post('moderate')
   async moderateReport(@Body() body: ModerateReportDto, @Req() req: { user: { deviceId: string } }) {
     const moderatorId = req.user.deviceId;
@@ -48,7 +59,9 @@ export class ReportingController {
     return { success: true };
   }
 
-  @UseGuards(JwtAuthGuard)
+  // Only moderators and admins can view stats
+  @UseGuards(RolesGuard)
+  @Roles('moderator', 'admin')
   @Get('stats')
   async getReportStats() {
     return await this.reportingService.getReportStats();

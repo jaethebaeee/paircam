@@ -55,6 +55,7 @@ export default function VideoChat({
   const [showChat, setShowChat] = useState(isTextMode); // Auto-show chat in text mode
   const [messages, setMessages] = useState<Array<{ text: string; isMine: boolean; sender?: string }>>([]);
   const [turnCredentials, setTurnCredentials] = useState<TurnCredentials | null>(null);
+  const [turnError, setTurnError] = useState<string | null>(null);
   const [isSkipping, setIsSkipping] = useState(false);
   const [permissionError, setPermissionError] = useState<string | null>(null);
   const [isAudioOnlyMode, setIsAudioOnlyMode] = useState(false);
@@ -139,20 +140,51 @@ export default function VideoChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, isTextMode, isAudioOnlyMode, currentQuality]);
 
-  // Fetch TURN credentials
+  // Fetch TURN credentials with retry logic
   useEffect(() => {
-    if (accessToken) {
-      fetch(`${API_URL}/turn/credentials`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      })
-        .then((res) => res.json())
-        .then(setTurnCredentials)
-        .catch(console.error);
-    }
+    if (!accessToken) return;
+
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    const fetchCredentials = async () => {
+      try {
+        setTurnError(null);
+        const res = await fetch(`${API_URL}/turn/credentials`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+
+        // Validate response structure
+        if (!data.urls || !data.username || !data.credential) {
+          throw new Error('Invalid TURN credentials response');
+        }
+
+        setTurnCredentials(data);
+      } catch (error) {
+        console.error('Failed to fetch TURN credentials:', error);
+        retryCount++;
+
+        if (retryCount < maxRetries) {
+          // Retry with exponential backoff
+          setTimeout(fetchCredentials, 1000 * Math.pow(2, retryCount));
+        } else {
+          setTurnError('Failed to load video relay. Connection quality may be reduced.');
+          // Continue without TURN - STUN-only fallback
+        }
+      }
+    };
+
+    fetchCredentials();
   }, [accessToken]);
 
   // Join queue when ready (in text mode, skip waiting for local stream)
@@ -176,9 +208,15 @@ export default function VideoChat({
   // Create offer when matched (skip in text mode)
   useEffect(() => {
     if (signaling.matched && !isTextMode && webrtc.localStream) {
-      webrtc.createOffer().then((offer) => {
-        signaling.sendOffer(signaling.matched!.sessionId, offer);
-      });
+      webrtc.createOffer()
+        .then((offer) => {
+          signaling.sendOffer(signaling.matched!.sessionId, offer);
+        })
+        .catch((error) => {
+          console.error('Failed to create offer:', error);
+          // Notify user of connection failure
+          signaling.endCall(signaling.matched!.sessionId, false);
+        });
     }
   }, [signaling.matched, signaling, webrtc, isTextMode]);
 
@@ -311,6 +349,13 @@ export default function VideoChat({
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-slate-900 relative">
+      {/* TURN Error Warning */}
+      {turnError && (
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-50 bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm shadow-lg">
+          {turnError}
+        </div>
+      )}
+
       {/* Network Quality Indicator */}
       {!isTextMode && (
         <NetworkQualityIndicator

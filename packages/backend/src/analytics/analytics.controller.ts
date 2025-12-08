@@ -1,9 +1,12 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { MatchAnalyticsService } from './match-analytics.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
-// Simple admin guard (you should implement proper authentication)
-// @UseGuards(AdminGuard)
 @Controller('analytics')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
 export class AnalyticsController {
   constructor(private readonly analyticsService: MatchAnalyticsService) {}
 

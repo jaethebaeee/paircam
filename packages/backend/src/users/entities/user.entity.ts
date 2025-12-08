@@ -1,6 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Subscription } from '../../subscriptions/entities/subscription.entity';
 
+export type UserRole = 'user' | 'moderator' | 'admin';
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -8,6 +10,9 @@ export class User {
 
   @Column({ unique: true, name: 'device_id' })
   deviceId: string;
+
+  @Column({ type: 'varchar', length: 20, default: 'user' })
+  role: UserRole;
 
   @Column({ unique: true, nullable: true })
   email?: string;

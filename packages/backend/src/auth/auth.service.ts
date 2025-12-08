@@ -4,12 +4,14 @@ import { OAuth2Client } from 'google-auth-library';
 import { LoggerService } from '../services/logger.service';
 import { UsersService } from '../users/users.service';
 import { GoogleUserInfo } from './dto/google-auth.dto';
+import { UserRole } from '../users/entities/user.entity';
 import { env } from '../env';
 
 export interface JwtPayload {
   sub: string;
   deviceId: string;
   userId?: string;
+  role?: UserRole;
   iat?: number;
   exp?: number;
 }
@@ -44,14 +46,19 @@ export class AuthService {
   }
 
   async generateToken(deviceId: string): Promise<AuthTokens> {
+    // Fetch user to get their role
+    const user = await this.usersService.findOrCreate(deviceId);
+
     const payload: JwtPayload = {
       sub: deviceId,
       deviceId,
+      userId: user.id,
+      role: user.role,
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
-    
-    this.logger.debug('Generated JWT token', { deviceId });
+
+    this.logger.debug('Generated JWT token', { deviceId, role: user.role });
 
     return {
       accessToken,
@@ -98,11 +105,12 @@ export class AuthService {
     // Check premium status
     const isPremium = await this.usersService.isPremium(user.id);
 
-    // Generate JWT token with user's device ID
+    // Generate JWT token with user's device ID and role
     const payload: JwtPayload = {
       sub: user.deviceId,
       deviceId: user.deviceId,
       userId: user.id,
+      role: user.role,
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
