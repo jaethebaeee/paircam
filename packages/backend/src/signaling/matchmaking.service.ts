@@ -179,14 +179,29 @@ export class MatchmakingService {
     const used = new Set<string>();
     const now = Date.now();
 
-    // 🆕 WAIT TIME BALANCING - Separate by wait time
-    const urgent = users.filter(u => now - u.timestamp > 60000); // 1+ minute wait
-    const normal = users.filter(u => now - u.timestamp <= 60000);
+    // ⚡ PRE-FETCH: Bulk load recent matches to avoid per-pair Redis calls
+    const userIds = users.map(u => u.userId);
+    const recentMatchesMap = await this.redisService.getRecentMatchesBulk(userIds);
+
+    // 🆕 DYNAMIC URGENCY THRESHOLD - Adjust based on queue size
+    // Larger queues = stricter threshold (more matches available)
+    // Smaller queues = lower threshold (need to match faster)
+    const baseUrgencyMs = 60000; // 1 minute base
+    const urgencyThreshold = users.length > 50
+      ? baseUrgencyMs * 1.5  // 90 seconds for large queues
+      : users.length < 10
+        ? baseUrgencyMs * 0.5  // 30 seconds for small queues
+        : baseUrgencyMs;
+
+    // 🆕 WAIT TIME BALANCING - Separate by wait time (dynamic threshold)
+    const urgent = users.filter(u => now - u.timestamp > urgencyThreshold);
+    const normal = users.filter(u => now - u.timestamp <= urgencyThreshold);
 
     this.logger.debug('⚡ Optimized matching started', {
       total: users.length,
       urgent: urgent.length,
       normal: normal.length,
+      urgencyThreshold: `${Math.round(urgencyThreshold / 1000)}s`,
     });
 
     // 🆕 Priority 1: Match urgent waiters first (lower compatibility standards)
@@ -198,12 +213,12 @@ export class MatchmakingService {
       for (const candidate of [...urgent, ...normal]) {
         if (used.has(candidate.userId) || candidate.userId === urgentUser.userId) continue;
 
-        if (await this.areCompatible(urgentUser, candidate)) {
+        if (this.areCompatibleFast(urgentUser, candidate, recentMatchesMap)) {
           const waitTime = now - urgentUser.timestamp;
-          matches.push({ 
-            user1: urgentUser, 
+          matches.push({
+            user1: urgentUser,
             user2: candidate,
-            waitTime 
+            waitTime
           });
           used.add(urgentUser.userId);
           used.add(candidate.userId);
@@ -223,7 +238,7 @@ export class MatchmakingService {
     const remainingUsers = [...premiumUsers, ...freeUsers];
 
     if (remainingUsers.length > 0) {
-      const bucketedMatches = await this.findMatchesOptimized(remainingUsers, used, now);
+      const bucketedMatches = await this.findMatchesOptimized(remainingUsers, used, now, recentMatchesMap);
       matches.push(...bucketedMatches);
     }
 
@@ -251,9 +266,10 @@ export class MatchmakingService {
 
   // ⚡ NEW: Optimized O(n log n) matching using buckets
   private async findMatchesOptimized(
-    users: QueueUser[], 
-    used: Set<string>, 
-    now: number
+    users: QueueUser[],
+    used: Set<string>,
+    now: number,
+    recentMatchesMap: Map<string, Set<string>>
   ): Promise<Array<{ user1: QueueUser; user2: QueueUser; score: number }>> {
     const matches: Array<{ user1: QueueUser; user2: QueueUser; score: number }> = [];
     
@@ -286,10 +302,10 @@ export class MatchmakingService {
 
           comparisons++;
 
-          // Quick compatibility check (cheap)
-          if (await this.areCompatible(user1, user2)) {
+          // Quick compatibility check (cheap - uses pre-fetched data)
+          if (this.areCompatibleFast(user1, user2, recentMatchesMap)) {
             // Calculate score (expensive, but only for compatible pairs)
-            const score = await this.calculateCompatibilityScore(user1, user2, now);
+            const score = this.calculateCompatibilityScore(user1, user2, now);
             scoredPairs.push({ user1, user2, score });
           }
         }
@@ -380,7 +396,7 @@ export class MatchmakingService {
   }
 
   // 🆕 Calculate compatibility score (0-100)
-  private async calculateCompatibilityScore(user1: QueueUser, user2: QueueUser, now: number): Promise<number> {
+  private calculateCompatibilityScore(user1: QueueUser, user2: QueueUser, now: number): number {
     let score = 0;
 
     // 1. Location Match (20 points) - Same region = lower latency
@@ -389,7 +405,7 @@ export class MatchmakingService {
     } else if (user1.region === 'global' || user2.region === 'global') {
       score += 10; // Partial credit for flexible region
     }
-    
+
     // 🆕 1a. Geographic Latency Prediction (additional 5 points)
     const latencyScore = this.calculateLatencyScore(user1, user2);
     score += latencyScore;
@@ -408,7 +424,7 @@ export class MatchmakingService {
     // 3. Reputation Score (25 points) - Match good users together
     const rep1 = user1.reputation || 70;
     const rep2 = user2.reputation || 70;
-    
+
     // Both high reputation (70+)
     if (rep1 >= 70 && rep2 >= 70) {
       score += 25;
@@ -431,7 +447,7 @@ export class MatchmakingService {
       const commonInterests = user1.interests.filter(i => user2.interests?.includes(i));
       const interestScore = Math.min(commonInterests.length * 7, 20); // 7 points per common interest, max 20
       score += interestScore;
-      
+
       if (commonInterests.length > 0) {
         this.logger.debug('Common interests found', {
           user1: user1.userId,
@@ -453,7 +469,53 @@ export class MatchmakingService {
       score += 8; // Premium users get slight boost
     }
 
+    // 🆕 7. Age Bracket Match (10 points) - Similar age groups connect better
+    const ageScore = this.calculateAgeBracketScore(user1, user2);
+    score += ageScore;
+
+    // 🆕 8. Timezone Bonus (5 points) - Similar timezones = better availability
+    const timezoneScore = this.calculateTimezoneScore(user1, user2);
+    score += timezoneScore;
+
     return Math.min(100, Math.max(0, score)); // Clamp to 0-100
+  }
+
+  // 🆕 Calculate age bracket compatibility score
+  private calculateAgeBracketScore(user1: QueueUser, user2: QueueUser): number {
+    // If either user hasn't provided age, give partial credit
+    if (!user1.age || !user2.age) {
+      return 3; // Neutral score
+    }
+
+    const ageDiff = Math.abs(user1.age - user2.age);
+
+    // Same age bracket scoring
+    if (ageDiff <= 3) return 10;      // Very close in age
+    if (ageDiff <= 7) return 7;       // Similar age
+    if (ageDiff <= 12) return 4;      // Moderate difference
+    return 1;                          // Large age gap
+  }
+
+  // 🆕 Calculate timezone compatibility score based on region
+  private calculateTimezoneScore(user1: QueueUser, user2: QueueUser): number {
+    // Map regions to approximate UTC offsets
+    const regionTimezones: Record<string, number> = {
+      'us-east': -5,
+      'us-west': -8,
+      'europe': 1,
+      'asia': 8,
+      'global': 0, // Neutral
+    };
+
+    const tz1 = regionTimezones[user1.region] ?? 0;
+    const tz2 = regionTimezones[user2.region] ?? 0;
+    const tzDiff = Math.abs(tz1 - tz2);
+
+    // Score based on timezone difference
+    if (tzDiff === 0) return 5;       // Same timezone
+    if (tzDiff <= 3) return 4;        // Close timezone
+    if (tzDiff <= 6) return 2;        // Moderate difference
+    return 0;                          // Opposite sides of the world
   }
 
   // 🆕 Calculate latency score based on geographic location
@@ -500,6 +562,47 @@ export class MatchmakingService {
     return score;
   }
 
+  // ⚡ FAST: Synchronous compatibility check using pre-fetched data
+  private areCompatibleFast(
+    user1: QueueUser,
+    user2: QueueUser,
+    recentMatchesMap: Map<string, Set<string>>
+  ): boolean {
+    // Same region preference
+    if (user1.region !== 'global' && user2.region !== 'global' && user1.region !== user2.region) {
+      return false;
+    }
+
+    // Same language preference
+    if (user1.language !== user2.language) {
+      return false;
+    }
+
+    // ⚡ AVOID RECENT MATCHES - Uses pre-fetched map (no Redis call!)
+    const user1Recent = recentMatchesMap.get(user1.userId) || new Set();
+    const user2Recent = recentMatchesMap.get(user2.userId) || new Set();
+
+    if (user1Recent.has(user2.userId) || user2Recent.has(user1.userId)) {
+      return false;
+    }
+
+    // Gender filter checks
+    if (user1.isPremium && user1.genderPreference && user1.genderPreference !== 'any') {
+      if (!user2.gender || user2.gender !== user1.genderPreference) {
+        return false;
+      }
+    }
+
+    if (user2.isPremium && user2.genderPreference && user2.genderPreference !== 'any') {
+      if (!user1.gender || user1.gender !== user2.genderPreference) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Legacy async version (kept for backwards compatibility)
   private async areCompatible(user1: QueueUser, user2: QueueUser): Promise<boolean> {
     // Same region preference
     if (user1.region !== 'global' && user2.region !== 'global' && user1.region !== user2.region) {
@@ -514,10 +617,10 @@ export class MatchmakingService {
     // 🆕 AVOID RECENT MATCHES - Don't match same people within 1 hour
     const user1Recent = await this.redisService.getRecentMatches(user1.userId);
     const user2Recent = await this.redisService.getRecentMatches(user2.userId);
-    
+
     if (user1Recent.includes(user2.userId) || user2Recent.includes(user1.userId)) {
-      this.logger.debug('Skipping recent match', { 
-        user1: user1.userId, 
+      this.logger.debug('Skipping recent match', {
+        user1: user1.userId,
         user2: user2.userId,
         reason: 'Matched within last hour'
       });
