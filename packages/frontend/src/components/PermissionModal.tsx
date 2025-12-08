@@ -186,15 +186,15 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
         <div className="flex gap-3">
           <button
             onClick={onPermissionsDenied}
-            className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all"
+            className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-400 text-gray-600 font-semibold hover:bg-gray-100 transition-all flex items-center justify-center text-center"
             disabled={isRequesting}
           >
-            Cancel
+            <span>Cancel</span>
           </button>
           <button
             onClick={requestPermissions}
             disabled={isRequesting}
-            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold hover:from-pink-700 hover:to-purple-700 shadow-lg shadow-pink-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-700 to-purple-700 text-white font-semibold hover:from-pink-800 hover:to-purple-800 shadow-md shadow-pink-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-center"
           >
             {isRequesting ? (
               <span className="flex items-center justify-center gap-2">
@@ -205,7 +205,7 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
                 Requesting...
               </span>
             ) : (
-              'Allow Camera & Microphone'
+              <span>Allow Camera & Microphone</span>
             )}
           </button>
         </div>
