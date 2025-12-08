@@ -119,7 +119,7 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
                 <button
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-semibold rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center text-center"
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -130,14 +130,14 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
                       Submitting...
                     </span>
                   ) : (
-                    'Submit Report'
+                    <span>Submit Report</span>
                   )}
                 </button>
                 <button
                   onClick={onClose}
-                  className="w-full py-3 text-gray-600 hover:text-gray-800 font-medium transition-colors"
+                  className="w-full px-6 py-3 text-gray-600 hover:text-gray-800 font-semibold transition-colors flex items-center justify-center text-center"
                 >
-                  Cancel
+                  <span>Cancel</span>
                 </button>
               </div>
             </>

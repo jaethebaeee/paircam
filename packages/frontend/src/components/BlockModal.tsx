@@ -77,17 +77,17 @@ export default function BlockModal({ onBlock, onClose, isLoading = false }: Bloc
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+              className="flex-1 px-6 py-3 border-2 border-gray-400 text-gray-600 rounded-xl font-semibold hover:bg-gray-100 transition-all flex items-center justify-center text-center"
               disabled={isLoading}
             >
-              Cancel
+              <span>Cancel</span>
             </button>
             <button
               onClick={handleSubmit}
               disabled={!selectedReason || isLoading}
-              className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all ${
+              className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center text-center ${
                 selectedReason && !isLoading
-                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  ? 'bg-red-600 text-white hover:bg-red-700'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
@@ -100,7 +100,7 @@ export default function BlockModal({ onBlock, onClose, isLoading = false }: Bloc
                   Blocking...
                 </span>
               ) : (
-                'Block User'
+                <span>Block User</span>
               )}
             </button>
           </div>

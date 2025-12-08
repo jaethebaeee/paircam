@@ -171,14 +171,14 @@ export default function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         <div className="flex gap-3">
           <button
             onClick={onDecline}
-            className="flex-1 px-6 py-4 rounded-xl border-2 border-gray-400 text-gray-600 font-semibold hover:bg-gray-100 transition-all flex items-center justify-center text-center gap-2"
+            className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-400 text-gray-600 font-semibold hover:bg-gray-100 transition-all flex items-center justify-center text-center gap-2"
           >
             <XMarkIcon className="w-5 h-5" />
             <span>I Decline</span>
           </button>
           <button
             onClick={onAccept}
-            className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-pink-700 to-purple-700 text-white font-semibold hover:from-pink-800 hover:to-purple-800 shadow-md shadow-pink-500/20 transition-all flex items-center justify-center text-center gap-2"
+            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-700 to-purple-700 text-white font-semibold hover:from-pink-800 hover:to-purple-800 shadow-md shadow-pink-500/20 transition-all flex items-center justify-center text-center gap-2"
           >
             <CheckCircleIcon className="w-5 h-5" />
             <span>I Accept & Continue</span>

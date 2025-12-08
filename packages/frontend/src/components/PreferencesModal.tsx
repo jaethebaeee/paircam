@@ -322,15 +322,15 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
           <div className="flex gap-3 pt-4">
             <button
               onClick={onCancel}
-              className="flex-1 py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 hover:shadow-lg active:scale-95"
+              className="flex-1 px-6 py-3 border-2 border-gray-400 text-gray-600 font-semibold rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center text-center"
             >
-              Cancel
+              <span>Cancel</span>
             </button>
             <button
               onClick={handleStart}
-              className="flex-1 py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-xl shadow-pink-500/30 hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 hover:scale-105 active:scale-95"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-pink-700 to-purple-700 hover:from-pink-800 hover:to-purple-800 text-white font-semibold rounded-xl shadow-md shadow-pink-500/20 transition-all flex items-center justify-center text-center"
             >
-              Start Chatting →
+              <span>Start Chatting →</span>
             </button>
           </div>
 

@@ -111,34 +111,34 @@ export default function PermissionErrorModal({
           <div className="flex flex-col gap-3 w-full">
             <button
               onClick={onRetry}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all"
+              className="w-full px-6 py-3 bg-gradient-to-r from-pink-700 to-purple-700 text-white font-semibold rounded-xl hover:from-pink-800 hover:to-purple-800 shadow-md shadow-pink-500/20 transition-all flex items-center justify-center text-center"
             >
-              Try Again
+              <span>Try Again</span>
             </button>
 
             {onSwitchToAudio && (
               <button
                 onClick={onSwitchToAudio}
-                className="w-full bg-blue-500 text-white font-semibold py-3 rounded-xl hover:bg-blue-600 transition-all"
+                className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all flex items-center justify-center text-center"
               >
-                Switch to Audio Only
+                <span>Switch to Audio Only</span>
               </button>
             )}
 
             {onSwitchToText && (
               <button
                 onClick={onSwitchToText}
-                className="w-full bg-gray-500 text-white font-semibold py-3 rounded-xl hover:bg-gray-600 transition-all"
+                className="w-full px-6 py-3 bg-gray-600 text-white font-semibold rounded-xl hover:bg-gray-700 transition-all flex items-center justify-center text-center"
               >
-                Switch to Text Chat
+                <span>Switch to Text Chat</span>
               </button>
             )}
 
             <button
               onClick={onDismiss}
-              className="w-full text-gray-600 font-medium py-2 hover:text-gray-800 transition-colors"
+              className="w-full px-6 py-3 text-gray-600 font-semibold hover:text-gray-800 transition-colors flex items-center justify-center text-center"
             >
-              Go Back
+              <span>Go Back</span>
             </button>
           </div>
         </div>

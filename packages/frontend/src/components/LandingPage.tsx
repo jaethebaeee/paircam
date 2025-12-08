@@ -239,18 +239,18 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <button
               onClick={() => handleStartChat(false)}
               disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
-              className="w-full py-4 px-6 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white font-semibold text-base rounded-lg transition-colors disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white font-semibold text-base rounded-xl transition-colors disabled:cursor-not-allowed flex items-center justify-center text-center"
             >
-              Start Video Chat
+              <span>Start Video Chat</span>
             </button>
 
             {/* Text Mode Link */}
             <button
               onClick={() => handleStartChat(true)}
               disabled={!userName.trim()}
-              className="w-full py-2 text-gray-600 hover:text-gray-900 disabled:text-gray-400 font-medium text-sm transition-colors disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 text-gray-600 hover:text-gray-900 disabled:text-gray-400 font-semibold text-sm transition-colors disabled:cursor-not-allowed flex items-center justify-center text-center"
             >
-              or use text-only mode
+              <span>or use text-only mode</span>
             </button>
           </div>
         </div>
