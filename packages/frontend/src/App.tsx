@@ -64,6 +64,70 @@ const softwareAppSchema = {
   }
 };
 
+// FAQ Schema for rich results
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is PairCam really free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! PairCam is 100% free to use. We offer optional Premium features for users who want extras like gender filters and no ads, but the core video chat experience is completely free."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to create an account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No signup required. Just enter a nickname and start chatting instantly. We believe in keeping things simple and anonymous."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is PairCam safe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Safety is our priority. We use AI moderation, have 24/7 human moderators, and provide easy reporting tools. Users must be 18+ for video chat, and we never store your personal information."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use PairCam on mobile?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! PairCam works on any modern browser - desktop, tablet, or mobile. No app download needed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I report someone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "During any chat, click the report button (flag icon) to report inappropriate behavior. Our team reviews reports within 24 hours and takes action against violators."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why can't I connect to anyone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Make sure you've allowed camera/microphone permissions in your browser. If issues persist, try refreshing the page or using a different browser. Check that you're not on a restricted network (some schools/workplaces block video chat)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is Premium?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Premium unlocks gender filters, removes ads, gives you priority matching, and adds a verified badge. It's optional - free users get the full chat experience."
+      }
+    }
+  ]
+};
+
 // Inner component to access useLocation
 function AppRoutes({
   appState,
@@ -108,7 +172,14 @@ function AppRoutes({
     switch (currentRoute) {
       case '/':
         return {
-          jsonLd: softwareAppSchema,
+          jsonLd: [softwareAppSchema, faqSchema],
+        };
+      case '/support':
+        return {
+          title: 'Contact Support',
+          description: 'Need help with PairCam? Contact our support team for technical issues, billing questions, or report abuse. We typically respond within 24-48 hours.',
+          url: 'https://paircam.live/support',
+          keywords: 'paircam support, contact paircam, paircam help, video chat support, report user',
         };
       case '/terms-of-service':
         return {

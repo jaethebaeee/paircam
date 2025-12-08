@@ -56,6 +56,11 @@ const routes = [
     changefreq: 'monthly',
     priority: 0.5,
   },
+  {
+    url: '/support',
+    changefreq: 'monthly',
+    priority: 0.6,
+  },
 ];
 
 async function generateSitemap() {
