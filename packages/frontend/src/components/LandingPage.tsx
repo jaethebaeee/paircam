@@ -85,14 +85,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       {/* Premium Button - Fixed Top Right */}
       <button
         onClick={() => setShowPremiumModal(true)}
-        className="group fixed top-20 sm:top-24 right-4 z-10 bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden text-sm sm:text-base"
+        className="fixed top-20 sm:top-24 right-4 z-10 bg-gray-900 hover:bg-gray-800 text-white px-4 sm:px-5 py-2.5 rounded-lg font-semibold shadow-lg transition-colors text-sm"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <span className="relative flex items-center gap-1.5 sm:gap-2">
-          <span className="text-base sm:text-lg animate-bounce-subtle">⭐</span>
-          <span className="hidden sm:inline">Get Premium</span>
-          <span className="sm:hidden">Premium</span>
-        </span>
+        Get Premium
       </button>
 
       <div className="max-w-5xl mx-auto relative z-10">
@@ -125,15 +120,14 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         {/* Start Chat Form Section */}
         <div className="max-w-md mx-auto px-2">
 
-        {/* Clean Form Card */}
-        <div className={`bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 transition-all duration-300 p-5 sm:p-8 mb-4 sm:mb-6 ${
-          isFormFocused ? 'border-pink-300 shadow-xl' : 'border-gray-100'
-        }`}>
-          
-          <div className="space-y-4 sm:space-y-6">
+        {/* Clean Form Box */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-4 sm:mb-6">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Get Started</h3>
+
+          <div className="space-y-5">
             {/* Name Input */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Your name
               </label>
               <input
@@ -149,42 +143,44 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 aria-label="Your name or nickname"
                 aria-required="true"
                 aria-invalid={showNameError}
-                className={`w-full px-4 py-3 rounded-xl border ${
+                className={`w-full px-4 py-3 rounded-lg border ${
                   showNameError
-                    ? 'border-red-400 focus:border-red-500'
-                    : 'border-gray-200 focus:border-pink-500'
-                } focus:ring-2 focus:ring-pink-100 outline-none text-base transition-colors`}
+                    ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
+                    : 'border-gray-300 focus:border-gray-900 focus:ring-gray-100'
+                } focus:ring-2 outline-none text-base transition-colors`}
                 maxLength={30}
               />
               {showNameError && (
-                <p className="text-xs text-red-600" role="alert">
-                  Please enter a name
+                <p className="mt-2 text-sm text-red-600" role="alert">
+                  Please enter your name to continue
                 </p>
               )}
             </div>
 
             {/* Video Toggle */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-              <span className="text-sm font-medium text-gray-700">Enable video</span>
+            <div className="flex items-center justify-between py-3 border-b border-gray-100">
+              <div>
+                <span className="text-sm font-medium text-gray-900">Enable video</span>
+                <p className="text-xs text-gray-500">Share your camera during calls</p>
+              </div>
               <button
                 onClick={() => setIsVideoEnabled(!isVideoEnabled)}
                 role="switch"
                 aria-checked={isVideoEnabled}
-                aria-label={`Video ${isVideoEnabled ? 'enabled' : 'disabled'}`}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  isVideoEnabled ? 'bg-pink-500' : 'bg-gray-300'
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  isVideoEnabled ? 'bg-gray-900' : 'bg-gray-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                    isVideoEnabled ? 'translate-x-6' : 'translate-x-1'
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    isVideoEnabled ? 'translate-x-6' : 'translate-x-0'
                   }`}
                 />
               </button>
             </div>
 
-            {/* Adult Confirmation */}
-            <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer">
+            {/* Age Confirmation */}
+            <label className="flex items-center gap-3 py-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={isAdultConfirmed}
@@ -195,16 +191,29 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                     setShowAgeError(false);
                   }
                 }}
-                className="w-5 h-5 rounded border-gray-300 text-pink-500 focus:ring-pink-500"
-                aria-label="Confirm you are 18 years or older"
+                className="sr-only"
               />
-              <span className="text-sm text-gray-700">I'm 18 or older</span>
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                isAdultConfirmed ? 'bg-gray-900 border-gray-900' : 'border-gray-300'
+              }`}>
+                {isAdultConfirmed && (
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-900">I'm 18 or older</span>
+                <p className="text-xs text-gray-500">Required for video chat</p>
+              </div>
             </label>
 
             {/* Age Input */}
             {isAdultConfirmed && (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Your age</label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Your age
+                </label>
                 <input
                   type="number"
                   value={userAge}
@@ -217,56 +226,51 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   placeholder="18"
                   min="18"
                   max="120"
-                  aria-label="Your age"
-                  aria-required="true"
-                  aria-invalid={showAgeError}
-                  className={`w-full px-4 py-3 rounded-xl border ${
+                  className={`w-full px-4 py-3 rounded-lg border ${
                     showAgeError
                       ? 'border-red-400 focus:border-red-500'
-                      : 'border-gray-200 focus:border-pink-500'
-                  } focus:ring-2 focus:ring-pink-100 outline-none text-base transition-colors`}
+                      : 'border-gray-300 focus:border-gray-900'
+                  } focus:ring-2 focus:ring-gray-100 outline-none text-base transition-colors`}
                 />
                 {showAgeError && (
-                  <p className="text-xs text-red-600" role="alert">
-                    Must be 18 or older
+                  <p className="mt-2 text-sm text-red-600" role="alert">
+                    You must be 18 or older
                   </p>
                 )}
               </div>
             )}
 
-
             {/* Start Button */}
-            <div className="pt-2">
-              <button
-                onClick={() => handleStartChat(false)}
-                disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
-                className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl disabled:shadow-none transition-all disabled:cursor-not-allowed"
-              >
-                Start Chat
-              </button>
-            </div>
+            <button
+              onClick={() => handleStartChat(false)}
+              disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
+              className="w-full py-4 px-6 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white font-semibold text-base rounded-lg transition-colors disabled:cursor-not-allowed"
+            >
+              Start Video Chat
+            </button>
 
-            {/* Text Only Option */}
-            <div className="text-center">
-              <button
-                onClick={() => handleStartChat(true)}
-                disabled={!userName.trim()}
-                aria-label="Start text only chat mode"
-                className="text-sm text-gray-500 hover:text-pink-600 disabled:text-gray-300 transition-colors disabled:cursor-not-allowed"
-              >
-                or text only
-              </button>
-            </div>
+            {/* Text Mode Link */}
+            <button
+              onClick={() => handleStartChat(true)}
+              disabled={!userName.trim()}
+              className="w-full py-2 text-gray-600 hover:text-gray-900 disabled:text-gray-400 font-medium text-sm transition-colors disabled:cursor-not-allowed"
+            >
+              or use text-only mode
+            </button>
           </div>
         </div>
 
-        {/* Simple Disclaimer */}
-        <p className="text-xs text-center text-gray-500 mt-4">
-          By clicking Start, you agree to our{' '}
-          <a href="/terms-of-service" className="text-pink-600 hover:underline">Terms</a>
-          {' '}&{' '}
-          <a href="/privacy-policy" className="text-pink-600 hover:underline">Privacy</a>
-        </p>
+        {/* Disclaimer */}
+        <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 sm:p-5">
+          <p className="text-sm text-gray-600 mb-2">
+            <span className="font-medium text-gray-900">Stay safe:</span> Never share personal info with strangers.
+          </p>
+          <p className="text-xs text-gray-500">
+            By using this service, you agree to our{' '}
+            <a href="/terms-of-service" className="text-gray-700 underline hover:text-gray-900">Terms</a>
+            {' '}and{' '}
+            <a href="/privacy-policy" className="text-gray-700 underline hover:text-gray-900">Privacy Policy</a>.
+          </p>
         </div>
 
         {/* Ad Banner - Below Form */}
