@@ -6,57 +6,57 @@ echo ""
 
 # DNS Check
 echo "1️⃣ DNS Configuration:"
-echo "   paircam.live     → $(dig +short paircam.live | xargs)"
-echo "   www.paircam.live → $(dig +short www.paircam.live | xargs)"
-echo "   app.paircam.live → $(dig +short app.paircam.live | xargs)"
-echo "   api.paircam.live → $(dig +short api.paircam.live | xargs)"
+echo "   livecam.app     → $(dig +short livecam.app | xargs)"
+echo "   www.livecam.app → $(dig +short www.livecam.app | xargs)"
+echo "   app.livecam.app → $(dig +short app.livecam.app | xargs)"
+echo "   api.livecam.app → $(dig +short api.livecam.app | xargs)"
 echo ""
 
 # Expected
 echo "   Expected:"
-echo "   paircam.live     → 76.76.21.21"
-echo "   www.paircam.live → 76.76.21.21 (or CNAME to paircam.live)"
-echo "   app.paircam.live → 76.76.21.21"
-echo "   api.paircam.live → 161.35.253.148"
+echo "   livecam.app     → 76.76.21.21"
+echo "   www.livecam.app → 76.76.21.21 (or CNAME to livecam.app)"
+echo "   app.livecam.app → 76.76.21.21"
+echo "   api.livecam.app → 161.35.253.148"
 echo ""
 
 # Backend Test
-echo "2️⃣ Testing Backend (api.paircam.live):"
+echo "2️⃣ Testing Backend (api.livecam.app):"
 BACKEND_DIRECT=$(curl -s -o /dev/null -w "%{http_code}" http://146.190.198.234:3333/health)
 echo "   Direct IP (146.190.198.234:3333): $BACKEND_DIRECT"
 
-BACKEND_DOMAIN=$(curl -s -o /dev/null -w "%{http_code}" -k https://api.paircam.live/health 2>&1)
+BACKEND_DOMAIN=$(curl -s -o /dev/null -w "%{http_code}" -k https://api.livecam.app/health 2>&1)
 if [[ $BACKEND_DOMAIN == *"200"* ]]; then
-    echo "   ✅ api.paircam.live: Working"
+    echo "   ✅ api.livecam.app: Working"
 elif [[ $BACKEND_DOMAIN == *"000"* ]]; then
-    echo "   ❌ api.paircam.live: SSL/Connection Error"
+    echo "   ❌ api.livecam.app: SSL/Connection Error"
 else
-    echo "   ⚠️  api.paircam.live: Status $BACKEND_DOMAIN"
+    echo "   ⚠️  api.livecam.app: Status $BACKEND_DOMAIN"
 fi
 echo ""
 
 # Frontend Test
-echo "3️⃣ Testing Frontend (app.paircam.live):"
-FRONTEND=$(curl -s -o /dev/null -w "%{http_code}" https://app.paircam.live 2>&1)
+echo "3️⃣ Testing Frontend (app.livecam.app):"
+FRONTEND=$(curl -s -o /dev/null -w "%{http_code}" https://app.livecam.app 2>&1)
 if [[ $FRONTEND == *"200"* ]]; then
-    echo "   ✅ app.paircam.live: Working"
+    echo "   ✅ app.livecam.app: Working"
 elif [[ $FRONTEND == *"000"* ]]; then
-    echo "   ❌ app.paircam.live: DNS not pointing to Vercel yet"
+    echo "   ❌ app.livecam.app: DNS not pointing to Vercel yet"
 else
-    echo "   ⚠️  app.paircam.live: Status $FRONTEND"
+    echo "   ⚠️  app.livecam.app: Status $FRONTEND"
 fi
 echo ""
 
 # Vercel Domain Status
 echo "4️⃣ Vercel Domain Status:"
 cd /tmp/omegle-clone/packages/frontend
-vercel domains inspect app.paircam.live 2>&1 | grep -E "Name|A app.paircam.live|configured properly"
+vercel domains inspect app.livecam.app 2>&1 | grep -E "Name|A app.livecam.app|configured properly"
 echo ""
 
 # Final Status
 echo "===================================="
-API_DNS=$(dig +short api.paircam.live | head -1)
-APP_DNS=$(dig +short app.paircam.live | head -1)
+API_DNS=$(dig +short api.livecam.app | head -1)
+APP_DNS=$(dig +short app.livecam.app | head -1)
 
 if [ "$API_DNS" == "161.35.253.148" ] && [ "$APP_DNS" == "76.76.21.21" ]; then
     echo "✅ DNS is configured correctly!"

@@ -16,9 +16,9 @@ TURN_SHARED_SECRET=$TURN_SECRET
 REDIS_PASSWORD=$REDIS_PASSWORD
 
 # Update these with your actual values:
-CORS_ORIGINS=https://paircam.live,https://www.paircam.live
-FRONTEND_URL=https://paircam.live
-TURN_HOST=turn.paircam.live
+CORS_ORIGINS=https://livecam.app,https://www.livecam.app
+FRONTEND_URL=https://livecam.app
+TURN_HOST=turn.livecam.app
 REDIS_HOST=your-redis-host
 DATABASE_URL=postgresql://user:pass@host:5432/db
 EOF
@@ -38,20 +38,20 @@ REDIS_PASSWORD=<output of: openssl rand -base64 32>
 # ═══════════════════════════════════════
 # DOMAIN & URLS
 # ═══════════════════════════════════════
-DOMAIN=paircam.live
-API_URL=https://api.paircam.live
-WS_URL=wss://api.paircam.live
-FRONTEND_URL=https://paircam.live
-CORS_ORIGINS=https://paircam.live,https://www.paircam.live
+DOMAIN=livecam.app
+API_URL=https://api.livecam.app
+WS_URL=wss://api.livecam.app
+FRONTEND_URL=https://livecam.app
+CORS_ORIGINS=https://livecam.app,https://www.livecam.app
 
 # ═══════════════════════════════════════
 # TURN SERVER
 # ═══════════════════════════════════════
 TURN_PROVIDER=coturn
-TURN_HOST=turn.paircam.live
+TURN_HOST=turn.livecam.app
 TURN_PORT=3478
 TURN_TLS_PORT=5349
-TURN_REALM=paircam.live
+TURN_REALM=livecam.app
 
 # ═══════════════════════════════════════
 # REDIS

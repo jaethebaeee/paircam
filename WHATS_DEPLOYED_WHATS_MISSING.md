@@ -6,7 +6,7 @@
 
 ## ✅ DEPLOYED (Live on Production)
 
-### Frontend (Vercel - https://app.paircam.live)
+### Frontend (Vercel - https://app.livecam.app)
 - ✅ Gender selection UI
 - ✅ Gender filter component (with premium lock)
 - ✅ "Get Premium" button
@@ -18,7 +18,7 @@
 
 **Status**: 🟢 Deploying now (auto-deploy from git push)
 
-### Backend (Kubernetes - https://api.paircam.live)
+### Backend (Kubernetes - https://api.livecam.app)
 - ✅ Updated matchmaking logic (gender filtering, premium priority)
 - ✅ User entity & module
 - ✅ Subscription entity & module
@@ -142,7 +142,7 @@ data:
 '
 
 # Configure webhook in Stripe dashboard
-# URL: https://api.paircam.live/api/payments/webhook
+# URL: https://api.livecam.app/api/payments/webhook
 # Events: checkout.*, customer.subscription.*
 ```
 
@@ -205,8 +205,8 @@ data:
 # Go to Vercel dashboard → Project Settings → Environment Variables
 # Add these:
 
-VITE_API_URL=https://api.paircam.live
-VITE_WS_URL=wss://api.paircam.live
+VITE_API_URL=https://api.livecam.app
+VITE_WS_URL=wss://api.livecam.app
 VITE_SUPABASE_URL=https://[PROJECT].supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGci...
 VITE_GOOGLE_CLIENT_ID=...apps.googleusercontent.com
@@ -241,7 +241,7 @@ gh run list --limit 1
    - **Backend crashes** (no DATABASE_URL) 🔴
 
 2. **Frontend deployment completes** (~2 minutes)
-   - New code live at https://app.paircam.live
+   - New code live at https://app.livecam.app
    - Components render but **won't work** (no env vars) ⚠️
 
 3. **You add credentials** (~15 minutes)
@@ -285,7 +285,7 @@ gh run list --limit 1
 - [ ] Wait for deployment
 
 ### Phase 5: Test End-to-End (10 minutes)
-- [ ] Visit https://app.paircam.live
+- [ ] Visit https://app.livecam.app
 - [ ] Click "Continue with Google"
 - [ ] Verify sign-in works
 - [ ] Click "Get Premium"
@@ -354,7 +354,7 @@ kubectl -n connect-video-chat logs -f deployment/backend
 
 ### Check Frontend Status
 ```bash
-# Visit: https://app.paircam.live
+# Visit: https://app.livecam.app
 # Or check Vercel: https://vercel.com/dashboard
 ```
 

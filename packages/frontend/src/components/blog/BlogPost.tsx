@@ -18,7 +18,7 @@ export default function BlogPost() {
     "@type": "Article",
     "headline": post.title,
     "description": post.metaDescription,
-    "image": `https://paircam.live${post.featuredImage}`,
+    "image": `https://livecam.app${post.featuredImage}`,
     "author": {
       "@type": "Person",
       "name": post.author
@@ -28,14 +28,14 @@ export default function BlogPost() {
       "name": "PairCam",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://paircam.live/logo.png"
+        "url": "https://livecam.app/logo.png"
       }
     },
     "datePublished": post.publishedDate,
     "dateModified": post.modifiedDate,
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://paircam.live/blog/${post.slug}`
+      "@id": `https://livecam.app/blog/${post.slug}`
     },
     "keywords": post.tags.join(', '),
     "articleSection": post.category,
@@ -51,19 +51,19 @@ export default function BlogPost() {
         "@type": "ListItem",
         "position": 1,
         "name": "Home",
-        "item": "https://paircam.live"
+        "item": "https://livecam.app"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Blog",
-        "item": "https://paircam.live/blog"
+        "item": "https://livecam.app/blog"
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": post.title,
-        "item": `https://paircam.live/blog/${post.slug}`
+        "item": `https://livecam.app/blog/${post.slug}`
       }
     ]
   };
@@ -73,8 +73,8 @@ export default function BlogPost() {
       <SEO
         title={post.metaTitle}
         description={post.metaDescription}
-        url={`https://paircam.live/blog/${post.slug}`}
-        image={`https://paircam.live${post.featuredImage}`}
+        url={`https://livecam.app/blog/${post.slug}`}
+        image={`https://livecam.app${post.featuredImage}`}
         type="article"
         keywords={post.tags.join(', ')}
         jsonLd={[articleSchema, breadcrumbSchema]}
@@ -141,7 +141,7 @@ export default function BlogPost() {
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-500">Share:</span>
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://paircam.live/blog/${post.slug}`)}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(`https://livecam.app/blog/${post.slug}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-gray-100 hover:bg-blue-100 flex items-center justify-center text-gray-600 hover:text-blue-500 transition-colors"
@@ -152,7 +152,7 @@ export default function BlogPost() {
                 </svg>
               </a>
               <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://paircam.live/blog/${post.slug}`)}`}
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://livecam.app/blog/${post.slug}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-gray-100 hover:bg-blue-100 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors"
@@ -163,7 +163,7 @@ export default function BlogPost() {
                 </svg>
               </a>
               <a
-                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://paircam.live/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
+                href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://livecam.app/blog/${post.slug}`)}&title=${encodeURIComponent(post.title)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-gray-100 hover:bg-blue-100 flex items-center justify-center text-gray-600 hover:text-blue-700 transition-colors"

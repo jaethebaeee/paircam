@@ -23,7 +23,7 @@ export default function Navbar() {
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">PairCam</h1>
-                <p className="text-xs text-white/80 -mt-0.5 hidden sm:block">paircam.live</p>
+                <p className="text-xs text-white/80 -mt-0.5 hidden sm:block">livecam.app</p>
               </div>
             </a>
           </div>

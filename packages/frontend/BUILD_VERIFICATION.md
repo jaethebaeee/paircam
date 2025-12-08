@@ -157,7 +157,7 @@ netlify deploy --prod --dir=dist
 **Option 3: Custom Server**
 ```bash
 # Upload dist/ folder to your server
-rsync -avz dist/ user@yourserver.com:/var/www/paircam.live/
+rsync -avz dist/ user@yourserver.com:/var/www/livecam.app/
 ```
 
 ---
@@ -168,7 +168,7 @@ After deployment, run these tests:
 
 ### 1. robots.txt Test
 ```bash
-curl https://paircam.live/robots.txt
+curl https://livecam.app/robots.txt
 
 Expected:
 ✅ Returns 200 OK
@@ -178,7 +178,7 @@ Expected:
 
 ### 2. Sitemap Test
 ```bash
-curl https://paircam.live/sitemap.xml
+curl https://livecam.app/sitemap.xml
 
 Expected:
 ✅ Valid XML
@@ -188,7 +188,7 @@ Expected:
 
 ### 3. OG Image Test
 ```bash
-curl -I https://paircam.live/og-image.jpg
+curl -I https://livecam.app/og-image.jpg
 
 Expected:
 ✅ Returns 200 OK
@@ -198,7 +198,7 @@ Expected:
 
 ### 4. Favicon Test
 ```bash
-curl -I https://paircam.live/favicon.ico
+curl -I https://livecam.app/favicon.ico
 
 Expected:
 ✅ Returns 200 OK
@@ -207,7 +207,7 @@ Expected:
 
 ### 5. Page Load Test
 ```bash
-curl https://paircam.live | grep -E '<title>|<meta.*description'
+curl https://livecam.app | grep -E '<title>|<meta.*description'
 
 Expected:
 ✅ Title: "PairCam - Free Random Video Chat"
@@ -222,7 +222,7 @@ Expected:
 ### Test 1: Facebook Open Graph
 ```
 https://developers.facebook.com/tools/debug/
-Enter: https://paircam.live
+Enter: https://livecam.app
 
 Expected:
 ✅ Image loads (og-image.jpg)
@@ -234,7 +234,7 @@ Expected:
 ### Test 2: Twitter Cards
 ```
 https://cards-dev.twitter.com/validator
-Enter: https://paircam.live
+Enter: https://livecam.app
 
 Expected:
 ✅ Card type: summary_large_image
@@ -245,7 +245,7 @@ Expected:
 ### Test 3: Google Rich Results
 ```
 https://search.google.com/test/rich-results
-Enter: https://paircam.live
+Enter: https://livecam.app
 
 Expected:
 ✅ WebApplication schema valid
@@ -256,7 +256,7 @@ Expected:
 ### Test 4: PageSpeed Insights
 ```
 https://pagespeed.web.dev/
-Enter: https://paircam.live
+Enter: https://livecam.app
 
 Expected:
 ✅ Performance: 90+
@@ -268,7 +268,7 @@ Expected:
 ### Test 5: Mobile-Friendly
 ```
 https://search.google.com/test/mobile-friendly
-Enter: https://paircam.live
+Enter: https://livecam.app
 
 Expected:
 ✅ Page is mobile-friendly

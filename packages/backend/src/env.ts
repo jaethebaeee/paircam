@@ -81,7 +81,7 @@ export const env = {
   TURN_USERNAME: process.env.TURN_USERNAME || undefined,
   TURN_PASSWORD: process.env.TURN_PASSWORD || undefined,
   TURN_SHARED_SECRET: validateProductionSecret(process.env.TURN_SHARED_SECRET, 'TURN_SHARED_SECRET'),
-  TURN_REALM: process.env.TURN_REALM || 'paircam.live',
+  TURN_REALM: process.env.TURN_REALM || 'livecam.app',
   TURN_HOST: process.env.TURN_HOST || 'localhost',
   TURN_PORT: parseInt(process.env.TURN_PORT || '3478', 10),
   TURN_TLS_PORT: parseInt(process.env.TURN_TLS_PORT || '5349', 10),

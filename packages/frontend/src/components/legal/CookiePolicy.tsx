@@ -248,7 +248,7 @@ export default function CookiePolicy() {
               If you have questions about our use of cookies, please contact us:
             </p>
             <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-gray-800"><strong>Email:</strong> privacy@paircam.live</p>
+              <p className="text-gray-800"><strong>Email:</strong> privacy@livecam.app</p>
               <p className="text-gray-800 mt-1"><strong>Subject:</strong> Cookie Policy Inquiry</p>
             </div>
           </section>

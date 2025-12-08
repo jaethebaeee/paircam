@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const BASE_URL = 'https://paircam.live';
+const BASE_URL = 'https://livecam.app';
 
 // Blog posts data (keep in sync with src/data/blogPosts.ts)
 const blogPosts = [
@@ -80,7 +80,7 @@ function generateRssFeed(): string {
       <link>${BASE_URL}/blog/${post.slug}</link>
       <guid isPermaLink="true">${BASE_URL}/blog/${post.slug}</guid>
       <description>${escapeXml(post.description)}</description>
-      <author>support@paircam.live (${escapeXml(post.author)})</author>
+      <author>support@livecam.app (${escapeXml(post.author)})</author>
       <category>${escapeXml(post.category)}</category>
       <pubDate>${pubDate}</pubDate>
     </item>`;
@@ -104,8 +104,8 @@ function generateRssFeed(): string {
       <height>144</height>
     </image>
     <copyright>Copyright ${new Date().getFullYear()} PairCam. All rights reserved.</copyright>
-    <managingEditor>support@paircam.live (PairCam Team)</managingEditor>
-    <webMaster>support@paircam.live (PairCam Team)</webMaster>
+    <managingEditor>support@livecam.app (PairCam Team)</managingEditor>
+    <webMaster>support@livecam.app (PairCam Team)</webMaster>
     <ttl>60</ttl>
 ${items}
   </channel>

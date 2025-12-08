@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const BASE_URL = 'https://paircam.live';
+const BASE_URL = 'https://livecam.app';
 
 // Blog posts data for sitemap (update when adding new posts)
 const blogPosts = [

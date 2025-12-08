@@ -43,8 +43,8 @@ const softwareAppSchema = {
     "ratingCount": "10247"
   },
   "description": "Free random video chat with strangers worldwide. Safe, anonymous, and instant connections with no signup required.",
-  "url": "https://paircam.live",
-  "screenshot": "https://paircam.live/screenshot.jpg",
+  "url": "https://livecam.app",
+  "screenshot": "https://livecam.app/screenshot.jpg",
   "featureList": [
     "Random video chat matching",
     "Text-only chat mode",
@@ -111,19 +111,19 @@ function AppRoutes({
         return {
           title: 'Terms of Service',
           description: 'Read PairCam\'s Terms of Service, including our community guidelines, prohibited content, and user responsibilities.',
-          url: 'https://paircam.live/terms-of-service',
+          url: 'https://livecam.app/terms-of-service',
         };
       case '/privacy-policy':
         return {
           title: 'Privacy Policy',
           description: 'Learn how PairCam protects your privacy. GDPR and CCPA compliant. We never store your video chats.',
-          url: 'https://paircam.live/privacy-policy',
+          url: 'https://livecam.app/privacy-policy',
         };
       case '/cookie-policy':
         return {
           title: 'Cookie Policy',
           description: 'Understand how PairCam uses cookies to improve your experience. Manage your cookie preferences.',
-          url: 'https://paircam.live/cookie-policy',
+          url: 'https://livecam.app/cookie-policy',
         };
       default:
         return {};

@@ -11,8 +11,8 @@ NODE_COUNT="2"
 NAMESPACE="connect-video-chat"
 
 # Domain config
-API_HOST="api.paircam.live"
-FRONTEND_ORIGIN="https://app.paircam.live"
+API_HOST="api.livecam.app"
+FRONTEND_ORIGIN="https://app.livecam.app"
 
 # Secrets (fill these before running or export as env vars)
 REDIS_URL="${REDIS_URL:-""}"
@@ -97,14 +97,14 @@ done
 echo "\n==> Ingress address:"
 echo "IP: ${IP:-"<none>"}"
 echo "Hostname: ${HN:-"<none>"}"
-echo "\nCreate DNS for api.paircam.live:"
+echo "\nCreate DNS for api.livecam.app:"
 if [[ -n "$IP" ]]; then
-  echo "  A record → api.paircam.live → $IP (TTL 30m)"
+  echo "  A record → api.livecam.app → $IP (TTL 30m)"
 else
-  echo "  CNAME record → api.paircam.live → $HN (TTL 30m)"
+  echo "  CNAME record → api.livecam.app → $HN (TTL 30m)"
 fi
 
 echo "\nAfter DNS propagates, verify: curl -I https://$API_HOST/health"
-echo "Then set VITE_API_URL=https://$API_HOST for the frontend and deploy app.paircam.live."
+echo "Then set VITE_API_URL=https://$API_HOST for the frontend and deploy app.livecam.app."
 
 
