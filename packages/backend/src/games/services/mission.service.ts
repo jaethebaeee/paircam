@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DailyMission } from '../entities';
 import { WalletService } from './wallet.service';
-import * as amplitude from '@amplitude/analytics-node';
+// amplitude analytics disabled - uncomment when @amplitude/analytics-node is installed
+// import * as amplitude from '@amplitude/analytics-node';
 
 @Injectable()
 export class MissionService {
@@ -143,15 +144,15 @@ export class MissionService {
       // Update streak
       await this.updateStreak(userId);
 
-      // Track analytics
-      amplitude.track({
-        userId,
-        eventType: 'mission_completed',
-        eventProperties: {
-          missionType,
-          coinsEarned: mission.coinsReward,
-        },
-      });
+      // Track analytics (disabled - amplitude not installed)
+      // amplitude.track({
+      //   userId,
+      //   eventType: 'mission_completed',
+      //   eventProperties: {
+      //     missionType,
+      //     coinsEarned: mission.coinsReward,
+      //   },
+      // });
     }
 
     return this.missionRepo.save(mission);

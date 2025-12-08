@@ -18,7 +18,8 @@ import {
   LeaderboardService,
 } from './services';
 import { JwtService } from '@nestjs/jwt';
-import * as amplitude from '@amplitude/analytics-node';
+// amplitude analytics disabled - uncomment when @amplitude/analytics-node is installed
+// import * as amplitude from '@amplitude/analytics-node';
 
 @WebSocketGateway({
   cors: {
@@ -107,16 +108,16 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
         reward: this.gameService.getGameReward(game.type),
       });
 
-      // Track analytics
-      amplitude.track({
-        userId,
-        eventType: 'game_started',
-        eventProperties: {
-          gameType: game.type,
-          opponent: data.peerId,
-          sessionId: data.sessionId,
-        },
-      });
+      // Track analytics (disabled - amplitude not installed)
+      // amplitude.track({
+      //   userId,
+      //   eventType: 'game_started',
+      //   eventProperties: {
+      //     gameType: game.type,
+      //     opponent: data.peerId,
+      //     sessionId: data.sessionId,
+      //   },
+      // });
 
       return {
         success: true,
@@ -210,18 +211,18 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
             newBalance: wallet.coinsBalance,
           });
 
-          // Track analytics
-          amplitude.track({
-            userId: winnerId,
-            eventType: 'game_won',
-            eventProperties: {
-              gameType: updatedGame.type,
-              reward,
-              duration: Math.floor(
-                (updatedGame.endedAt.getTime() - updatedGame.createdAt.getTime()) / 1000,
-              ),
-            },
-          });
+          // Track analytics (disabled - amplitude not installed)
+          // amplitude.track({
+          //   userId: winnerId,
+          //   eventType: 'game_won',
+          //   eventProperties: {
+          //     gameType: updatedGame.type,
+          //     reward,
+          //     duration: updatedGame.endedAt ? Math.floor(
+          //       (updatedGame.endedAt.getTime() - updatedGame.createdAt.getTime()) / 1000,
+          //     ) : 0,
+          //   },
+          // });
         }
       }
 
@@ -285,16 +286,16 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
         newBalance: wallet.coinsBalance,
       });
 
-      // Track analytics
-      amplitude.track({
-        userId,
-        eventType: 'gift_sent',
-        eventProperties: {
-          giftId: data.giftId,
-          cost: transaction.costCoins,
-          recipientId: data.toUserId,
-        },
-      });
+      // Track analytics (disabled - amplitude not installed)
+      // amplitude.track({
+      //   userId,
+      //   eventType: 'gift_sent',
+      //   eventProperties: {
+      //     giftId: data.giftId,
+      //     cost: transaction.costCoins,
+      //     recipientId: data.toUserId,
+      //   },
+      // });
 
       return { success: true, newBalance: wallet.coinsBalance };
     } catch (error) {

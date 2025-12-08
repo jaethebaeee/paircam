@@ -33,7 +33,7 @@ export class GameService {
     const savedGame = await this.gameRepo.save(game);
 
     // Cache in Redis for quick access (1 hour TTL)
-    await this.redisService.setex(
+    await this.redisService.getClient().setEx(
       `game:${savedGame.id}`,
       3600,
       JSON.stringify(savedGame),
@@ -118,7 +118,7 @@ export class GameService {
     const updatedGame = await this.gameRepo.save(game);
 
     // Update Redis cache
-    await this.redisService.setex(
+    await this.redisService.getClient().setEx(
       `game:${gameId}`,
       3600,
       JSON.stringify(updatedGame),
