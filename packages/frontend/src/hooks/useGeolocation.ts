@@ -69,20 +69,6 @@ export function useGeolocation(): GeoLocation {
 }
 
 /**
- * Get flag emoji from country code
- */
-export function getFlagEmoji(countryCode: string): string {
-  if (!countryCode || countryCode.length !== 2) return '🌍';
-
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map((char) => 127397 + char.charCodeAt(0));
-
-  return String.fromCodePoint(...codePoints);
-}
-
-/**
  * Get flag image URL from flagcdn.com
  */
 export function getFlagUrl(countryCode: string, size: 'w20' | 'w40' | 'w80' | 'w160' = 'w40'): string {

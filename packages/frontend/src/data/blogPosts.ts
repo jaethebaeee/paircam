@@ -698,11 +698,6 @@ export function getAllBlogPosts(): BlogPost[] {
   );
 }
 
-// Get blog posts by category
-export function getBlogPostsByCategory(category: string): BlogPost[] {
-  return blogPosts.filter(post => post.category === category);
-}
-
 // Get related posts (same category, excluding current)
 export function getRelatedPosts(currentSlug: string, limit = 3): BlogPost[] {
   const current = getBlogPostBySlug(currentSlug);
@@ -716,10 +711,4 @@ export function getRelatedPosts(currentSlug: string, limit = 3): BlogPost[] {
 // Get all unique categories
 export function getAllCategories(): string[] {
   return [...new Set(blogPosts.map(post => post.category))];
-}
-
-// Get all unique tags
-export function getAllTags(): string[] {
-  const allTags = blogPosts.flatMap(post => post.tags);
-  return [...new Set(allTags)];
 }
