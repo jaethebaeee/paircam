@@ -44,7 +44,7 @@ export class BlockingService {
     }
 
     // Find or create blocker user
-    let blocker = await this.userRepository.findOne({ where: { deviceId: blockerDeviceId } });
+    const blocker = await this.userRepository.findOne({ where: { deviceId: blockerDeviceId } });
     if (!blocker) {
       throw new NotFoundException('Blocker user not found');
     }

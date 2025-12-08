@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { createClient } from 'redis';
 import { RedisPubSubService, MatchNotifyEvent } from '../redis-pubsub.service';
 import { RedisService } from '../redis.service';
 import { LoggerService } from '../../services/logger.service';
@@ -63,8 +64,6 @@ describe('RedisPubSubService', () => {
     });
 
     it('should create two Redis clients', async () => {
-      const { createClient } = require('redis');
-
       await service.onModuleInit();
 
       expect(createClient).toHaveBeenCalledTimes(2);
