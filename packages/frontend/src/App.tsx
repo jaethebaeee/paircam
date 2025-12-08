@@ -226,7 +226,7 @@ function App() {
   const [userGender, setUserGender] = useState('');
   const [genderPreference, setGenderPreference] = useState('any');
   const [interests, setInterests] = useState<string[]>([]); // 🆕 User interests
-  const [queueType, setQueueType] = useState<'casual' | 'serious' | 'language' | 'gaming'>('casual'); // 🆕 Queue type
+  const [queueType, setQueueType] = useState<'casual' | 'serious' | 'language'>('casual'); // Queue type
   const [nativeLanguage, setNativeLanguage] = useState<string>('en'); // 🆕 Native language
   const [learningLanguage, setLearningLanguage] = useState<string>('es'); // 🆕 Learning language
   const [isTextMode, setIsTextMode] = useState(false);
@@ -254,7 +254,7 @@ function App() {
     gender?: string;
     genderPreference: string;
     interests?: string[];
-    queueType?: 'casual' | 'serious' | 'language' | 'gaming';
+    queueType?: 'casual' | 'serious' | 'language';
     nativeLanguage?: string;
     learningLanguage?: string;
   }) => {

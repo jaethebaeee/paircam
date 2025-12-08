@@ -8,7 +8,7 @@ interface PreferencesModalProps {
     gender?: string;
     genderPreference: string;
     interests?: string[];
-    queueType?: 'casual' | 'serious' | 'language' | 'gaming';
+    queueType?: 'casual' | 'serious' | 'language';
     nativeLanguage?: string;
     learningLanguage?: string;
   }) => void;
@@ -21,7 +21,7 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
   const [userGender, setUserGender] = useState<string | undefined>(undefined);
   const [genderPreference, setGenderPreference] = useState('any');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const [queueType, setQueueType] = useState<'casual' | 'serious' | 'language' | 'gaming'>('casual');
+  const [queueType, setQueueType] = useState<'casual' | 'serious' | 'language'>('casual');
   const [nativeLanguage, setNativeLanguage] = useState<string>('en');
   const [learningLanguage, setLearningLanguage] = useState<string>('es');
 

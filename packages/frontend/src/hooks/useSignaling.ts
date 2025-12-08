@@ -34,7 +34,7 @@ export interface UseSignalingReturn {
     gender?: string,
     genderPreference?: string,
     interests?: string[],
-    queueType?: 'casual' | 'serious' | 'language' | 'gaming',
+    queueType?: 'casual' | 'serious' | 'language',
     nativeLanguage?: string,
     learningLanguage?: string
   ) => void;
@@ -255,7 +255,7 @@ export function useSignaling(options: UseSignalingOptions): UseSignalingReturn {
       gender?: string,
       genderPreference?: string,
       interests?: string[],
-      queueType?: 'casual' | 'serious' | 'language' | 'gaming',
+      queueType?: 'casual' | 'serious' | 'language',
       nativeLanguage?: string,
       learningLanguage?: string
     ) => {

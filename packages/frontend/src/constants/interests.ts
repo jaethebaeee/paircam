@@ -37,12 +37,6 @@ export const QUEUE_TYPES = [
     description: 'Practice languages together',
     icon: '🗣️',
   },
-  {
-    id: 'gaming',
-    label: 'Gaming',
-    description: 'Talk about games',
-    icon: '🎮',
-  },
 ] as const;
 
 export const LANGUAGES = [
