@@ -34,8 +34,8 @@ The PairCam codebase has been comprehensively analyzed and optimized for SEO. Th
 <SEO
   title="In Call"
   description="You are currently in a video chat"
-  image="https://livecam.app/custom-image.jpg"
-  url="https://livecam.app/chat"
+  image="https://paircam.live/custom-image.jpg"
+  url="https://paircam.live/chat"
 />
 ```
 
@@ -233,9 +233,9 @@ npm run preview
 #### 6. Submit to Search Console (15 minutes)
 ```
 1. Visit: https://search.google.com/search-console
-2. Add property: livecam.app
+2. Add property: paircam.live
 3. Verify ownership (DNS or HTML)
-4. Submit sitemap: https://livecam.app/sitemap.xml
+4. Submit sitemap: https://paircam.live/sitemap.xml
 ```
 
 ### Week 1 After Launch:
@@ -500,7 +500,7 @@ netlify deploy --prod
 **Solution:**
 ```bash
 # 1. Verify file exists:
-curl -I https://livecam.app/og-image.jpg
+curl -I https://paircam.live/og-image.jpg
 
 # 2. Check dimensions (must be 1200x630):
 file public/og-image.jpg

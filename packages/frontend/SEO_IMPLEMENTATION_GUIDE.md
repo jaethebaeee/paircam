@@ -27,8 +27,8 @@ import SEO from './components/SEO';
 <SEO
   title="In Call"
   description="You are currently in a video chat"
-  image="https://livecam.app/custom-image.jpg"
-  url="https://livecam.app/chat"
+  image="https://paircam.live/custom-image.jpg"
+  url="https://paircam.live/chat"
 />
 ```
 
@@ -169,7 +169,7 @@ public/
 # Visit and test your URL:
 https://developers.facebook.com/tools/debug/
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Check:
 - Title displays correctly
 - Description is compelling
@@ -182,7 +182,7 @@ https://developers.facebook.com/tools/debug/
 # Visit:
 https://cards-dev.twitter.com/validator
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Check:
 - Card type: summary_large_image
 - Image displays correctly
@@ -194,7 +194,7 @@ https://cards-dev.twitter.com/validator
 # Visit:
 https://search.google.com/test/rich-results
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Check:
 - WebApplication type valid
 - All required fields present
@@ -221,7 +221,7 @@ https://search.google.com/test/rich-results
 # Visit:
 https://search.google.com/test/mobile-friendly
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Should show: "Page is mobile-friendly ✅"
 ```
 
@@ -234,14 +234,14 @@ https://search.google.com/test/mobile-friendly
 1. **Add Property:**
    ```
    https://search.google.com/search-console
-   Add property: livecam.app
+   Add property: paircam.live
    Verify ownership (DNS or HTML file)
    ```
 
 2. **Submit Sitemap:**
    ```
    Sitemaps → Add new sitemap
-   URL: https://livecam.app/sitemap.xml
+   URL: https://paircam.live/sitemap.xml
    ```
 
 3. **Monitor:**
@@ -268,7 +268,7 @@ ReactGA.send('pageview');
 #### Plausible (Privacy-friendly alternative):
 ```html
 <!-- Add to index.html: -->
-<script defer data-domain="livecam.app" src="https://plausible.io/js/script.js"></script>
+<script defer data-domain="paircam.live" src="https://plausible.io/js/script.js"></script>
 ```
 
 ---
@@ -379,13 +379,13 @@ const breadcrumbSchema = {
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "https://livecam.app"
+      "item": "https://paircam.live"
     },
     {
       "@type": "ListItem",
       "position": 2,
       "name": "Video Chat",
-      "item": "https://livecam.app/chat"
+      "item": "https://paircam.live/chat"
     }
   ]
 };
@@ -499,7 +499,7 @@ plugins: [
 ### OG Images Not Showing:
 ```bash
 # Check file exists:
-curl -I https://livecam.app/og-image.jpg
+curl -I https://paircam.live/og-image.jpg
 
 # Clear Facebook cache:
 https://developers.facebook.com/tools/debug/

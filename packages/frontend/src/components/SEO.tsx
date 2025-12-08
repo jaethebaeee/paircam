@@ -26,8 +26,8 @@ export default function SEO({
   const defaultTitle = 'PairCam - Free Random Video Chat | Meet New People Online Instantly';
   const defaultDescription =
     'Free random video chat with strangers worldwide. No signup required. Start chatting instantly on PairCam - the safe, anonymous video chat alternative to Omegle and Chatroulette.';
-  const defaultImage = 'https://livecam.app/og-image.jpg';
-  const defaultUrl = 'https://livecam.app/';
+  const defaultImage = 'https://paircam.live/og-image.jpg';
+  const defaultUrl = 'https://paircam.live/';
   const defaultKeywords =
     'random video chat, omegle alternative, chatroulette, free video chat, random chat, meet strangers, video chat online, anonymous chat, webcam chat, paircam';
 

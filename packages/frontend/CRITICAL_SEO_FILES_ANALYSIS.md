@@ -29,7 +29,7 @@ Allow: /
 Disallow: /api/      # ❌ Doesn't exist in frontend
 Disallow: /admin/    # ❌ Doesn't exist in frontend
 
-Sitemap: https://livecam.app/sitemap.xml
+Sitemap: https://paircam.live/sitemap.xml
 
 Crawl-delay: 1       # ⚠️ Slows Google down
 
@@ -58,7 +58,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location (critical for Google)
-Sitemap: https://livecam.app/sitemap.xml
+Sitemap: https://paircam.live/sitemap.xml
 
 # Block bad bots (optional - keep if you want)
 User-agent: AhrefsBot
@@ -100,7 +100,7 @@ Allow: /
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://livecam.app/</loc>
+    <loc>https://paircam.live/</loc>
     <lastmod>2025-10-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -121,14 +121,14 @@ When you add more pages (About, FAQ, Terms, etc.), update this file:
 ```xml
 <!-- Example: Add when you create these pages -->
 <url>
-  <loc>https://livecam.app/about</loc>
+  <loc>https://paircam.live/about</loc>
   <lastmod>2025-10-24</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.8</priority>
 </url>
 
 <url>
-  <loc>https://livecam.app/faq</loc>
+  <loc>https://paircam.live/faq</loc>
   <lastmod>2025-10-24</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.7</priority>
@@ -192,7 +192,7 @@ https://developers.facebook.com/tools/debug/
 ```bash
 https://cards-dev.twitter.com/validator
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Should show: summary_large_image card type
 ```
 
@@ -329,17 +329,17 @@ curl http://localhost:5173/robots.txt
 # Should show:
 ✅ User-agent: *
 ✅ Allow: /
-✅ Sitemap: https://livecam.app/sitemap.xml
+✅ Sitemap: https://paircam.live/sitemap.xml
 ✅ No errors
 
 # Test in production:
-curl https://livecam.app/robots.txt
+curl https://paircam.live/robots.txt
 ```
 
 ### Test 2: sitemap.xml
 ```bash
 # Test accessibility:
-curl https://livecam.app/sitemap.xml
+curl https://paircam.live/sitemap.xml
 
 # Validate XML:
 xmllint --noout public/sitemap.xml
@@ -347,7 +347,7 @@ xmllint --noout public/sitemap.xml
 
 # Test in Google Search Console:
 1. Go to: https://search.google.com/search-console
-2. Submit sitemap: https://livecam.app/sitemap.xml
+2. Submit sitemap: https://paircam.live/sitemap.xml
 3. Check status: "Success" ✅
 ```
 
@@ -362,7 +362,7 @@ ls -lh public/og-image.jpg
 
 # Test in Facebook debugger:
 https://developers.facebook.com/tools/debug/
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Should show:
 ✅ Image loads
 ✅ No errors
@@ -410,7 +410,7 @@ After deploying to production, run these tests:
 ### Google Search Console
 ```bash
 1. Visit: https://search.google.com/search-console
-2. Add property: livecam.app
+2. Add property: paircam.live
 3. Verify ownership
 4. Submit sitemap
 5. Check for errors:
@@ -424,7 +424,7 @@ After deploying to production, run these tests:
 # Test structured data:
 https://search.google.com/test/rich-results
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Should show:
 ✅ Valid WebApplication schema
 ✅ All required fields present
@@ -435,7 +435,7 @@ https://search.google.com/test/rich-results
 ```bash
 https://search.google.com/test/mobile-friendly
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Should show:
 ✅ Page is mobile-friendly
 ✅ No mobile usability issues
@@ -445,7 +445,7 @@ https://search.google.com/test/mobile-friendly
 ```bash
 https://pagespeed.web.dev/
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 # Target scores:
 ✅ Performance: 90+
 ✅ SEO: 95+
@@ -524,7 +524,7 @@ https://pagespeed.web.dev/
 # When adding new pages, update sitemap.xml
 # Example for blog posts:
 <url>
-  <loc>https://livecam.app/blog/safety-tips</loc>
+  <loc>https://paircam.live/blog/safety-tips</loc>
   <lastmod>2025-11-01</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.6</priority>
@@ -534,7 +534,7 @@ https://pagespeed.web.dev/
 ### Tip 2: Monitor robots.txt
 ```bash
 # Check weekly for any issues:
-curl https://livecam.app/robots.txt | grep -i disallow
+curl https://paircam.live/robots.txt | grep -i disallow
 
 # Should only show intentional disallows (if any)
 ```
@@ -574,7 +574,7 @@ https://developers.facebook.com/tools/debug/
 ### Problem: OG Image Not Showing
 **Solution:**
 ```bash
-1. Verify file exists: curl -I https://livecam.app/og-image.jpg
+1. Verify file exists: curl -I https://paircam.live/og-image.jpg
 2. Check dimensions: Should be 1200x630
 3. Clear Facebook cache: Use debug tool
 4. Check HTML meta tag: <meta property="og:image" ...>

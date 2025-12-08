@@ -26,20 +26,20 @@ export default function BlogList() {
     "@type": "Blog",
     "name": "PairCam Blog",
     "description": "Tips, guides, and insights about random video chat, online safety, and making connections worldwide.",
-    "url": "https://livecam.app/blog",
+    "url": "https://paircam.live/blog",
     "publisher": {
       "@type": "Organization",
       "name": "PairCam",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://livecam.app/logo.png"
+        "url": "https://paircam.live/logo.png"
       }
     },
     "blogPost": posts.slice(0, 10).map(post => ({
       "@type": "BlogPosting",
       "headline": post.title,
       "description": post.metaDescription,
-      "url": `https://livecam.app/blog/${post.slug}`,
+      "url": `https://paircam.live/blog/${post.slug}`,
       "datePublished": post.publishedDate,
       "dateModified": post.modifiedDate,
       "author": {
@@ -54,7 +54,7 @@ export default function BlogList() {
       <SEO
         title="Blog - Video Chat Tips & Guides"
         description="Expert tips on random video chat, online safety, making friends, and language learning. Stay informed with PairCam's comprehensive guides."
-        url="https://livecam.app/blog"
+        url="https://paircam.live/blog"
         keywords="video chat tips, omegle alternative guide, online safety, random chat advice, video chat blog"
         jsonLd={blogSchema}
       />

@@ -20,7 +20,7 @@
 ```xml
 <urlset>
   <url>
-    <loc>https://livecam.app/</loc>
+    <loc>https://paircam.live/</loc>
     <priority>1.0</priority>
   </url>
 </urlset>
@@ -40,23 +40,23 @@
   
   <!-- Homepage with Image -->
   <url>
-    <loc>https://livecam.app/</loc>
+    <loc>https://paircam.live/</loc>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://livecam.app/og-image.jpg</image:loc>
+      <image:loc>https://paircam.live/og-image.jpg</image:loc>
       <image:title>PairCam - Free Random Video Chat</image:title>
     </image:image>
   </url>
 
   <!-- Video Chat Mode -->
   <url>
-    <loc>https://livecam.app/#video</loc>
+    <loc>https://paircam.live/#video</loc>
     <priority>0.9</priority>
   </url>
 
   <!-- Text Chat Mode -->
   <url>
-    <loc>https://livecam.app/#text</loc>
+    <loc>https://paircam.live/#text</loc>
     <priority>0.8</priority>
   </url>
 
@@ -108,7 +108,7 @@ Google sees:
 {
   "@type": "WebApplication",
   "name": "PairCam",
-  "url": "https://livecam.app",
+  "url": "https://paircam.live",
   "description": "...",
   "offers": { "price": "0" },
   "aggregateRating": { "ratingValue": "4.5" }
@@ -130,12 +130,12 @@ Google sees:
   "@type": "WebApplication",
   "name": "PairCam",
   "alternateName": ["PairCam Video Chat", "PairCam Random Chat"],
-  "image": "https://livecam.app/og-image.jpg",
+  "image": "https://paircam.live/og-image.jpg",
   "browserRequirements": "Requires JavaScript. Requires HTML5.",
   "softwareVersion": "1.0.0",
   "datePublished": "2025-10-24",
   "inLanguage": "en-US",
-  "screenshot": "https://livecam.app/og-image.jpg",
+  "screenshot": "https://paircam.live/og-image.jpg",
   "featureList": [
     "Random video chat with strangers",
     "Text chat mode available",
@@ -149,7 +149,7 @@ Google sees:
   "potentialAction": {
     "@type": "UseAction",
     "target": {
-      "urlTemplate": "https://livecam.app/",
+      "urlTemplate": "https://paircam.live/",
       "actionPlatform": ["DesktopWebPlatform", "MobileWebPlatform"]
     }
   }
@@ -161,7 +161,7 @@ Google sees:
 {
   "@type": "Organization",
   "name": "PairCam",
-  "logo": "https://livecam.app/logo.png",
+  "logo": "https://paircam.live/logo.png",
   "sameAs": [
     "https://twitter.com/paircam",
     "https://facebook.com/paircam",
@@ -177,7 +177,7 @@ Google sees:
   "itemListElement": [{
     "position": 1,
     "name": "Home",
-    "item": "https://livecam.app/"
+    "item": "https://paircam.live/"
   }]
 }
 ```
@@ -197,7 +197,7 @@ Your og-image.jpg will now appear in:
 **How to verify after deployment:**
 ```
 1. Wait 1-2 weeks after deployment
-2. Google Search: site:livecam.app
+2. Google Search: site:paircam.live
 3. Click "Images" tab
 4. Should see your og-image.jpg indexed ✅
 ```
@@ -235,7 +235,7 @@ Example Google result:
 ┌──────────────────────────────────────┐
 │ ⭐⭐⭐⭐☆ (4.5) · 1,250 ratings      │
 │ PairCam - Free Random Video Chat    │
-│ https://livecam.app › Home          │ ← Breadcrumb
+│ https://paircam.live › Home          │ ← Breadcrumb
 │ Free random video chat platform...   │
 │ Features: Video chat • Text mode •...│ ← From featureList
 └──────────────────────────────────────┘
@@ -253,7 +253,7 @@ xmllint --noout public/sitemap.xml
 # Should show: ✅ No errors
 
 # Test accessibility:
-curl https://livecam.app/sitemap.xml
+curl https://paircam.live/sitemap.xml
 
 # Should return: ✅ 200 OK with XML content
 ```
@@ -263,7 +263,7 @@ curl https://livecam.app/sitemap.xml
 # Visit Google's Rich Results Test:
 https://search.google.com/test/rich-results
 
-# Enter: https://livecam.app
+# Enter: https://paircam.live
 
 # Should show:
 ✅ 3 schema types detected
@@ -277,7 +277,7 @@ https://search.google.com/test/rich-results
 ```bash
 # Visit Google Search Console (after deployment)
 # Go to: Sitemaps section
-# Submit: https://livecam.app/sitemap.xml
+# Submit: https://paircam.live/sitemap.xml
 
 # Should show:
 ✅ 3 URLs discovered
@@ -291,7 +291,7 @@ https://search.google.com/test/rich-results
 https://validator.schema.org/
 
 # Paste your index.html content
-# Or enter: https://livecam.app (after deployment)
+# Or enter: https://paircam.live (after deployment)
 
 # Should show:
 ✅ All 3 schemas valid
@@ -337,11 +337,11 @@ When you create these pages, uncomment them in sitemap.xml:
 ```xml
 <!-- Uncomment these: -->
 <url>
-  <loc>https://livecam.app/privacy</loc>
+  <loc>https://paircam.live/privacy</loc>
   <priority>0.4</priority>
 </url>
 <url>
-  <loc>https://livecam.app/terms</loc>
+  <loc>https://paircam.live/terms</loc>
   <priority>0.4</priority>
 </url>
 ```
@@ -350,15 +350,15 @@ When you create these pages, uncomment them in sitemap.xml:
 ### Priority 2: Content Pages (Month 1)
 ```xml
 <url>
-  <loc>https://livecam.app/faq</loc>
+  <loc>https://paircam.live/faq</loc>
   <priority>0.8</priority>
 </url>
 <url>
-  <loc>https://livecam.app/safety</loc>
+  <loc>https://paircam.live/safety</loc>
   <priority>0.7</priority>
 </url>
 <url>
-  <loc>https://livecam.app/about</loc>
+  <loc>https://paircam.live/about</loc>
   <priority>0.7</priority>
 </url>
 ```
@@ -367,12 +367,12 @@ When you create these pages, uncomment them in sitemap.xml:
 ### Priority 3: Blog (Month 2+)
 ```xml
 <url>
-  <loc>https://livecam.app/blog</loc>
+  <loc>https://paircam.live/blog</loc>
   <priority>0.6</priority>
 </url>
 <!-- Individual blog posts: -->
 <url>
-  <loc>https://livecam.app/blog/staying-safe-on-video-chat</loc>
+  <loc>https://paircam.live/blog/staying-safe-on-video-chat</loc>
   <priority>0.5</priority>
 </url>
 ```
@@ -386,7 +386,7 @@ When you create these pages, uncomment them in sitemap.xml:
 ```xml
 <!-- When you update content, change lastmod: -->
 <url>
-  <loc>https://livecam.app/</loc>
+  <loc>https://paircam.live/</loc>
   <lastmod>2025-11-15</lastmod> <!-- ← Update this -->
   <changefreq>daily</changefreq>
 </url>
@@ -397,7 +397,7 @@ When you create these pages, uncomment them in sitemap.xml:
 ```xml
 <!-- Each blog post should have its own entry: -->
 <url>
-  <loc>https://livecam.app/blog/10-tips-for-video-chat</loc>
+  <loc>https://paircam.live/blog/10-tips-for-video-chat</loc>
   <lastmod>2025-11-01</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.5</priority>
@@ -417,7 +417,7 @@ When you create these pages, uncomment them in sitemap.xml:
 ### Tip 4: Monitor Image Indexing
 ```bash
 # Check if image is indexed:
-Google Search: site:livecam.app inurl:og-image.jpg
+Google Search: site:paircam.live inurl:og-image.jpg
 
 # Or check Search Console:
 Enhancements → Image Sitemap

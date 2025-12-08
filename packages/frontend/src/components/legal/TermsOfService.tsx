@@ -193,7 +193,7 @@ export default function TermsOfService() {
               If you have any questions about these Terms, please contact us:
             </p>
             <div className="bg-gray-50 rounded-xl p-4">
-              <p className="text-gray-800"><strong>Email:</strong> legal@livecam.app</p>
+              <p className="text-gray-800"><strong>Email:</strong> legal@paircam.live</p>
               <p className="text-gray-800"><strong>Address:</strong> [YOUR BUSINESS ADDRESS]</p>
             </div>
           </section>

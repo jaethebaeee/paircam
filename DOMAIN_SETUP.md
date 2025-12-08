@@ -1,6 +1,6 @@
-# Domain Setup Guide for livecam.app
+# Domain Setup Guide for paircam.live
 
-This guide covers connecting your domain `livecam.app` to the PairCam infrastructure.
+This guide covers connecting your domain `paircam.live` to the PairCam infrastructure.
 
 ## DNS Configuration
 
@@ -52,7 +52,7 @@ Value: <TURN_SERVER_IP>
 # Alternative TURN on different port
 Type: SRV
 Name: _turn._udp
-Value: 10 0 3478 turn.livecam.app
+Value: 10 0 3478 turn.paircam.live
 ```
 
 ### Option C: Single VPS (Docker Compose)
@@ -93,10 +93,10 @@ sudo apt install certbot
 
 # Get certificates
 sudo certbot certonly --standalone \
-  -d livecam.app \
-  -d www.livecam.app \
-  -d api.livecam.app \
-  -d turn.livecam.app
+  -d paircam.live \
+  -d www.paircam.live \
+  -d api.paircam.live \
+  -d turn.paircam.live
 
 # Auto-renewal (add to crontab)
 0 0 * * * certbot renew --quiet
@@ -107,8 +107,8 @@ sudo certbot certonly --standalone \
 ### Frontend (.env.production)
 
 ```env
-VITE_API_URL=https://api.livecam.app
-VITE_WS_URL=wss://api.livecam.app
+VITE_API_URL=https://api.paircam.live
+VITE_WS_URL=wss://api.paircam.live
 ```
 
 ### Backend (.env.production)
@@ -124,7 +124,7 @@ JWT_SECRET=<generate-with: openssl rand -base64 64>
 TURN_SHARED_SECRET=<generate-with: openssl rand -base64 32>
 
 # CORS - Production domains
-CORS_ORIGINS=https://livecam.app,https://www.livecam.app
+CORS_ORIGINS=https://paircam.live,https://www.paircam.live
 
 # Redis
 REDIS_URL=redis://:<password>@<redis-host>:6379
@@ -133,9 +133,9 @@ REDIS_URL=redis://:<password>@<redis-host>:6379
 DATABASE_URL=postgresql://<user>:<pass>@<host>:5432/paircam?sslmode=require
 
 # TURN Server
-TURN_HOST=turn.livecam.app
+TURN_HOST=turn.paircam.live
 TURN_PORT=3478
-TURN_REALM=livecam.app
+TURN_REALM=paircam.live
 
 # Stripe (Production keys)
 STRIPE_SECRET_KEY=sk_live_xxx
@@ -156,8 +156,8 @@ listening-ip=0.0.0.0
 external-ip=<YOUR_PUBLIC_IP>
 
 # Domain
-realm=livecam.app
-server-name=livecam.app
+realm=paircam.live
+server-name=paircam.live
 
 # Authentication
 use-auth-secret
@@ -170,8 +170,8 @@ fingerprint
 no-multicast-peers
 
 # TLS (optional but recommended)
-cert=/etc/letsencrypt/live/turn.livecam.app/fullchain.pem
-pkey=/etc/letsencrypt/live/turn.livecam.app/privkey.pem
+cert=/etc/letsencrypt/live/turn.paircam.live/fullchain.pem
+pkey=/etc/letsencrypt/live/turn.paircam.live/privkey.pem
 
 # Logging
 log-file=/var/log/turnserver.log
@@ -263,19 +263,19 @@ After deployment, verify these endpoints:
 
 ```bash
 # Frontend
-curl https://livecam.app
+curl https://paircam.live
 # Should return HTML
 
 # Backend Health
-curl https://api.livecam.app/health
+curl https://api.paircam.live/health
 # Should return: {"status":"ok","timestamp":"..."}
 
 # Backend Readiness
-curl https://api.livecam.app/health/ready
+curl https://api.paircam.live/health/ready
 # Should return: {"status":"ready","services":{"redis":"connected"}}
 
 # WebSocket (test with wscat)
-npx wscat -c wss://api.livecam.app/signaling
+npx wscat -c wss://api.paircam.live/signaling
 # Should connect successfully
 ```
 
@@ -283,9 +283,9 @@ npx wscat -c wss://api.livecam.app/signaling
 
 ### Page Rules
 
-1. `*livecam.app/*` → SSL: Full (Strict)
-2. `api.livecam.app/*` → Cache Level: Bypass
-3. `turn.livecam.app/*` → Proxy: OFF (DNS only - required for TURN)
+1. `*paircam.live/*` → SSL: Full (Strict)
+2. `api.paircam.live/*` → Cache Level: Bypass
+3. `turn.paircam.live/*` → Proxy: OFF (DNS only - required for TURN)
 
 ### Firewall Rules
 
@@ -300,19 +300,19 @@ npx wscat -c wss://api.livecam.app/signaling
 ### DNS Settings
 
 - **Proxy status**:
-  - `livecam.app` → Proxied (orange cloud)
-  - `www.livecam.app` → Proxied
-  - `api.livecam.app` → Proxied (for DDoS protection)
-  - `turn.livecam.app` → DNS only (gray cloud) **IMPORTANT!**
+  - `paircam.live` → Proxied (orange cloud)
+  - `www.paircam.live` → Proxied
+  - `api.paircam.live` → Proxied (for DDoS protection)
+  - `turn.paircam.live` → DNS only (gray cloud) **IMPORTANT!**
 
 ## Post-Deployment Checklist
 
-- [ ] Frontend loads at https://livecam.app
-- [ ] API health check passes at https://api.livecam.app/health
-- [ ] WebSocket connects at wss://api.livecam.app/signaling
+- [ ] Frontend loads at https://paircam.live
+- [ ] API health check passes at https://api.paircam.live/health
+- [ ] WebSocket connects at wss://api.paircam.live/signaling
 - [ ] TURN server accessible (test with https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/)
 - [ ] SSL certificates valid (check with https://www.ssllabs.com/ssltest/)
-- [ ] Stripe webhooks configured at https://api.livecam.app/payments/webhook
+- [ ] Stripe webhooks configured at https://api.paircam.live/payments/webhook
 - [ ] Error tracking (Sentry) receiving events
 - [ ] Monitoring dashboard showing metrics
 
@@ -326,24 +326,24 @@ curl -i -N \
   -H "Upgrade: websocket" \
   -H "Sec-WebSocket-Version: 13" \
   -H "Sec-WebSocket-Key: test" \
-  https://api.livecam.app/socket.io/
+  https://api.paircam.live/socket.io/
 ```
 
 ### TURN Server Issues
 ```bash
 # Test TURN connectivity
-turnutils_uclient -T -u user -w password turn.livecam.app
+turnutils_uclient -T -u user -w password turn.paircam.live
 
 # Check if ports are open
-nc -zv turn.livecam.app 3478
-nc -zvu turn.livecam.app 3478
+nc -zv turn.paircam.live 3478
+nc -zvu turn.paircam.live 3478
 ```
 
 ### SSL Certificate Issues
 ```bash
 # Check certificate
-openssl s_client -connect api.livecam.app:443 -servername api.livecam.app
+openssl s_client -connect api.paircam.live:443 -servername api.paircam.live
 
 # Check expiry
-echo | openssl s_client -connect livecam.app:443 2>/dev/null | openssl x509 -noout -dates
+echo | openssl s_client -connect paircam.live:443 2>/dev/null | openssl x509 -noout -dates
 ```

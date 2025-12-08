@@ -186,7 +186,7 @@ export default function PrivacyPolicy() {
             <div className="bg-gray-100 rounded-xl p-4">
               <p className="text-gray-800 font-semibold mb-2">How to Exercise Your Rights:</p>
               <p className="text-gray-700 text-sm">
-                Email us at <a href="mailto:privacy@livecam.app" className="text-blue-600 underline">privacy@livecam.app</a> with your request. 
+                Email us at <a href="mailto:privacy@paircam.live" className="text-blue-600 underline">privacy@paircam.live</a> with your request. 
                 We will respond within 30 days.
               </p>
             </div>
@@ -314,8 +314,8 @@ export default function PrivacyPolicy() {
               If you have questions about this Privacy Policy or want to exercise your rights, contact us:
             </p>
             <div className="bg-gray-50 rounded-xl p-6">
-              <p className="text-gray-800 mb-2"><strong>Email:</strong> privacy@livecam.app</p>
-              <p className="text-gray-800 mb-2"><strong>Data Protection Officer:</strong> dpo@livecam.app</p>
+              <p className="text-gray-800 mb-2"><strong>Email:</strong> privacy@paircam.live</p>
+              <p className="text-gray-800 mb-2"><strong>Data Protection Officer:</strong> dpo@paircam.live</p>
               <p className="text-gray-800"><strong>Address:</strong> [YOUR BUSINESS ADDRESS]</p>
             </div>
             <p className="text-gray-700 leading-relaxed mt-4 text-sm">

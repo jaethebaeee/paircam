@@ -15,14 +15,14 @@ vercel login
 ### Step 3: Deploy from frontend directory
 ```bash
 cd packages/frontend
-VITE_API_URL=https://api.livecam.app VITE_WS_URL=wss://api.livecam.app vercel --prod
+VITE_API_URL=https://api.paircam.live VITE_WS_URL=wss://api.paircam.live vercel --prod
 ```
 
 ### Step 4: Set up custom domain
 After deployment, go to Vercel dashboard:
 1. Go to your project settings
 2. Click "Domains"
-3. Add `app.livecam.app`
+3. Add `app.paircam.live`
 4. Follow instructions to add DNS record
 
 ---
@@ -33,10 +33,10 @@ After deployment, go to Vercel dashboard:
 2. Import your GitHub repo: `jaethebaeee/paircam`
 3. Set Root Directory: `packages/frontend`
 4. Set Environment Variables:
-   - `VITE_API_URL` = `https://api.livecam.app`
-   - `VITE_WS_URL` = `wss://api.livecam.app`
+   - `VITE_API_URL` = `https://api.paircam.live`
+   - `VITE_WS_URL` = `wss://api.paircam.live`
 5. Deploy!
-6. Add custom domain `app.livecam.app` in settings
+6. Add custom domain `app.paircam.live` in settings
 
 ---
 
@@ -44,7 +44,7 @@ After deployment, go to Vercel dashboard:
 
 ```bash
 cd packages/frontend
-VITE_API_URL=https://api.livecam.app VITE_WS_URL=wss://api.livecam.app npm run dev
+VITE_API_URL=https://api.paircam.live VITE_WS_URL=wss://api.paircam.live npm run dev
 ```
 
 Open http://localhost:5173 to test!

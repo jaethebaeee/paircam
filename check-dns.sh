@@ -1,11 +1,11 @@
 #!/bin/bash
 
-echo "🔍 Checking DNS Configuration for livecam.app"
+echo "🔍 Checking DNS Configuration for paircam.live"
 echo "=============================================="
 echo ""
 
-echo "Backend API (api.livecam.app):"
-API_IP=$(dig +short api.livecam.app | tail -1)
+echo "Backend API (api.paircam.live):"
+API_IP=$(dig +short api.paircam.live | tail -1)
 if [ "$API_IP" == "161.35.253.148" ]; then
     echo "  ✅ Correct: $API_IP"
 else
@@ -13,8 +13,8 @@ else
 fi
 echo ""
 
-echo "Frontend (app.livecam.app):"
-APP_IP=$(dig +short app.livecam.app | tail -1)
+echo "Frontend (app.paircam.live):"
+APP_IP=$(dig +short app.paircam.live | tail -1)
 if [ "$APP_IP" == "76.76.21.21" ]; then
     echo "  ✅ Correct: $APP_IP"
 else
@@ -29,10 +29,10 @@ if [ "$API_IP" == "161.35.253.148" ] && [ "$APP_IP" == "76.76.21.21" ]; then
     echo "Testing endpoints..."
     echo ""
     echo "Backend health check:"
-    curl -s https://api.livecam.app/health | head -5 || echo "⚠️  Backend not responding yet"
+    curl -s https://api.paircam.live/health | head -5 || echo "⚠️  Backend not responding yet"
     echo ""
     echo "Frontend:"
-    curl -s -o /dev/null -w "Status: %{http_code}" https://app.livecam.app
+    curl -s -o /dev/null -w "Status: %{http_code}" https://app.paircam.live
     echo ""
 else
     echo "⚠️  DNS not configured correctly yet. Wait 5-30 minutes after updating."

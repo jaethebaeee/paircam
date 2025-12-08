@@ -288,8 +288,8 @@ AFTER:
 <SEO
   title="Custom Title"
   description="Custom description"
-  image="https://livecam.app/custom.jpg"
-  url="https://livecam.app/page"
+  image="https://paircam.live/custom.jpg"
+  url="https://paircam.live/page"
 />
 ```
 

@@ -2,7 +2,7 @@
 
 **Deployment Date:** October 24, 2025  
 **Branch:** main  
-**Status:** ✅ LIVE on https://livecam.app
+**Status:** ✅ LIVE on https://paircam.live
 
 ---
 
@@ -122,9 +122,9 @@ Legal pages load on-demand (lazy loaded) ✅
    - Backend will refuse to start without secure secrets ✅
 
 4. **Test Legal Pages**
-   - Visit: https://livecam.app/terms-of-service
-   - Visit: https://livecam.app/privacy-policy
-   - Visit: https://livecam.app/cookie-policy
+   - Visit: https://paircam.live/terms-of-service
+   - Visit: https://paircam.live/privacy-policy
+   - Visit: https://paircam.live/cookie-policy
 
 5. **Add Cookie Consent Banner** (Optional but recommended for GDPR)
    - Install: `react-cookie-consent`
@@ -138,10 +138,10 @@ Legal pages load on-demand (lazy loaded) ✅
 ### Check Frontend (Vercel):
 ```bash
 # Visit these URLs:
-https://livecam.app/
-https://livecam.app/terms-of-service
-https://livecam.app/privacy-policy
-https://livecam.app/cookie-policy
+https://paircam.live/
+https://paircam.live/terms-of-service
+https://paircam.live/privacy-policy
+https://paircam.live/cookie-policy
 
 # Open browser console, should see:
 # "✅ WebRTC connection is encrypted with DTLS-SRTP"
@@ -191,7 +191,7 @@ Generate a secure secret using: openssl rand -base64 32
 
 **Report Issues:**
 - GitHub: https://github.com/jaethebaeee/paircam
-- Email: support@livecam.app
+- Email: support@paircam.live
 
 ---
 

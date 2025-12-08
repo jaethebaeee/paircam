@@ -6,7 +6,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location (critical for Google)
-Sitemap: https://livecam.app/sitemap.xml
+Sitemap: https://paircam.live/sitemap.xml
 
 # Block bad bots (optional - keep if you want)
 User-agent: AhrefsBot
