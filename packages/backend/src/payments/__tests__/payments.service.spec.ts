@@ -452,5 +452,299 @@ describe('PaymentsService', () => {
         subscription: null,
       });
     });
+
+    it('should handle Stripe retrieve error', async () => {
+      mockStripe.checkout.sessions.retrieve.mockRejectedValue(new Error('Stripe API error'));
+
+      await expect(
+        service.verifyCheckoutSession('cs_test', 'device-456')
+      ).rejects.toThrow('Failed to verify payment');
+
+      expect(logger.error).toHaveBeenCalledWith(
+        'Failed to verify payment',
+        expect.any(String)
+      );
+    });
+  });
+
+  describe('Edge Cases', () => {
+    describe('Null Stripe Client', () => {
+      let serviceWithoutStripe: PaymentsService;
+
+      beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+          providers: [
+            PaymentsService,
+            {
+              provide: STRIPE_CLIENT,
+              useValue: null, // Simulate unconfigured Stripe
+            },
+            {
+              provide: UsersService,
+              useValue: { findByDeviceId: jest.fn() },
+            },
+            {
+              provide: SubscriptionsService,
+              useValue: { create: jest.fn(), findActiveByUserId: jest.fn(), updateByStripeId: jest.fn() },
+            },
+            {
+              provide: LoggerService,
+              useValue: { log: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() },
+            },
+          ],
+        }).compile();
+
+        serviceWithoutStripe = module.get<PaymentsService>(PaymentsService);
+      });
+
+      it('should throw BadRequestException for createCheckoutSession when Stripe not configured', async () => {
+        await expect(
+          serviceWithoutStripe.createCheckoutSession('device-123', 'monthly')
+        ).rejects.toThrow('Payment system not configured');
+      });
+
+      it('should throw BadRequestException for handleWebhook when Stripe not configured', async () => {
+        await expect(
+          serviceWithoutStripe.handleWebhook('sig', Buffer.from('{}'))
+        ).rejects.toThrow('Payment system not configured');
+      });
+
+      it('should throw BadRequestException for cancelSubscription when Stripe not configured', async () => {
+        await expect(
+          serviceWithoutStripe.cancelSubscription('device-123')
+        ).rejects.toThrow('Payment system not configured');
+      });
+
+      it('should throw BadRequestException for verifyCheckoutSession when Stripe not configured', async () => {
+        await expect(
+          serviceWithoutStripe.verifyCheckoutSession('cs_test', 'device-123')
+        ).rejects.toThrow('Payment system not configured');
+      });
+    });
+
+    describe('Webhook Edge Cases', () => {
+      const mockPayload = Buffer.from('{}');
+      const mockSignature = 'sig_test';
+
+      it('should skip checkout completed without subscription ID', async () => {
+        const checkoutSession = {
+          id: 'cs_test',
+          metadata: { userId: 'user-123', plan: 'monthly' },
+          subscription: null, // No subscription ID
+        };
+
+        mockStripe.webhooks.constructEvent.mockReturnValue({
+          type: 'checkout.session.completed',
+          data: { object: checkoutSession },
+        });
+
+        const result = await service.handleWebhook(mockSignature, mockPayload);
+
+        expect(result).toEqual({ received: true });
+        expect(logger.warn).toHaveBeenCalledWith(
+          'Missing metadata in checkout session',
+          expect.any(Object)
+        );
+        expect(subscriptionsService.create).not.toHaveBeenCalled();
+      });
+
+      it('should handle subscription retrieval failure during checkout', async () => {
+        const checkoutSession = {
+          id: 'cs_test',
+          metadata: { userId: 'user-123', plan: 'monthly' },
+          subscription: 'sub_test',
+        };
+
+        mockStripe.webhooks.constructEvent.mockReturnValue({
+          type: 'checkout.session.completed',
+          data: { object: checkoutSession },
+        });
+
+        mockStripe.subscriptions.retrieve.mockRejectedValue(new Error('Stripe API error'));
+
+        await expect(
+          service.handleWebhook(mockSignature, mockPayload)
+        ).rejects.toThrow();
+
+        expect(logger.error).toHaveBeenCalledWith(
+          'Failed to handle checkout completed',
+          expect.any(String)
+        );
+      });
+
+      it('should handle subscription with trial period', async () => {
+        const checkoutSession = {
+          id: 'cs_test',
+          metadata: { userId: 'user-123', plan: 'monthly' },
+          subscription: 'sub_test',
+        };
+
+        const trialEndTimestamp = Math.floor(Date.now() / 1000) + 86400 * 7; // 7 days trial
+
+        mockStripe.webhooks.constructEvent.mockReturnValue({
+          type: 'checkout.session.completed',
+          data: { object: checkoutSession },
+        });
+
+        mockStripe.subscriptions.retrieve.mockResolvedValue({
+          id: 'sub_test',
+          customer: 'cus_123',
+          status: 'trialing',
+          current_period_start: Math.floor(Date.now() / 1000),
+          current_period_end: Math.floor(Date.now() / 1000) + 86400 * 30,
+          trial_end: trialEndTimestamp,
+          items: { data: [{ price: { id: 'price_monthly' } }] },
+        });
+
+        const result = await service.handleWebhook(mockSignature, mockPayload);
+
+        expect(result).toEqual({ received: true });
+        expect(subscriptionsService.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            status: 'trialing',
+            trialEnd: expect.any(Date),
+          })
+        );
+      });
+
+      it('should handle subscription update with cancel_at_period_end true', async () => {
+        const subscription = {
+          id: 'sub_test',
+          status: 'active',
+          current_period_start: Math.floor(Date.now() / 1000),
+          current_period_end: Math.floor(Date.now() / 1000) + 86400 * 30,
+          cancel_at_period_end: true,
+        };
+
+        mockStripe.webhooks.constructEvent.mockReturnValue({
+          type: 'customer.subscription.updated',
+          data: { object: subscription },
+        });
+
+        const result = await service.handleWebhook(mockSignature, mockPayload);
+
+        expect(result).toEqual({ received: true });
+        expect(subscriptionsService.updateByStripeId).toHaveBeenCalledWith(
+          'sub_test',
+          expect.objectContaining({
+            cancelAtPeriodEnd: true,
+          })
+        );
+      });
+
+      it('should handle past_due subscription status', async () => {
+        const subscription = {
+          id: 'sub_test',
+          status: 'past_due',
+          current_period_start: Math.floor(Date.now() / 1000),
+          current_period_end: Math.floor(Date.now() / 1000) + 86400 * 30,
+          cancel_at_period_end: false,
+        };
+
+        mockStripe.webhooks.constructEvent.mockReturnValue({
+          type: 'customer.subscription.updated',
+          data: { object: subscription },
+        });
+
+        const result = await service.handleWebhook(mockSignature, mockPayload);
+
+        expect(result).toEqual({ received: true });
+        expect(subscriptionsService.updateByStripeId).toHaveBeenCalledWith(
+          'sub_test',
+          expect.objectContaining({
+            status: 'past_due',
+          })
+        );
+      });
+
+      it('should silently handle subscription update errors', async () => {
+        const subscription = {
+          id: 'sub_test',
+          status: 'active',
+          current_period_start: Math.floor(Date.now() / 1000),
+          current_period_end: Math.floor(Date.now() / 1000) + 86400 * 30,
+          cancel_at_period_end: false,
+        };
+
+        mockStripe.webhooks.constructEvent.mockReturnValue({
+          type: 'customer.subscription.updated',
+          data: { object: subscription },
+        });
+
+        subscriptionsService.updateByStripeId.mockRejectedValue(new Error('DB error'));
+
+        // Should not throw - errors are caught and logged
+        const result = await service.handleWebhook(mockSignature, mockPayload);
+
+        expect(result).toEqual({ received: true });
+        expect(logger.error).toHaveBeenCalledWith(
+          'Failed to handle subscription updated',
+          expect.any(String)
+        );
+      });
+
+      it('should silently handle subscription delete errors', async () => {
+        const subscription = { id: 'sub_test' };
+
+        mockStripe.webhooks.constructEvent.mockReturnValue({
+          type: 'customer.subscription.deleted',
+          data: { object: subscription },
+        });
+
+        subscriptionsService.updateByStripeId.mockRejectedValue(new Error('DB error'));
+
+        // Should not throw - errors are caught and logged
+        const result = await service.handleWebhook(mockSignature, mockPayload);
+
+        expect(result).toEqual({ received: true });
+        expect(logger.error).toHaveBeenCalledWith(
+          'Failed to handle subscription deleted',
+          expect.any(String)
+        );
+      });
+    });
+
+    describe('Cancel Subscription Edge Cases', () => {
+      it('should throw error if database update fails after Stripe cancellation', async () => {
+        usersService.findByDeviceId.mockResolvedValue(mockUser as any);
+        subscriptionsService.findActiveByUserId.mockResolvedValue(mockSubscription as any);
+        mockStripe.subscriptions.update.mockResolvedValue({});
+        subscriptionsService.updateByStripeId.mockRejectedValue(new Error('DB error'));
+
+        // Should throw because entire operation is wrapped in try-catch
+        await expect(service.cancelSubscription('device-456')).rejects.toThrow(
+          'Failed to cancel subscription'
+        );
+
+        // Stripe was called before DB failed
+        expect(mockStripe.subscriptions.update).toHaveBeenCalledWith(
+          'stripe-sub-123',
+          { cancel_at_period_end: true }
+        );
+        expect(logger.error).toHaveBeenCalled();
+      });
+
+      it('should handle empty deviceId', async () => {
+        usersService.findByDeviceId.mockResolvedValue(null);
+
+        await expect(service.cancelSubscription('')).rejects.toThrow(
+          BadRequestException
+        );
+      });
+    });
+
+    describe('Payment Status Edge Cases', () => {
+      it('should reject payment with no_payment_required status', async () => {
+        mockStripe.checkout.sessions.retrieve.mockResolvedValue({
+          id: 'cs_test',
+          payment_status: 'no_payment_required',
+        });
+        usersService.findByDeviceId.mockResolvedValue(mockUser as any);
+
+        await expect(
+          service.verifyCheckoutSession('cs_test', 'device-456')
+        ).rejects.toThrow('Failed to verify payment');
+      });
+    });
   });
 });
