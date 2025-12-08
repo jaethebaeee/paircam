@@ -18,7 +18,7 @@ import {
   LeaderboardService,
 } from './services';
 import { JwtService } from '@nestjs/jwt';
-import * as amplitude from '@amplitude/analytics-node';
+import { analytics } from '../utils/analytics';
 
 @WebSocketGateway({
   cors: {
@@ -108,7 +108,7 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       // Track analytics
-      amplitude.track({
+      analytics.track({
         userId,
         eventType: 'game_started',
         eventProperties: {
@@ -211,17 +211,19 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
           });
 
           // Track analytics
-          amplitude.track({
-            userId: winnerId,
-            eventType: 'game_won',
-            eventProperties: {
-              gameType: updatedGame.type,
-              reward,
-              duration: Math.floor(
-                (updatedGame.endedAt.getTime() - updatedGame.createdAt.getTime()) / 1000,
-              ),
-            },
-          });
+          if (updatedGame.endedAt) {
+            analytics.track({
+              userId: winnerId,
+              eventType: 'game_won',
+              eventProperties: {
+                gameType: updatedGame.type,
+                reward,
+                duration: Math.floor(
+                  (updatedGame.endedAt.getTime() - updatedGame.createdAt.getTime()) / 1000,
+                ),
+              },
+            });
+          }
         }
       }
 
@@ -286,7 +288,7 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       // Track analytics
-      amplitude.track({
+      analytics.track({
         userId,
         eventType: 'gift_sent',
         eventProperties: {

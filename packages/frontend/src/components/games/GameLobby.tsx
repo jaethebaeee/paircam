@@ -1,6 +1,6 @@
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { Difficulty } from '../../types/games';
-import { DIFFICULTY_COLORS, DIFFICULTY_LABELS, GAME_CONFIG } from '../../constants/games';
+import { DIFFICULTY_LABELS, GAME_CONFIG } from '../../constants/games';
 
 interface GameLobbyProps {
   onSelectDifficulty: (difficulty: Difficulty) => void;

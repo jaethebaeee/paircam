@@ -510,6 +510,42 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  // Generic key-value operations
+  async setex(key: string, ttlSeconds: number, value: string): Promise<void> {
+    try {
+      await this.client.setEx(key, ttlSeconds, value);
+    } catch (error) {
+      this.logger.error(`Failed to setex ${key}`, error.stack);
+      throw new Error('Redis setex failed');
+    }
+  }
+
+  async get(key: string): Promise<string | null> {
+    try {
+      return await this.client.get(key);
+    } catch (error) {
+      this.logger.error(`Failed to get ${key}`, error.stack);
+      return null;
+    }
+  }
+
+  async del(key: string): Promise<void> {
+    try {
+      await this.client.del(key);
+    } catch (error) {
+      this.logger.error(`Failed to del ${key}`, error.stack);
+    }
+  }
+
+  async hincrby(key: string, field: string, increment: number): Promise<number> {
+    try {
+      return await this.client.hIncrBy(key, field, increment);
+    } catch (error) {
+      this.logger.error(`Failed to hincrby ${key}:${field}`, error.stack);
+      return 0;
+    }
+  }
+
   // Analytics
   async incrementCounter(key: string, increment = 1): Promise<number> {
     try {

@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GameSession } from '../entities';
 import { RedisService } from '../../redis/redis.service';
-import { UserService } from '../../users/services/user.service';
+import { UsersService } from '../../users/users.service';
 
-interface LeaderboardEntry {
+export interface LeaderboardEntry {
   rank: number;
   userId: string;
   username: string;
@@ -18,7 +18,7 @@ export class LeaderboardService {
   constructor(
     @InjectRepository(GameSession) private gameRepo: Repository<GameSession>,
     private redisService: RedisService,
-    private userService: UserService,
+    private usersService: UsersService,
   ) {}
 
   /**
@@ -100,12 +100,12 @@ export class LeaderboardService {
 
     for (let i = 0; i < results.length; i++) {
       const row = results[i];
-      const user = await this.userService.getUser(row.userId);
+      const user = await this.usersService.findById(row.userId);
 
       leaderboard.push({
         rank: i + 1,
         userId: row.userId,
-        username: user.username || `User${row.userId.slice(0, 8)}`,
+        username: user?.username || `User${row.userId.slice(0, 8)}`,
         coinsEarned: parseInt(row.gamesWon) * 50, // 50 coins per win (average)
         gamesWon: parseInt(row.gamesWon),
       });
