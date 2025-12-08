@@ -113,22 +113,20 @@ export default function ReferralModal({ onClose, onSkip }: ReferralModalProps) {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-            </svg>
+            <span className="text-3xl">🎁</span>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Got a Referral Code?
+            Got a friend's code? 👀
           </h2>
           <p className="text-gray-600 text-sm">
-            Enter a friend's code to get <span className="font-bold text-green-600">150 bonus coins</span>!
+            Drop it below and bag <span className="font-bold text-green-600">150 free coins</span> instantly! 🪙
           </p>
         </div>
 
         {/* Referral Code Input */}
         <div className="mb-6">
           <label htmlFor="referral-code" className="block text-sm font-medium text-gray-700 mb-2">
-            Referral Code
+            Enter the code 🔑
           </label>
           <div className="relative">
             <input
@@ -175,19 +173,15 @@ export default function ReferralModal({ onClose, onSkip }: ReferralModalProps) {
 
         {/* Benefits */}
         <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl p-4 mb-6">
-          <h3 className="font-semibold text-gray-800 mb-2 text-sm">What you'll get:</h3>
+          <h3 className="font-semibold text-gray-800 mb-2 text-sm">Why it's lit 🔥</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2 text-gray-700">
-              <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.736 6.979C9.208 6.193 9.696 6 10 6c.304 0 .792.193 1.264.979a1 1 0 001.715-1.029C12.279 4.784 11.232 4 10 4s-2.279.784-2.979 1.95c-.285.475-.507 1-.67 1.55H6a1 1 0 000 2h.013a9.358 9.358 0 000 1H6a1 1 0 100 2h.351c.163.55.385 1.075.67 1.55C7.721 15.216 8.768 16 10 16s2.279-.784 2.979-1.95a1 1 0 10-1.715-1.029c-.472.786-.96.979-1.264.979-.304 0-.792-.193-1.264-.979a4.265 4.265 0 01-.264-.521H10a1 1 0 100-2H8.017a7.36 7.36 0 010-1H10a1 1 0 100-2H8.472a4.265 4.265 0 01.264-.521z" />
-              </svg>
-              <span><strong>150 coins</strong> welcome bonus</span>
+              <span className="text-xl">🪙</span>
+              <span><strong>150 coins</strong> straight to your wallet</span>
             </li>
             <li className="flex items-center gap-2 text-gray-700">
-              <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-              </svg>
-              <span>Your friend gets bonus coins too!</span>
+              <span className="text-xl">🤝</span>
+              <span>Your homie gets coins too. W for both!</span>
             </li>
           </ul>
         </div>
@@ -202,14 +196,12 @@ export default function ReferralModal({ onClose, onSkip }: ReferralModalProps) {
             {isApplying ? (
               <>
                 <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                Applying...
+                Claiming...
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                </svg>
-                Claim My Bonus
+                <span className="text-xl">🎉</span>
+                Claim My Coins!
               </>
             )}
           </button>
@@ -218,16 +210,17 @@ export default function ReferralModal({ onClose, onSkip }: ReferralModalProps) {
             onClick={handleSkip}
             className="w-full px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-600 font-medium hover:bg-gray-50 transition-all"
           >
-            Skip for now
+            Maybe later
           </button>
         </div>
 
         {/* Footer note */}
         <p className="text-center text-xs text-gray-500 mt-4">
-          Don't have a code? You can always add one later in{' '}
+          No code yet? No stress! Hit up{' '}
           <a href="/referrals" className="text-pink-600 hover:underline font-medium">
             Referrals
-          </a>
+          </a>{' '}
+          to get your own 💫
         </p>
       </div>
     </div>

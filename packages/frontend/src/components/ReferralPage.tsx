@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { useReferral, ReferralTier } from '../hooks/useReferral';
 import AnimatedBackground from './ui/AnimatedBackground';
+import SEO from './SEO';
 
 // Tier badge colors
-const tierColors: Record<number, { bg: string; text: string; border: string }> = {
-  1: { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-300' },
-  2: { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-300' },
-  3: { bg: 'bg-slate-200', text: 'text-slate-700', border: 'border-slate-400' },
-  4: { bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-400' },
-  5: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-400' },
-  6: { bg: 'bg-cyan-100', text: 'text-cyan-700', border: 'border-cyan-400' },
+const tierColors: Record<number, { bg: string; text: string; border: string; emoji: string }> = {
+  1: { bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-300', emoji: '🌱' },
+  2: { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-300', emoji: '🥉' },
+  3: { bg: 'bg-slate-200', text: 'text-slate-700', border: 'border-slate-400', emoji: '🥈' },
+  4: { bg: 'bg-yellow-100', text: 'text-yellow-700', border: 'border-yellow-400', emoji: '🥇' },
+  5: { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-400', emoji: '👑' },
+  6: { bg: 'bg-cyan-100', text: 'text-cyan-700', border: 'border-cyan-400', emoji: '💎' },
 };
 
 const tierNames: Record<number, string> = {
@@ -34,7 +35,7 @@ export default function ReferralPage() {
     try {
       await navigator.clipboard.writeText(stats.referralCode);
       setIsCopied(true);
-      toast.success('Referral code copied!');
+      toast.success('Code copied! Now share it 🚀');
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       toast.error('Failed to copy code');
@@ -45,8 +46,8 @@ export default function ReferralPage() {
     if (!stats?.referralCode) return;
 
     const shareData = {
-      title: 'Join me on PairCam!',
-      text: `Use my referral code ${stats.referralCode} to get 150 free coins when you sign up!`,
+      title: 'Join me on PairCam! 🎥',
+      text: `Yo! Use my code ${stats.referralCode} and we both get free coins! 🪙`,
       url: `https://paircam.live?ref=${stats.referralCode}`,
     };
 
@@ -57,17 +58,16 @@ export default function ReferralPage() {
         await navigator.clipboard.writeText(
           `${shareData.text}\n${shareData.url}`
         );
-        toast.success('Share link copied to clipboard!');
+        toast.success('Link copied! Send it to your friends 🎉');
       }
     } catch (err) {
-      // User cancelled or share failed
       console.error('Share failed:', err);
     }
   };
 
   const handleApplyCode = async () => {
     if (!referralInput.trim()) {
-      toast.error('Please enter a referral code');
+      toast.error('Enter a code first!');
       return;
     }
 
@@ -77,7 +77,7 @@ export default function ReferralPage() {
       toast.success(result.message);
       setReferralInput('');
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to apply code');
+      toast.error(err instanceof Error ? err.message : 'That code didn\'t work');
     } finally {
       setIsApplying(false);
     }
@@ -105,11 +105,9 @@ export default function ReferralPage() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+            <span className="text-3xl">😢</span>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Failed to Load</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Oops! Something broke</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => refreshStats()}
@@ -123,17 +121,24 @@ export default function ReferralPage() {
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 relative overflow-hidden">
-      <AnimatedBackground variant="gradient-orbs" />
+    <>
+      <SEO
+        title="Refer Friends & Earn Free Coins"
+        description="Invite your squad to PairCam and stack free coins! Get 100-350 coins for every friend who joins. They get 150 coins too. Level up your rewards!"
+        url="https://paircam.live/referrals"
+        keywords="paircam referral, free coins, invite friends, referral rewards, earn coins, video chat rewards"
+      />
+      <div className="min-h-screen py-8 px-4 relative overflow-hidden">
+        <AnimatedBackground variant="gradient-orbs" />
 
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            Referral Program
+            Squad Up & Get Paid 💰
           </h1>
-          <p className="text-gray-600">
-            Invite friends and earn coins together!
+          <p className="text-gray-600 text-lg">
+            Bring your friends. Stack coins. No cap.
           </p>
         </div>
 
@@ -141,7 +146,7 @@ export default function ReferralPage() {
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
           {/* Referral Code */}
           <div className="text-center mb-6">
-            <p className="text-sm text-gray-500 mb-2">Your Referral Code</p>
+            <p className="text-sm text-gray-500 mb-2">Your Code</p>
             <div className="flex items-center justify-center gap-3">
               <div className="bg-gradient-to-r from-pink-50 to-purple-50 border-2 border-dashed border-pink-300 rounded-xl px-6 py-3">
                 <span className="text-2xl sm:text-3xl font-bold tracking-wider text-gray-800">
@@ -173,31 +178,31 @@ export default function ReferralPage() {
           {/* Share Button */}
           <button
             onClick={handleShare}
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-lg"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-            Share with Friends
+            <span>🚀</span>
+            Share & Get Coins
           </button>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
             <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-4 text-center">
               <p className="text-3xl font-bold text-pink-600">{stats?.totalReferrals || 0}</p>
-              <p className="text-sm text-gray-600">Total Referrals</p>
+              <p className="text-sm text-gray-600">Friends Invited</p>
             </div>
             <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
               <p className="text-3xl font-bold text-green-600">{stats?.qualifiedReferrals || 0}</p>
-              <p className="text-sm text-gray-600">Qualified</p>
+              <p className="text-sm text-gray-600">Active</p>
             </div>
             <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 text-center">
               <p className="text-3xl font-bold text-yellow-600">{stats?.totalCoinsEarned || 0}</p>
               <p className="text-sm text-gray-600">Coins Earned</p>
             </div>
             <div className={`${currentTierColors.bg} rounded-xl p-4 text-center border ${currentTierColors.border}`}>
-              <p className={`text-2xl font-bold ${currentTierColors.text}`}>{currentTierName}</p>
-              <p className="text-sm text-gray-600">Current Tier</p>
+              <p className={`text-2xl font-bold ${currentTierColors.text}`}>
+                {currentTierColors.emoji} {currentTierName}
+              </p>
+              <p className="text-sm text-gray-600">Your Rank</p>
             </div>
           </div>
 
@@ -205,9 +210,9 @@ export default function ReferralPage() {
           {stats && stats.nextTierReferrals > 0 && (
             <div className="mt-6">
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-600">Progress to next tier</span>
+                <span className="text-gray-600">Level up progress</span>
                 <span className="font-medium text-purple-600">
-                  {stats.nextTierReferrals} more referrals needed
+                  {stats.nextTierReferrals} more to unlock
                 </span>
               </div>
               <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -219,7 +224,7 @@ export default function ReferralPage() {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1 text-center">
-                Next milestone: +{stats.nextTierBonus} bonus coins
+                Next level: +{stats.nextTierBonus} bonus coins 🎁
               </p>
             </div>
           )}
@@ -228,14 +233,14 @@ export default function ReferralPage() {
         {/* Apply Referral Code (if not already applied) */}
         {status && !status.hasAppliedReferralCode && (
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Have a referral code?</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Got a friend's code? 👀</h2>
             <div className="flex gap-3">
               <input
                 type="text"
                 value={referralInput}
                 onChange={(e) => setReferralInput(e.target.value.toUpperCase())}
                 onKeyDown={handleKeyDown}
-                placeholder="Enter code (e.g., PAIRAB1234)"
+                placeholder="Enter code here"
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 uppercase tracking-wider"
                 maxLength={20}
               />
@@ -244,18 +249,18 @@ export default function ReferralPage() {
                 disabled={isApplying}
                 className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
               >
-                {isApplying ? 'Applying...' : 'Apply'}
+                {isApplying ? '...' : 'Claim'}
               </button>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              Get 150 bonus coins when you use a friend's referral code!
+              Get <span className="font-bold text-green-600">150 free coins</span> instantly! 🪙
             </p>
           </div>
         )}
 
         {/* Reward Tiers */}
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Reward Tiers</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Level Up Rewards 🎮</h2>
           <div className="space-y-3">
             {tiers.map((tier: ReferralTier) => {
               const isCurrentTier = tier.tier === stats?.currentTier;
@@ -274,29 +279,29 @@ export default function ReferralPage() {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${colors.bg} ${colors.text} font-bold border ${colors.border}`}>
-                      {tier.tier}
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${colors.bg} ${colors.text} text-xl border ${colors.border}`}>
+                      {colors.emoji}
                     </div>
                     <div>
                       <p className={`font-semibold ${isCurrentTier ? colors.text : 'text-gray-700'}`}>
                         {tier.name}
                         {isCurrentTier && (
                           <span className="ml-2 text-xs bg-pink-500 text-white px-2 py-0.5 rounded-full">
-                            Current
+                            You
                           </span>
                         )}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {tier.minReferrals}+ referrals
+                        {tier.minReferrals}+ friends
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-green-600">+{tier.bonusPerReferral} coins</p>
-                    <p className="text-xs text-gray-500">per referral</p>
+                    <p className="text-xs text-gray-500">per friend</p>
                     {tier.milestoneBonus > 0 && (
                       <p className="text-xs text-purple-600 font-medium">
-                        +{tier.milestoneBonus} milestone bonus
+                        +{tier.milestoneBonus} level bonus
                       </p>
                     )}
                   </div>
@@ -309,7 +314,7 @@ export default function ReferralPage() {
         {/* Referral History */}
         {history.length > 0 && (
           <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Referrals</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Your Squad 👥</h2>
             <div className="space-y-3">
               {history.map((item) => (
                 <div
@@ -325,17 +330,15 @@ export default function ReferralPage() {
                         {item.referredUserUsername || 'Anonymous'}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {new Date(item.createdAt).toLocaleDateString()}
+                        Joined {new Date(item.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-green-600 font-semibold">+{item.coinsRewarded}</span>
-                    <span className="text-yellow-500">coins</span>
+                    <span className="text-green-600 font-bold">+{item.coinsRewarded}</span>
+                    <span className="text-yellow-500">🪙</span>
                     {item.isQualified && (
-                      <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                      <span className="text-green-500">✓</span>
                     )}
                   </div>
                 </div>
@@ -346,38 +349,39 @@ export default function ReferralPage() {
 
         {/* How It Works */}
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mt-6 border border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">How It Works</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">How It Works 🤔</h2>
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="text-center p-4">
-              <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">1</span>
+              <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
+                📤
               </div>
               <h3 className="font-semibold text-gray-800 mb-1">Share Your Code</h3>
               <p className="text-sm text-gray-600">
-                Send your unique referral code to friends
+                Send it to friends, post it anywhere
               </p>
             </div>
             <div className="text-center p-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">2</span>
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
+                🎉
               </div>
-              <h3 className="font-semibold text-gray-800 mb-1">Friends Join</h3>
+              <h3 className="font-semibold text-gray-800 mb-1">They Join</h3>
               <p className="text-sm text-gray-600">
-                They enter your code when signing up
+                They use your code when signing up
               </p>
             </div>
             <div className="text-center p-4">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-2xl">3</span>
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl">
+                💰
               </div>
-              <h3 className="font-semibold text-gray-800 mb-1">Both Earn Coins</h3>
+              <h3 className="font-semibold text-gray-800 mb-1">You Both Win</h3>
               <p className="text-sm text-gray-600">
-                You both receive bonus coins instantly
+                Free coins for everyone, instantly
               </p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
