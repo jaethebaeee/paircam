@@ -18,7 +18,7 @@ export class PaymentsService {
       this.logger.warn('Stripe secret key not configured');
     } else {
       this.stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-        apiVersion: '2024-06-20',
+        apiVersion: '2025-09-30.clover',
       });
     }
   }
@@ -150,7 +150,7 @@ export class PaymentsService {
       // Safely access the first item's price ID
       const firstItem = subscription.items.data[0];
       if (!firstItem) {
-        this.logger.error('Subscription has no items', { subscriptionId: subscription.id });
+        this.logger.error('Subscription has no items', undefined, { subscriptionId: subscription.id });
         throw new Error('Invalid subscription: no items found');
       }
 
@@ -161,8 +161,8 @@ export class PaymentsService {
         stripePriceId: firstItem.price.id,
         status: subscription.status,
         plan,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodStart: new Date(firstItem.current_period_start * 1000),
+        currentPeriodEnd: new Date(firstItem.current_period_end * 1000),
         trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : undefined,
       });
 
@@ -179,10 +179,11 @@ export class PaymentsService {
 
   private async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     try {
+      const firstItem = subscription.items.data[0];
       await this.subscriptionsService.updateByStripeId(subscription.id, {
         status: subscription.status,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodStart: firstItem ? new Date(firstItem.current_period_start * 1000) : undefined,
+        currentPeriodEnd: firstItem ? new Date(firstItem.current_period_end * 1000) : undefined,
         cancelAtPeriodEnd: subscription.cancel_at_period_end,
       });
 
