@@ -542,4 +542,48 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       return 0;
     }
   }
+
+  // Daily skip tracking for premium upsell
+  private getDailySkipKey(userId: string): string {
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    return `skips:daily:${userId}:${today}`;
+  }
+
+  async getDailySkipCount(userId: string): Promise<number> {
+    try {
+      const key = this.getDailySkipKey(userId);
+      const count = await this.client.get(key);
+      return count ? parseInt(count, 10) : 0;
+    } catch (error) {
+      this.logger.error(`Failed to get daily skip count for ${userId}`, error.stack);
+      return 0;
+    }
+  }
+
+  async incrementDailySkipCount(userId: string): Promise<number> {
+    try {
+      const key = this.getDailySkipKey(userId);
+      const multi = this.client.multi();
+      multi.incr(key);
+      multi.expire(key, 86400); // 24 hour TTL
+      const results = await multi.exec();
+      const newCount = results[0] as number;
+      this.logger.debug('Skip count incremented', { userId, count: newCount });
+      return newCount;
+    } catch (error) {
+      this.logger.error(`Failed to increment skip count for ${userId}`, error.stack);
+      return 0;
+    }
+  }
+
+  async getSkipStats(userId: string): Promise<{ count: number; limit: number; remaining: number; isPremium: boolean }> {
+    const count = await this.getDailySkipCount(userId);
+    // For now, assume not premium - actual premium check happens in signaling gateway
+    return {
+      count,
+      limit: 30, // Free user limit
+      remaining: Math.max(0, 30 - count),
+      isPremium: false,
+    };
+  }
 }
