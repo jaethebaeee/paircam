@@ -102,7 +102,7 @@ export default function Navbar() {
       <div
         id="mobile-menu"
         className={`md:hidden overflow-hidden transition-all duration-300 ${
-          isMobileMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
+          isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <div className="px-4 pb-4 pt-2 space-y-1 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600">
@@ -119,39 +119,21 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
-          {/* Mobile CTA */}
-          <a
-            href="/"
-            className="flex items-center justify-center gap-2 mt-3 px-4 py-3 bg-white text-purple-600 font-bold rounded-xl shadow-lg"
-            onClick={() => setIsMobileMenuOpen(false)}
+
+          {/* Mobile Account Button */}
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              setShowAccountModal(true);
+            }}
+            className="flex items-center gap-3 px-4 py-3 text-white font-medium rounded-xl hover:bg-white/10 transition-colors w-full"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            Start Chatting
-          </a>
+            {linkedAccount?.google ? 'Account' : 'Sign In'}
+          </button>
         </div>
-
-        {/* Mobile Menu Dropdown */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-white/20 mt-2">
-            <div className="flex flex-col gap-1 pt-3">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-white/90 hover:text-white hover:bg-white/10 font-medium text-sm transition-colors flex items-center gap-2 px-3 py-2.5 rounded-lg"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={link.icon} />
-                  </svg>
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Account Modal */}
