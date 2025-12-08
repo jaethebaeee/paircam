@@ -30,9 +30,9 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
   };
 
   return (
-    <div className={isFullScreen 
+    <div className={isFullScreen
       ? "h-full bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col"
-      : "absolute right-4 bottom-24 w-80 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-200"
+      : "absolute right-2 sm:right-4 bottom-20 sm:bottom-24 left-2 sm:left-auto w-auto sm:w-80 max-h-[60vh] sm:max-h-none bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col"
     }>
       {/* Modern Header */}
       <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-4 flex items-center justify-between">
@@ -51,7 +51,7 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
       </div>
       
       {/* Messages Area */}
-      <div ref={messagesParent} className={`${isFullScreen ? 'flex-1' : 'h-72'} overflow-y-auto p-4 space-y-3 bg-gray-50/50`}>
+      <div ref={messagesParent} className={`${isFullScreen ? 'flex-1' : 'flex-1 min-h-[200px] sm:h-72 sm:flex-none'} overflow-y-auto p-3 sm:p-4 space-y-3 bg-gray-50/50`}>
         {messages.length === 0 ? (
           <div className="text-center text-gray-400 py-12">
             <div className="bg-gradient-to-br from-pink-100 to-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 shadow-sm">
@@ -94,7 +94,7 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
       </div>
       
       {/* Modern Input Area */}
-      <div className="p-4 bg-white border-t border-gray-200">
+      <div className="p-3 sm:p-4 bg-white border-t border-gray-200 flex-shrink-0">
         <div className="flex items-center gap-2">
           <div className="flex-1 relative">
             <input
@@ -103,15 +103,15 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Type a message..."
-              className="w-full px-4 py-3 pr-12 rounded-2xl border-2 border-gray-200 focus:border-pink-500 focus:ring-0 outline-none text-sm bg-gray-50 focus:bg-white transition-all placeholder:text-gray-400"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 rounded-xl sm:rounded-2xl border-2 border-gray-200 focus:border-pink-500 focus:ring-0 outline-none text-sm bg-gray-50 focus:bg-white transition-all placeholder:text-gray-400"
             />
           </div>
           <button
             onClick={handleSend}
             disabled={!message.trim()}
-            className="group relative p-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105 active:scale-95 disabled:transform-none"
+            className="group relative p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105 active:scale-95 disabled:transform-none"
           >
-            <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
             <PaperAirplaneIcon className="h-5 w-5 relative z-10" />
           </button>
         </div>

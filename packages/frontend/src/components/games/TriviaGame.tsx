@@ -154,25 +154,25 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
   // Playing phase
   if (gamePhase === 'playing' && gameSocket.currentQuestion) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fadeIn">
-        <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-2 sm:p-4 animate-fadeIn">
+        <div className="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl animate-scaleIn">
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-4 flex items-center justify-between z-10">
-            <div className="flex items-center gap-4">
-              <div className="flex-grow">
-                <h2 className="text-white font-bold text-lg">Trivia Battle</h2>
+          <div className="sticky top-0 bg-gradient-to-r from-blue-500 to-purple-500 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10">
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+              <div className="flex-shrink-0">
+                <h2 className="text-white font-bold text-base sm:text-lg">Trivia Battle</h2>
               </div>
               {/* Score display */}
-              <div className="flex items-center gap-4">
-                <div className="bg-white/20 px-4 py-2 rounded-full">
-                  <p className="text-white text-sm font-medium">
-                    Your Score: <span className="font-bold text-lg">{gameState.currentScore}</span>
+              <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+                <div className="bg-white/20 px-2 sm:px-4 py-1 sm:py-2 rounded-full">
+                  <p className="text-white text-xs sm:text-sm font-medium">
+                    Score: <span className="font-bold text-sm sm:text-lg">{gameState.currentScore}</span>
                   </p>
                 </div>
                 {gameState.currentStreak > 0 && (
-                  <div className="bg-yellow-400/20 px-4 py-2 rounded-full">
-                    <p className="text-yellow-100 text-sm font-medium">
-                      🔥 Streak: {gameState.currentStreak}
+                  <div className="bg-yellow-400/20 px-2 sm:px-4 py-1 sm:py-2 rounded-full">
+                    <p className="text-yellow-100 text-xs sm:text-sm font-medium">
+                      🔥 {gameState.currentStreak}
                     </p>
                   </div>
                 )}
@@ -180,7 +180,7 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
             </div>
             <button
               onClick={handleClose}
-              className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-full transition-all"
+              className="text-white/80 hover:text-white hover:bg-white/20 p-1.5 sm:p-2 rounded-full transition-all flex-shrink-0"
               aria-label="Close"
             >
               <XMarkIcon className="h-5 w-5" />
@@ -188,7 +188,7 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             {gameSocket.gameError && (
               <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
                 <p className="text-sm text-red-800">{gameSocket.gameError}</p>
@@ -208,11 +208,11 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
             />
 
             {selectedAnswer && !isAnswerSubmitted && (
-              <div className="mt-4">
+              <div className="mt-3 sm:mt-4">
                 <button
                   onClick={handleSubmitAnswer}
                   disabled={isSubmittingAnswer}
-                  className="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full py-3 sm:py-3.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-lg sm:rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base"
                 >
                   {isSubmittingAnswer ? 'Submitting...' : 'Submit Answer'}
                 </button>

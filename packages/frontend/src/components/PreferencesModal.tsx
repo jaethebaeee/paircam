@@ -47,99 +47,99 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-2 sm:px-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto animate-slideUp">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6 rounded-t-3xl">
+        <div className="sticky top-0 bg-gradient-to-r from-pink-500 to-purple-600 px-4 sm:px-8 py-4 sm:py-6 rounded-t-2xl sm:rounded-t-3xl z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-xl">
-                <SparklesIcon className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-white/20 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">Quick Setup</h2>
-                <p className="text-white/90 text-sm">Set your preferences (optional)</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Quick Setup</h2>
+                <p className="text-white/90 text-xs sm:text-sm">Set your preferences (optional)</p>
               </div>
             </div>
             <button
               onClick={onCancel}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+              className="p-1.5 sm:p-2 hover:bg-white/20 rounded-full transition-colors"
               aria-label="Close"
             >
-              <XMarkIcon className="w-6 h-6 text-white" />
+              <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </button>
           </div>
         </div>
 
         {/* Body */}
-        <div className="p-8 space-y-6">
+        <div className="p-4 sm:p-8 space-y-4 sm:space-y-6">
           {/* Your Gender */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <div className="bg-purple-100 p-1.5 sm:p-2 rounded-lg">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Your Gender (Optional)</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">Your Gender (Optional)</h3>
+                <p className="text-xs sm:text-sm text-gray-600">
                   Helps premium users find you through filters
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
               {/* Male */}
               <button
                 onClick={() => setUserGender('male')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'male'
                     ? 'border-blue-500 bg-blue-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">👨</div>
-                <div className="text-sm font-semibold text-gray-700">Male</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">👨</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Male</div>
               </button>
 
               {/* Female */}
               <button
                 onClick={() => setUserGender('female')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'female'
                     ? 'border-pink-500 bg-pink-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">👩</div>
-                <div className="text-sm font-semibold text-gray-700">Female</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">👩</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Female</div>
               </button>
 
               {/* Other */}
               <button
                 onClick={() => setUserGender('other')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'other'
                     ? 'border-purple-500 bg-purple-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">✨</div>
-                <div className="text-sm font-semibold text-gray-700">Other</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">✨</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Other</div>
               </button>
 
               {/* Private */}
               <button
                 onClick={() => setUserGender(undefined)}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                   userGender === undefined
                     ? 'border-gray-500 bg-gray-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <div className="text-3xl mb-2">🔒</div>
-                <div className="text-sm font-semibold text-gray-700">Private</div>
+                <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">🔒</div>
+                <div className="text-xs sm:text-sm font-semibold text-gray-700">Private</div>
               </button>
             </div>
 
@@ -155,22 +155,22 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
 
           {/* Who to Meet */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-2 rounded-lg">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+              <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-1.5 sm:p-2 rounded-lg">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-bold text-gray-900">Who would you like to meet?</h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">Who would you like to meet?</h3>
                   {!isPremium && (
-                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                    <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold">
                       Premium
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600">
                   Gender filters are a premium feature
                 </p>
               </div>
@@ -183,38 +183,38 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
             />
 
             {/* 🆕 Queue Type Selection */}
-            <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-pink-50/50 border-2 border-purple-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-2.5 shadow-md">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-pink-50/50 border-2 border-purple-200/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-sm">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl sm:rounded-2xl p-2 sm:p-2.5 shadow-md flex-shrink-0">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-gray-900 text-base mb-1.5">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-1 sm:mb-1.5">
                     Conversation Style
                   </h3>
-                  <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                  <p className="text-xs sm:text-sm text-gray-700 leading-relaxed mb-2 sm:mb-3">
                     Choose what type of conversation you're looking for
                   </p>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-2 gap-3">
+
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 {QUEUE_TYPES.map(type => (
                   <button
                     key={type.id}
                     type="button"
                     onClick={() => setQueueType(type.id as any)}
-                    className={`group p-4 rounded-xl border-2 transition-all duration-200 text-left ${
+                    className={`group p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 text-left ${
                       queueType === type.id
                         ? 'border-purple-500 bg-purple-100/70 shadow-lg shadow-purple-200/50 scale-105'
                         : 'border-gray-200 hover:border-purple-300 bg-white hover:bg-purple-50 shadow-sm hover:shadow-md hover:scale-105'
                     }`}
                   >
-                    <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">{type.icon}</div>
-                    <div className="text-sm font-bold text-gray-800 mb-1">{type.label}</div>
-                    <div className="text-xs text-gray-600">{type.description}</div>
+                    <div className="text-2xl sm:text-3xl mb-1 sm:mb-2 transform group-hover:scale-110 transition-transform">{type.icon}</div>
+                    <div className="text-xs sm:text-sm font-bold text-gray-800 mb-0.5 sm:mb-1">{type.label}</div>
+                    <div className="text-[10px] sm:text-xs text-gray-600 line-clamp-2">{type.description}</div>
                   </button>
                 ))}
               </div>
@@ -222,32 +222,32 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
 
             {/* 🆕 Language Learning (conditional) */}
             {queueType === 'language' && (
-              <div className="bg-gradient-to-br from-green-50/50 via-blue-50/50 to-purple-50/50 border-2 border-green-200/60 rounded-2xl p-6 space-y-4 shadow-sm animate-fadeIn">
-                <div className="flex items-start gap-3">
-                  <div className="bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl p-2.5 shadow-md">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-gradient-to-br from-green-50/50 via-blue-50/50 to-purple-50/50 border-2 border-green-200/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-sm animate-fadeIn">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="bg-gradient-to-br from-green-500 to-blue-600 rounded-xl sm:rounded-2xl p-2 sm:p-2.5 shadow-md flex-shrink-0">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 text-base mb-1.5">
+                    <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-1 sm:mb-1.5">
                       Language Exchange
                     </h3>
-                    <p className="text-sm text-gray-700 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
                       Get matched with native speakers for practice
                     </p>
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4">
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Your Native Language
                     </label>
                     <select
                       value={nativeLanguage}
                       onChange={(e) => setNativeLanguage(e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                      className="w-full p-2.5 sm:p-3 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all text-sm"
                     >
                       {LANGUAGES.map(lang => (
                         <option key={lang.code} value={lang.code}>{lang.name}</option>
@@ -255,13 +255,13 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                       Learning Language
                     </label>
                     <select
                       value={learningLanguage}
                       onChange={(e) => setLearningLanguage(e.target.value)}
-                      className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                      className="w-full p-2.5 sm:p-3 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all text-sm"
                     >
                       {LANGUAGES.map(lang => (
                         <option key={lang.code} value={lang.code}>{lang.name}</option>
@@ -273,35 +273,35 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
             )}
 
             {/* 🆕 Interest Tags */}
-            <div className="bg-gradient-to-br from-pink-50/50 via-orange-50/50 to-yellow-50/50 border-2 border-orange-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="bg-gradient-to-br from-orange-500 to-pink-600 rounded-2xl p-2.5 shadow-md">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-gradient-to-br from-pink-50/50 via-orange-50/50 to-yellow-50/50 border-2 border-orange-200/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-sm">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="bg-gradient-to-br from-orange-500 to-pink-600 rounded-xl sm:rounded-2xl p-2 sm:p-2.5 shadow-md flex-shrink-0">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-gray-900 text-base mb-1.5">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-1 sm:mb-1.5">
                     Your Interests (Optional)
                   </h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
                     Select up to 5 interests to find better matches ({selectedInterests.length}/5)
                   </p>
                 </div>
               </div>
-              
-              <div className="flex flex-wrap gap-2">
+
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {AVAILABLE_INTERESTS.map(interest => {
                   const isSelected = selectedInterests.includes(interest.id);
                   const isDisabled = !isSelected && selectedInterests.length >= 5;
-                  
+
                   return (
                     <button
                       key={interest.id}
                       type="button"
                       onClick={() => toggleInterest(interest.id)}
                       disabled={isDisabled}
-                      className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                      className={`px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 ${
                         isSelected
                           ? 'bg-gradient-to-r from-orange-500 to-pink-600 text-white shadow-lg shadow-orange-200/50 scale-105'
                           : isDisabled
@@ -309,7 +309,7 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
                           : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50 hover:scale-105 shadow-sm'
                       }`}
                     >
-                      <span className="mr-2">{interest.emoji}</span>
+                      <span className="mr-1 sm:mr-2">{interest.emoji}</span>
                       {interest.label}
                     </button>
                   );
@@ -319,23 +319,23 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 sm:gap-3 pt-3 sm:pt-4">
             <button
               onClick={onCancel}
-              className="flex-1 py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 hover:shadow-lg active:scale-95"
+              className="flex-1 py-3 sm:py-4 px-4 sm:px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-lg active:scale-95 text-sm sm:text-base"
             >
               Cancel
             </button>
             <button
               onClick={handleStart}
-              className="flex-1 py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-xl shadow-pink-500/30 hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 hover:scale-105 active:scale-95"
+              className="flex-1 py-3 sm:py-4 px-4 sm:px-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-lg sm:rounded-xl shadow-xl shadow-pink-500/30 hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 hover:scale-105 active:scale-95 text-sm sm:text-base"
             >
               Start Chatting →
             </button>
           </div>
 
           {/* Info Text */}
-          <p className="text-xs text-center text-gray-500 pt-2">
+          <p className="text-[10px] sm:text-xs text-center text-gray-500 pt-2">
             You can skip this and change preferences anytime
           </p>
         </div>

@@ -77,9 +77,9 @@ export default function VideoStreams({
   }, [isConnecting]);
 
   return (
-    <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-2 p-4">
-      {/* Remote Video */}
-      <div className="relative bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 sm:p-4">
+      {/* Remote Video - Takes more space on mobile */}
+      <div className="relative bg-slate-800 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl min-h-[40vh] sm:min-h-0">
         {isConnecting ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center animate-fadeIn">
             {/* Pulsing Circle Animation */}
@@ -160,19 +160,19 @@ export default function VideoStreams({
               country={partnerCountry}
               countryCode={partnerCountryCode}
               matchedAt={matchedAt}
-              className="absolute top-4 left-4"
+              className="absolute top-2 left-2 sm:top-4 sm:left-4"
             />
             {connectionState !== 'connected' && (
-              <div className="absolute bottom-4 left-4 bg-yellow-500/90 backdrop-blur-sm px-3 py-1 rounded-full animate-pulse-gentle">
-                <p className="text-white text-xs font-medium capitalize">{connectionState}</p>
+              <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-yellow-500/90 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full animate-pulse-gentle">
+                <p className="text-white text-[10px] sm:text-xs font-medium capitalize">{connectionState}</p>
               </div>
             )}
           </>
         )}
       </div>
 
-      {/* Local Video */}
-      <div className="relative bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+      {/* Local Video - Smaller on mobile */}
+      <div className="relative bg-slate-800 rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl min-h-[30vh] sm:min-h-0">
         <video
           ref={localVideoRef}
           autoPlay
@@ -180,18 +180,18 @@ export default function VideoStreams({
           muted
           className="w-full h-full object-cover mirror transition-all duration-500"
         />
-        <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full animate-slideInLeft" style={{ animationDelay: '100ms' }}>
-          <p className="text-white text-sm font-medium">You</p>
+        <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-black/50 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full animate-slideInLeft" style={{ animationDelay: '100ms' }}>
+          <p className="text-white text-xs sm:text-sm font-medium">You</p>
         </div>
         
         {!isVideoEnabled && (
           <div className="absolute inset-0 bg-slate-900 flex items-center justify-center animate-fadeIn">
             <div className="text-center animate-scale-in">
               <div className="relative">
-                <div className="absolute inset-0 -m-4 bg-slate-700/20 rounded-full animate-ping-slow"></div>
-                <VideoCameraSlashIcon className="h-16 w-16 text-slate-400 mx-auto mb-3 relative" />
+                <div className="absolute inset-0 -m-3 sm:-m-4 bg-slate-700/20 rounded-full animate-ping-slow"></div>
+                <VideoCameraSlashIcon className="h-12 w-12 sm:h-16 sm:w-16 text-slate-400 mx-auto mb-2 sm:mb-3 relative" />
               </div>
-              <p className="text-slate-400 font-medium">Camera Off</p>
+              <p className="text-slate-400 font-medium text-sm sm:text-base">Camera Off</p>
             </div>
           </div>
         )}
