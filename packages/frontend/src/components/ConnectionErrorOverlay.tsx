@@ -237,9 +237,9 @@ export default function ConnectionErrorOverlay({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
       <div
-        className={`${styles.bg} ${styles.border} border-2 rounded-2xl shadow-2xl max-w-md mx-4 overflow-hidden`}
+        className={`${styles.bg} ${styles.border} border-2 rounded-2xl shadow-2xl max-w-md w-full my-auto max-h-[90vh] overflow-y-auto`}
       >
         {/* Header */}
         <div className="p-6 text-center text-white">
