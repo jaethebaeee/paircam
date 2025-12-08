@@ -25,6 +25,9 @@ const CookiePolicy = lazy(() => import('./components/legal/CookiePolicy'));
 const BlogList = lazy(() => import('./components/blog/BlogList'));
 const BlogPost = lazy(() => import('./components/blog/BlogPost'));
 
+// Lazy load settings pages
+const BlockedUsersPage = lazy(() => import('./components/BlockedUsersPage'));
+
 // Schema.org structured data for homepage
 const softwareAppSchema = {
   "@context": "https://schema.org",
@@ -61,28 +64,14 @@ const softwareAppSchema = {
   }
 };
 
-// Type definitions for AppRoutes props
 type AppState = 'landing' | 'preferences' | 'safety' | 'permissions' | 'waiting' | 'chatting';
 type QueueType = 'casual' | 'serious' | 'language' | 'gaming';
 
 interface AppRoutesProps {
   appState: AppState;
-  handleStartCall: (data: {
-    name: string;
-    gender?: string;
-    genderPreference?: string;
-    isTextMode?: boolean;
-    isVideoEnabled?: boolean;
-  }) => void;
+  handleStartCall: (data: { name: string; gender?: string; genderPreference?: string; isTextMode?: boolean; isVideoEnabled?: boolean }) => void;
   handleStopChatting: () => void;
-  handlePreferencesSet: (preferences: {
-    gender?: string;
-    genderPreference: string;
-    interests?: string[];
-    queueType?: QueueType;
-    nativeLanguage?: string;
-    learningLanguage?: string;
-  }) => void;
+  handlePreferencesSet: (preferences: { gender?: string; genderPreference: string; interests?: string[]; queueType?: QueueType; nativeLanguage?: string; learningLanguage?: string }) => void;
   handlePreferencesCancel: () => void;
   handleSafetyAccept: () => void;
   handleSafetyDecline: () => void;
@@ -219,6 +208,9 @@ function AppRoutes({
             {/* Blog Pages */}
             <Route path="/blog" element={<BlogList />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+
+            {/* Settings Pages */}
+            <Route path="/settings/blocked-users" element={<BlockedUsersPage />} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

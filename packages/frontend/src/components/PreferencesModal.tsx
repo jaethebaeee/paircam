@@ -205,7 +205,7 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
                   <button
                     key={type.id}
                     type="button"
-                    onClick={() => setQueueType(type.id as any)}
+                    onClick={() => setQueueType(type.id)}
                     className={`group p-4 rounded-xl border-2 transition-all duration-200 text-left ${
                       queueType === type.id
                         ? 'border-purple-500 bg-purple-100/70 shadow-lg shadow-purple-200/50 scale-105'

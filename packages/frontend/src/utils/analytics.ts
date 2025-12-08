@@ -12,13 +12,14 @@
  * - Copy the Measurement ID (starts with G-)
  */
 
-// GA4 event parameters type
+// GA4 types
+type GtagCommand = 'config' | 'event' | 'js' | 'set';
 type GtagEventParams = Record<string, string | number | boolean | object | undefined>;
 
 // Extend window interface for gtag
 declare global {
   interface Window {
-    gtag: (command: 'event' | 'config' | 'set', target: string, params?: GtagEventParams) => void;
+    gtag: (command: GtagCommand, targetOrEvent: string | Date, params?: GtagEventParams) => void;
     dataLayer: Array<unknown>;
   }
 }

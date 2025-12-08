@@ -3,6 +3,20 @@ import { useState, useEffect, useCallback } from 'react';
 export type NetworkQuality = 'excellent' | 'good' | 'fair' | 'poor' | 'offline';
 export type ConnectionType = 'wifi' | '4g' | '3g' | '2g' | 'slow-2g' | 'unknown';
 
+// Network Information API types (experimental API)
+interface NetworkInformation extends EventTarget {
+  effectiveType?: '4g' | '3g' | '2g' | 'slow-2g';
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+}
+
+interface NavigatorWithConnection extends Navigator {
+  connection?: NetworkInformation;
+  mozConnection?: NetworkInformation;
+  webkitConnection?: NetworkInformation;
+}
+
 interface NetworkInfo {
   quality: NetworkQuality;
   type: ConnectionType;
@@ -25,9 +39,8 @@ export function useNetworkQuality() {
     }
 
     // Use Network Information API if available
-    const connection = (navigator as any).connection || 
-                      (navigator as any).mozConnection || 
-                      (navigator as any).webkitConnection;
+    const nav = navigator as NavigatorWithConnection;
+    const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
 
     if (connection) {
       const { effectiveType, downlink, rtt, saveData } = connection;
@@ -86,9 +99,8 @@ export function useNetworkQuality() {
     window.addEventListener('offline', checkNetworkQuality);
 
     // Listen for connection changes if API is available
-    const connection = (navigator as any).connection || 
-                      (navigator as any).mozConnection || 
-                      (navigator as any).webkitConnection;
+    const nav = navigator as NavigatorWithConnection;
+    const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
     
     if (connection) {
       connection.addEventListener('change', checkNetworkQuality);

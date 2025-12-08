@@ -14,6 +14,7 @@ import { UsersModule } from './users/users.module';
 import { FriendsModule } from './friends/friends.module'; // 🆕 Friends & Social
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
+import { BlockingModule } from './blocking/blocking.module';
 import { HealthController } from './health/health.controller';
 import { env } from './env';
 
@@ -21,7 +22,7 @@ import { env } from './env';
 import { User } from './users/entities/user.entity';
 import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
-import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
+import { BlockedUser } from './blocking/entities/blocked-user.entity';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment, FriendRequest, Friendship, BlockedUser],
+      entities: [User, Subscription, Payment, BlockedUser],
       synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
@@ -45,6 +46,7 @@ import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
     FriendsModule, // 🆕 Friends & Social
     SubscriptionsModule,
     PaymentsModule,
+    BlockingModule,
     AnalyticsModule,
     SignalingModule,
     TurnModule,

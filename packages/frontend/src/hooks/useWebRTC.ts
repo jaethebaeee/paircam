@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { verifyDTLSSRTP, monitorConnectionSecurity } from '../utils/security';
 
-const isDev = import.meta.env.DEV;
-const debugLog = (...args: unknown[]) => {
-  if (isDev) console.log('[WebRTC]', ...args);
-};
+// Extended RTCPeerConnection with security monitor cleanup
+interface RTCPeerConnectionWithCleanup extends RTCPeerConnection {
+  _securityMonitorCleanup?: () => void;
+}
 
 export interface WebRTCConfig {
   iceServers: RTCIceServer[];
@@ -66,7 +66,7 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
           });
           
           // Store cleanup function
-          (pc as any)._securityMonitorCleanup = stopMonitoring;
+          (pc as RTCPeerConnectionWithCleanup)._securityMonitorCleanup = stopMonitoring;
         }
         
         if (pc.connectionState === 'failed') {
@@ -235,8 +235,9 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
       // Close peer connection properly
       if (peerRef.current) {
         // Stop security monitoring
-        if ((peerRef.current as any)._securityMonitorCleanup) {
-          (peerRef.current as any)._securityMonitorCleanup();
+        const pcWithCleanup = peerRef.current as RTCPeerConnectionWithCleanup;
+        if (pcWithCleanup._securityMonitorCleanup) {
+          pcWithCleanup._securityMonitorCleanup();
         }
         
         // Stop all senders

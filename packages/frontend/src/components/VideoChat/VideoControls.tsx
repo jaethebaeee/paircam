@@ -8,6 +8,7 @@ import {
   ChatBubbleLeftIcon,
   SpeakerWaveIcon,
   UserPlusIcon,
+  NoSymbolIcon,
 } from '@heroicons/react/24/solid';
 
 interface VideoControlsProps {
@@ -19,6 +20,7 @@ interface VideoControlsProps {
   onNext: () => void;
   onToggleChat: () => void;
   onReport: () => void;
+  onBlock?: () => void;
   onFriendRequest?: () => void;
   isSkipping?: boolean;
   isTextMode?: boolean;
@@ -36,6 +38,7 @@ export default function VideoControls({
   onNext,
   onToggleChat,
   onReport,
+  onBlock,
   onFriendRequest,
   isSkipping = false,
   isTextMode = false,
@@ -246,6 +249,29 @@ export default function VideoControls({
               </div>
             </div>
           </div>
+
+          {/* Block User - Only show when connected */}
+          {isConnected && onBlock && (
+            <div className="relative group">
+              <button
+                onClick={onBlock}
+                className="relative p-4 rounded-full bg-red-700 hover:bg-red-800 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                aria-label="Block user"
+              >
+                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <NoSymbolIcon className="h-6 w-6 text-white relative z-10" />
+              </button>
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
+                  Block user
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-black/90"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Audio-Only Mode Toggle - Only show if not in text mode and callback provided */}
           {!isTextMode && onSwitchToAudioOnly && !isAudioOnlyMode && (

@@ -2,6 +2,21 @@
  * Security utilities for production environment
  */
 
+// WebRTC Stats interfaces (partial types for security checks)
+interface RTCTransportStats {
+  type: 'transport';
+  dtlsState?: string;
+  srtpCipher?: string;
+}
+
+interface RTCCandidatePairStats {
+  type: 'candidate-pair';
+  state?: string;
+  transportId?: string;
+}
+
+type RTCSecurityStats = RTCTransportStats | RTCCandidatePairStats | { type: string };
+
 /**
  * Enforces HTTPS in production environment
  * Redirects HTTP requests to HTTPS automatically
@@ -68,8 +83,9 @@ export async function verifyDTLSSRTP(peerConnection: RTCPeerConnection): Promise
     let dtlsConnected = false;
     let srtpActive = false;
     
-    stats.forEach((stat: RTCStats) => {
-      // Check DTLS state (RTCTransportStats)
+    stats.forEach((report) => {
+      const stat = report as RTCSecurityStats;
+      // Check DTLS state
       if (stat.type === 'transport') {
         const transportStat = stat as RTCTransportStats;
         if (transportStat.dtlsState === 'connected') {
@@ -80,11 +96,11 @@ export async function verifyDTLSSRTP(peerConnection: RTCPeerConnection): Promise
         }
       }
 
-      // Alternative: Check candidate pair (RTCIceCandidatePairStats)
+      // Alternative: Check candidate pair
       if (stat.type === 'candidate-pair') {
-        const candidateStat = stat as RTCIceCandidatePairStats;
-        // If connection succeeded, DTLS should be active
+        const candidateStat = stat as RTCCandidatePairStats;
         if (candidateStat.state === 'succeeded' && candidateStat.transportId) {
+          // If connection succeeded, DTLS should be active
           dtlsConnected = true;
         }
       }
