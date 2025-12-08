@@ -31,6 +31,9 @@ const BlogPost = lazy(() => import('./components/blog/BlogPost'));
 // Lazy load referral page
 const ReferralPage = lazy(() => import('./components/ReferralPage'));
 
+// Lazy load auth callback
+const AuthCallback = lazy(() => import('./components/AuthCallback'));
+
 // Schema.org structured data for homepage
 const softwareAppSchema = {
   "@context": "https://schema.org",
@@ -195,6 +198,9 @@ function AppRoutes({
 
             {/* Referral Page */}
             <Route path="/referrals" element={<ReferralPage />} />
+
+            {/* Auth Callback */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Catch all - redirect to home */}
             <Route path="*" element={<Navigate to="/" replace />} />

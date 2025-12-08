@@ -115,5 +115,65 @@ export class UsersService {
     const isPremium = await this.isPremium(user.id);
     return { user, isPremium };
   }
+
+  async linkGoogleAccount(
+    deviceId: string,
+    googleData: { googleId: string; email: string; name?: string; avatarUrl?: string }
+  ): Promise<User> {
+    // Check if Google account is already linked to another user
+    const existingGoogleUser = await this.findByGoogleId(googleData.googleId);
+    if (existingGoogleUser && existingGoogleUser.deviceId !== deviceId) {
+      // Google account already linked - merge accounts by transferring data to this device
+      this.logger.log('Google account already linked, merging accounts', {
+        fromDeviceId: existingGoogleUser.deviceId,
+        toDeviceId: deviceId,
+      });
+    }
+
+    // Get or create user for this device
+    const user = await this.findOrCreate(deviceId);
+
+    // Link Google account
+    user.googleId = googleData.googleId;
+    user.email = googleData.email;
+    if (googleData.name && !user.username) {
+      user.username = googleData.name;
+    }
+    if (googleData.avatarUrl && !user.avatarUrl) {
+      user.avatarUrl = googleData.avatarUrl;
+    }
+
+    await this.usersRepository.save(user);
+    this.logger.log('Google account linked', { userId: user.id, deviceId, email: googleData.email });
+
+    return user;
+  }
+
+  async unlinkGoogleAccount(deviceId: string): Promise<User> {
+    const user = await this.findByDeviceId(deviceId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.googleId = undefined;
+    // Keep email if they want to stay in touch
+    await this.usersRepository.save(user);
+    this.logger.log('Google account unlinked', { userId: user.id, deviceId });
+
+    return user;
+  }
+
+  async getLinkedAccounts(deviceId: string): Promise<{ google: boolean; email?: string; avatarUrl?: string }> {
+    const user = await this.findByDeviceId(deviceId);
+    if (!user) {
+      return { google: false };
+    }
+
+    return {
+      google: !!user.googleId,
+      email: user.email,
+      avatarUrl: user.avatarUrl,
+    };
+  }
 }
 

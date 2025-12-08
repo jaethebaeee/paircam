@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
+import { useGoogleAccount } from '../hooks/useGoogleAccount';
+
+const AccountModal = lazy(() => import('./AccountModal'));
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const { linkedAccount } = useGoogleAccount();
 
   const navLinks = [
     { href: '/#faq', label: 'FAQ', icon: 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
@@ -30,7 +35,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-6" role="menubar">
+          <div className="hidden md:flex items-center gap-4" role="menubar">
             {navLinks.map(link => (
               <a
                 key={link.href}
@@ -44,6 +49,30 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
+
+            {/* Account Button */}
+            <button
+              onClick={() => setShowAccountModal(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+              aria-label="Account settings"
+            >
+              {linkedAccount?.avatarUrl ? (
+                <img
+                  src={linkedAccount.avatarUrl}
+                  alt="Profile"
+                  className="w-6 h-6 rounded-full"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              )}
+              <span className="text-white/90 text-sm font-medium">
+                {linkedAccount?.google ? 'Account' : 'Sign In'}
+              </span>
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -124,6 +153,13 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {/* Account Modal */}
+      {showAccountModal && (
+        <Suspense fallback={null}>
+          <AccountModal onClose={() => setShowAccountModal(false)} />
+        </Suspense>
+      )}
     </nav>
   );
 }

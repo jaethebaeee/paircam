@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, RealtimeChannel, User } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -36,6 +36,67 @@ export const getSupabase = (): SupabaseClient | null => {
 export const isSupabaseConfigured = (): boolean => {
   return !!(supabaseUrl && supabaseAnonKey);
 };
+
+// ============ GOOGLE AUTH ============
+
+// Sign in with Google OAuth
+export const signInWithGoogle = async (): Promise<{ error: Error | null }> => {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return { error: new Error('Supabase not configured') };
+  }
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  });
+
+  return { error: error ? new Error(error.message) : null };
+};
+
+// Sign out
+export const signOut = async (): Promise<{ error: Error | null }> => {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return { error: new Error('Supabase not configured') };
+  }
+
+  const { error } = await supabase.auth.signOut();
+  return { error: error ? new Error(error.message) : null };
+};
+
+// Get current user
+export const getCurrentUser = async (): Promise<User | null> => {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+};
+
+// Subscribe to auth state changes
+export const onAuthStateChange = (
+  callback: (user: User | null) => void
+): (() => void) | null => {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      callback(session?.user ?? null);
+    }
+  );
+
+  return () => subscription.unsubscribe();
+};
+
+// ============ REALTIME ============
 
 // Realtime subscription helper for referral notifications
 export const subscribeToReferralNotifications = (
