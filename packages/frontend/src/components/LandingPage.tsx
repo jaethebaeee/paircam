@@ -24,12 +24,13 @@ const landingFormSchema = z.object({
     .max(30, 'Name must be 30 characters or less')
     .trim(),
   isAdultConfirmed: z.boolean(),
-  userAge: z.coerce.number().optional(),
+  userAge: z.string().optional().catch(undefined),
   isVideoEnabled: z.boolean(),
 }).superRefine((data, ctx) => {
   // Validate age only if adult confirmed
   if (data.isAdultConfirmed) {
-    if (!data.userAge || data.userAge < 18 || data.userAge > 120) {
+    const age = data.userAge ? parseInt(data.userAge, 10) : NaN;
+    if (isNaN(age) || age < 18 || age > 120) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['userAge'],
@@ -38,6 +39,8 @@ const landingFormSchema = z.object({
     }
   }
 });
+
+type LandingFormData = z.infer<typeof landingFormSchema>;
 
 // Simulated live user count (in production, fetch from API)
 function useLiveUserCount() {
@@ -71,8 +74,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
-  } = useForm({
-    resolver: zodResolver(landingFormSchema) as any,
+  } = useForm<LandingFormData>({
+    resolver: zodResolver(landingFormSchema),
     mode: 'onBlur',
     defaultValues: {
       userName: '',
@@ -88,7 +91,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const isVideoEnabled = watch('isVideoEnabled');
 
   const handleStartChat = (textMode: boolean) => {
-    return handleSubmit((data: any) => {
+    return handleSubmit((data: LandingFormData) => {
       // Validate age if adult is confirmed
       if (data.isAdultConfirmed && (!data.userAge || parseInt(String(data.userAge)) < 18)) {
         return;
@@ -407,7 +410,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
 
             {/* Modern Toggle Switch for Video */}
             <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl sm:rounded-2xl shadow-inner border-2 border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 group">
-              <label className="flex items-center cursor-pointer flex-1">
+              <label htmlFor="isVideoEnabled" className="flex items-center cursor-pointer flex-1" aria-label="Enable video sharing">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
                     <span className="text-sm sm:text-base font-semibold text-gray-900">Enable video</span>
@@ -419,11 +422,12 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 </div>
               </label>
               <input
+                id="isVideoEnabled"
                 {...register('isVideoEnabled')}
                 type="checkbox"
                 role="switch"
                 aria-checked={isVideoEnabled}
-                aria-label={`Video ${isVideoEnabled ? 'enabled' : 'disabled'}`}
+                aria-label="Enable video sharing"
                 className="sr-only peer"
               />
               <div className={`relative inline-flex h-7 sm:h-9 w-12 sm:w-16 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-pink-100 shadow-sm flex-shrink-0 ml-3 cursor-pointer ${
