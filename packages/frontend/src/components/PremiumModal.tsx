@@ -1,25 +1,21 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 
 interface PremiumModalProps {
   onClose: () => void;
 }
 
-export default function PremiumModal({ onClose }: PremiumModalProps) {
-  // Load Stripe Buy Button script
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://js.stripe.com/v3/buy-button.js';
-    script.async = true;
-    document.body.appendChild(script);
+// Stripe Payment Links - configure in .env
+const STRIPE_WEEKLY_LINK = import.meta.env.VITE_STRIPE_WEEKLY_LINK || 'https://buy.stripe.com/00wcN71x0bog2kugMW4F200';
+const STRIPE_MONTHLY_LINK = import.meta.env.VITE_STRIPE_MONTHLY_LINK || 'https://buy.stripe.com/fZucN77VogIA6AKfIS4F201';
 
-    return () => {
-      // Cleanup script on unmount
-      const existingScript = document.querySelector('script[src="https://js.stripe.com/v3/buy-button.js"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-    };
-  }, []);
+export default function PremiumModal({ onClose }: PremiumModalProps) {
+  const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly'>('monthly');
+
+  const handleUpgrade = () => {
+    // Direct redirect to Stripe Payment Link
+    const paymentLink = selectedPlan === 'weekly' ? STRIPE_WEEKLY_LINK : STRIPE_MONTHLY_LINK;
+    window.open(paymentLink, '_blank');
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -94,22 +90,42 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
           </div>
         </div>
 
-        {/* Pricing - Monthly */}
-        <div className="text-center mb-6">
-          <div className="inline-block bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-4 border border-pink-100">
-            <div className="text-3xl font-bold text-gray-900">$9.99<span className="text-lg font-normal text-gray-500">/month</span></div>
-            <div className="text-sm text-gray-500">Cancel anytime</div>
-          </div>
+        {/* Pricing Toggle */}
+        <div className="flex justify-center gap-4 mb-6">
+          <button
+            onClick={() => setSelectedPlan('weekly')}
+            className={`px-8 py-4 rounded-2xl font-semibold transition-all ${
+              selectedPlan === 'weekly'
+                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <div className="text-2xl font-bold">$9.90</div>
+            <div className="text-sm opacity-90">per week</div>
+          </button>
+          <button
+            onClick={() => setSelectedPlan('monthly')}
+            className={`px-8 py-4 rounded-2xl font-semibold transition-all relative ${
+              selectedPlan === 'monthly'
+                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+              Save 25%
+            </div>
+            <div className="text-2xl font-bold">$32.99</div>
+            <div className="text-sm opacity-90">per month</div>
+          </button>
         </div>
 
-        {/* Stripe Buy Button */}
-        <div className="flex justify-center mb-4">
-          {/* @ts-expect-error Stripe Buy Button is a web component */}
-          <stripe-buy-button
-            buy-button-id="buy_btn_1Sc8UsQ77jsomY7koQXdwZSM"
-            publishable-key="pk_live_51SbtK5Q77jsomY7k84jtpZxsb8MOMeZenCKMoQjYqovKqBQ6Uwl25lDG22AzTsL9MPbrGUCDeznUhdYRxUvzBKnC00EQ2nLitg"
-          />
-        </div>
+        {/* CTA Button */}
+        <button
+          onClick={handleUpgrade}
+          className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg rounded-2xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Upgrade Now
+        </button>
 
         {/* Trust signals */}
         <div className="mt-6 space-y-3">

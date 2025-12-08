@@ -11,6 +11,7 @@ import SEO from './components/SEO';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useAuthContext } from './contexts/AuthContext';
 import PremiumModal from './components/PremiumModal';
+import AuthModal from './components/AuthModal';
 
 // Lazy load heavy components for better performance and SEO
 const LandingPage = lazy(() => import('./components/LandingPage'));
@@ -275,7 +276,7 @@ function App() {
   const [initialVideoEnabled, setInitialVideoEnabled] = useState(true);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   
-  const { isPremium } = useAuthContext();
+  const { isPremium, showAuthModal, setShowAuthModal, authModalMode } = useAuthContext();
 
   // Flow: Landing → Preferences → Safety → Permissions → Waiting → Chatting
   const handleStartCall = (data: { 
@@ -388,6 +389,13 @@ function App() {
         isPremium={isPremium}
         />
       </BrowserRouter>
+
+      {/* Auth Modal - Global authentication modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode={authModalMode}
+      />
     </ErrorBoundary>
   );
 }

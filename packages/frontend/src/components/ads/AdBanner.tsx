@@ -1,17 +1,13 @@
 import { useEffect, useRef } from 'react';
 
-// AdSense configuration from environment variables
-const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT || '';
-const ADSENSE_ENABLED = !!ADSENSE_CLIENT && ADSENSE_CLIENT !== 'ca-pub-XXXXXXXXXXXXXXXX';
-
 /**
  * AdBanner Component - Google AdSense Integration
  *
  * Displays responsive Google AdSense advertisements.
  *
  * SETUP INSTRUCTIONS:
- * 1. Set VITE_ADSENSE_CLIENT in your .env file (e.g., ca-pub-1234567890123456)
- * 2. Set VITE_ADSENSE_SLOT for your default ad slot
+ * 1. Replace 'ca-pub-XXXXXXXXXXXXXXXX' in index.html with your AdSense Publisher ID
+ * 2. Replace the data-ad-slot values below with your actual ad unit IDs from AdSense
  * 3. Test in production (AdSense only works on verified domains)
  *
  * @see https://support.google.com/adsense/answer/9274025 for ad unit setup
@@ -40,20 +36,15 @@ declare global {
   }
 }
 
-const DEFAULT_SLOT = import.meta.env.VITE_ADSENSE_SLOT || '';
-
 export default function AdBanner({
   format = 'responsive',
   className = '',
-  slot = DEFAULT_SLOT
+  slot = 'XXXXXXXXXX' // Replace with your ad slot ID
 }: AdBannerProps) {
   const adRef = useRef<HTMLDivElement>(null);
   const isLoaded = useRef(false);
 
   useEffect(() => {
-    // Don't initialize if AdSense is not configured
-    if (!ADSENSE_ENABLED || !slot) return;
-
     // Prevent duplicate ad initialization
     if (isLoaded.current) return;
 
@@ -64,12 +55,9 @@ export default function AdBanner({
         isLoaded.current = true;
       }
     } catch (error) {
-      // Silent fail in production - ads are non-critical
-      if (import.meta.env.DEV) {
-        console.error('AdSense error:', error);
-      }
+      console.error('AdSense error:', error);
     }
-  }, [slot]);
+  }, []);
 
   // Get ad size configuration based on format
   const getAdConfig = () => {
@@ -100,11 +88,6 @@ export default function AdBanner({
 
   const config = getAdConfig();
 
-  // Don't render anything if AdSense is not configured
-  if (!ADSENSE_ENABLED || !slot) {
-    return null;
-  }
-
   return (
     <div
       ref={adRef}
@@ -115,7 +98,7 @@ export default function AdBanner({
       <ins
         className="adsbygoogle"
         style={config.style}
-        data-ad-client={ADSENSE_CLIENT}
+        data-ad-client="ca-pub-3331898410671902"
         data-ad-slot={slot}
         data-ad-format={format === 'responsive' ? 'auto' : undefined}
         data-full-width-responsive={format === 'responsive' ? 'true' : undefined}
