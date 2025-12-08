@@ -41,6 +41,7 @@
     "zustand": "^4.4.0"
   },
   "devDependencies": {
+    "@axe-core/react": "^4.11.0",
     "@headlessui/react": "^1.7.0",
     "@heroicons/react": "^2.0.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
@@ -60,6 +61,7 @@
     "autoprefixer": "^10.4.0",
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "jsdom": "^27.2.0",

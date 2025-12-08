@@ -8,6 +8,18 @@ import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import * as Sentry from '@sentry/react';
 
 // ═══════════════════════════════════════════════════════════════════
+// ♿ ACCESSIBILITY: Runtime a11y testing in development
+// ═══════════════════════════════════════════════════════════════════
+if (import.meta.env.DEV) {
+  // Dynamically import axe-core only in development
+  import('@axe-core/react').then(axe => {
+    axe.default(React, ReactDOM, 1000);
+  }).catch(err => {
+    console.warn('Failed to load axe-core accessibility testing:', err);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // 🐛 ERROR MONITORING: Initialize Sentry for production error tracking
 // ═══════════════════════════════════════════════════════════════════
 if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
