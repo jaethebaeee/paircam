@@ -11,6 +11,7 @@ import { ReportingModule } from './reporting/reporting.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { UsersModule } from './users/users.module';
+import { FriendsModule } from './friends/friends.module'; // 🆕 Friends & Social
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { HealthController } from './health/health.controller';
@@ -20,6 +21,8 @@ import { env } from './env';
 import { User } from './users/entities/user.entity';
 import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
+import { GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission } from './games/entities';
+import { FriendRequest, Friendship, BlockedUser } from './friends/entities';
 
 @Module({
   imports: [
@@ -31,7 +34,7 @@ import { Payment } from './payments/entities/payment.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment],
+      entities: [User, Subscription, Payment, GameSession, GameMove, UserWallet, GiftCatalog, GiftTransaction, DailyMission, FriendRequest, Friendship, BlockedUser],
       synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
@@ -40,6 +43,7 @@ import { Payment } from './payments/entities/payment.entity';
     RedisModule,
     AuthModule,
     UsersModule,
+    FriendsModule, // 🆕 Friends & Social
     SubscriptionsModule,
     PaymentsModule,
     AnalyticsModule,
