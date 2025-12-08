@@ -13,19 +13,21 @@ vi.stubGlobal('import', {
 });
 
 // Mock localStorage
-const localStorageMock = {
+const localStorageMock: Storage = {
   store: {} as Record<string, string>,
-  getItem: vi.fn((key: string) => localStorageMock.store[key] || null),
-  setItem: vi.fn((key: string, value: string) => {
-    localStorageMock.store[key] = value;
-  }),
-  removeItem: vi.fn((key: string) => {
-    delete localStorageMock.store[key];
-  }),
-  clear: vi.fn(() => {
-    localStorageMock.store = {};
-  }),
-};
+  getItem: ((key: string): string | null => localStorageMock.store[key] || null) as any,
+  setItem: ((key: string, value: string): void => {
+    (localStorageMock as any).store[key] = value;
+  }) as any,
+  removeItem: ((key: string): void => {
+    delete (localStorageMock as any).store[key];
+  }) as any,
+  clear: ((): void => {
+    (localStorageMock as any).store = {};
+  }) as any,
+  length: 0,
+  key: (): string | null => null,
+} as unknown as Storage;
 
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,

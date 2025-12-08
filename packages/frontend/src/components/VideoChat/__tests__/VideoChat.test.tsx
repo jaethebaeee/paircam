@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it } from 'vitest';
 
 // These tests are skipped for now because VideoChat requires complex async mocking
 // that is difficult to achieve with vitest's module hoisting behavior.
