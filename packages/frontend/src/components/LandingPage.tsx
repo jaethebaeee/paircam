@@ -85,14 +85,10 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       {/* Premium Button - Fixed Top Right */}
       <button
         onClick={() => setShowPremiumModal(true)}
-        className="group fixed top-20 sm:top-24 right-4 z-10 bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 hover:from-yellow-500 hover:via-orange-500 hover:to-orange-600 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold shadow-xl shadow-orange-300/40 hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-110 active:scale-95 overflow-hidden text-sm sm:text-base"
+        className="fixed top-20 sm:top-24 right-4 z-10 bg-white border border-gray-200 hover:border-purple-300 text-gray-700 hover:text-purple-600 px-4 py-2 rounded-full font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm flex items-center gap-2"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <span className="relative flex items-center gap-1.5 sm:gap-2">
-          <span className="text-base sm:text-lg animate-bounce-subtle">⭐</span>
-          <span className="hidden sm:inline">Get Premium</span>
-          <span className="sm:hidden">Premium</span>
-        </span>
+        <span className="text-yellow-500">★</span>
+        <span>Premium</span>
       </button>
 
       <div className="max-w-5xl mx-auto relative z-10">
