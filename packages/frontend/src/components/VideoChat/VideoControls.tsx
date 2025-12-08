@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   VideoCameraIcon,
   VideoCameraSlashIcon,
@@ -8,7 +9,11 @@ import {
   ChatBubbleLeftIcon,
   SpeakerWaveIcon,
   UserPlusIcon,
+  NoSymbolIcon,
+  FaceSmileIcon,
 } from '@heroicons/react/24/solid';
+
+const REACTION_EMOJIS = ['👋', '😂', '❤️', '🔥', '👍', '😮', '🎉', '💀'];
 
 interface VideoControlsProps {
   isVideoEnabled: boolean;
@@ -21,6 +26,8 @@ interface VideoControlsProps {
   onReport: () => void;
   onPlayGame?: () => void;
   onFriendRequest?: () => void;
+  onBlockUser?: () => void;
+  onSendReaction?: (emoji: string) => void;
   isSkipping?: boolean;
   isTextMode?: boolean;
   isAudioOnlyMode?: boolean;
@@ -40,6 +47,8 @@ export default function VideoControls({
   onReport,
   onPlayGame,
   onFriendRequest,
+  onBlockUser,
+  onSendReaction,
   isSkipping = false,
   isTextMode = false,
   isAudioOnlyMode = false,
@@ -47,6 +56,8 @@ export default function VideoControls({
   isConnected = false,
   isGamingMode = false,
 }: VideoControlsProps) {
+  const [showReactions, setShowReactions] = useState(false);
+
   return (
     <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-50 w-full px-2 sm:px-0 sm:w-auto">
       {/* Control Bar with Labels */}
@@ -273,6 +284,80 @@ export default function VideoControls({
               </div>
             </div>
           </div>
+
+          {/* Block User - Only show when connected */}
+          {isConnected && onBlockUser && (
+            <div className="relative group">
+              <button
+                onClick={onBlockUser}
+                className="relative p-3 sm:p-4 rounded-full bg-red-700 hover:bg-red-800 transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center"
+                aria-label="Block user"
+              >
+                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <NoSymbolIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+              </button>
+              {/* Tooltip - Hidden on touch devices */}
+              <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
+                  Block this user
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-4 border-transparent border-t-black/90"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Reactions - Only show when connected */}
+          {isConnected && onSendReaction && (
+            <div className="relative group">
+              <button
+                onClick={() => setShowReactions(!showReactions)}
+                className={`relative p-3 sm:p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] flex items-center justify-center ${
+                  showReactions
+                    ? 'bg-yellow-500 hover:bg-yellow-600'
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+                aria-label="Send reaction"
+              >
+                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <FaceSmileIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
+              </button>
+              {/* Reactions Picker */}
+              {showReactions && (
+                <div className="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 animate-fadeIn">
+                  <div className="bg-gray-900/95 backdrop-blur-xl rounded-2xl px-3 py-2 shadow-2xl border border-white/10 flex gap-1">
+                    {REACTION_EMOJIS.map((emoji) => (
+                      <button
+                        key={emoji}
+                        onClick={() => {
+                          onSendReaction(emoji);
+                          setShowReactions(false);
+                        }}
+                        className="p-2 hover:bg-white/10 rounded-xl transition-all hover:scale-125 active:scale-95 text-xl sm:text-2xl min-w-[40px] min-h-[40px] flex items-center justify-center"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                    <div className="border-8 border-transparent border-t-gray-900/95"></div>
+                  </div>
+                </div>
+              )}
+              {/* Tooltip - Hidden on touch devices and when picker is open */}
+              {!showReactions && (
+                <div className="hidden sm:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
+                    Send reaction
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                      <div className="border-4 border-transparent border-t-black/90"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Audio-Only Mode Toggle - Only show if not in text mode and callback provided */}
           {!isTextMode && onSwitchToAudioOnly && !isAudioOnlyMode && (
