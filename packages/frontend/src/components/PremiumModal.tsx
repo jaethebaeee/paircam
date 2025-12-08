@@ -57,7 +57,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
             <span>PREMIUM</span>
             <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">Try Free</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent mb-3">
+          <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent mb-3">
             Match 3x Faster
           </h2>
           <p className="text-neutral-600 text-base sm:text-lg max-w-md mx-auto">
@@ -66,9 +66,9 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
           {/* Social proof */}
           <div className="flex items-center justify-center gap-4 mt-4">
             <div className="flex -space-x-2">
-              <div className="w-8 h-8 rounded-full bg-indigo-100 border-2 border-white flex items-center justify-center text-xs">JK</div>
-              <div className="w-8 h-8 rounded-full bg-violet-100 border-2 border-white flex items-center justify-center text-xs">AM</div>
-              <div className="w-8 h-8 rounded-full bg-purple-100 border-2 border-white flex items-center justify-center text-xs">TL</div>
+              <div className="w-8 h-8 rounded-full bg-primary-100 border-2 border-white flex items-center justify-center text-xs">JK</div>
+              <div className="w-8 h-8 rounded-full bg-secondary-100 border-2 border-white flex items-center justify-center text-xs">AM</div>
+              <div className="w-8 h-8 rounded-full bg-accent-100 border-2 border-white flex items-center justify-center text-xs">TL</div>
             </div>
             <p className="text-sm text-neutral-500">
               <span className="font-semibold text-neutral-700">2,500+</span> upgraded this week
@@ -78,20 +78,20 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
 
         {/* Features Grid with quantified benefits */}
         <div className="grid md:grid-cols-2 gap-3 mb-8">
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-indigo-50 to-violet-50 rounded-2xl border border-indigo-100">
+          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-2xl border border-primary-100">
             <div className="text-2xl">🎯</div>
             <div>
               <h3 className="font-bold text-neutral-900">Gender Filter</h3>
               <p className="text-sm text-neutral-600">Match your preferred gender only</p>
-              <p className="text-xs text-indigo-600 font-medium mt-1">50% more relevant matches</p>
+              <p className="text-xs text-primary-600 font-medium mt-1">50% more relevant matches</p>
             </div>
           </div>
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl border border-violet-100">
+          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-secondary-50 to-accent-50 rounded-2xl border border-secondary-100">
             <div className="text-2xl">⚡</div>
             <div>
               <h3 className="font-bold text-neutral-900">Priority Queue</h3>
               <p className="text-sm text-neutral-600">Skip the line, match instantly</p>
-              <p className="text-xs text-violet-600 font-medium mt-1">3x faster matching</p>
+              <p className="text-xs text-secondary-600 font-medium mt-1">3x faster matching</p>
             </div>
           </div>
           <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100">
@@ -118,7 +118,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
             onClick={() => setSelectedPlan('weekly')}
             className={`px-8 py-4 rounded-2xl font-semibold transition-all ${
               selectedPlan === 'weekly'
-                ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-lg scale-105'
+                ? 'bg-gradient-to-r from-primary-500 to-secondary-600 text-white shadow-lg scale-105'
                 : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
             }`}
           >
@@ -129,7 +129,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
             onClick={() => setSelectedPlan('monthly')}
             className={`px-8 py-4 rounded-2xl font-semibold transition-all relative ${
               selectedPlan === 'monthly'
-                ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-lg scale-105'
+                ? 'bg-gradient-to-r from-primary-500 to-secondary-600 text-white shadow-lg scale-105'
                 : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
             }`}
           >
@@ -145,7 +145,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
         <button
           onClick={handleUpgrade}
           disabled={loading}
-          className="w-full py-4 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-lg rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full py-4 bg-gradient-to-r from-primary-500 to-secondary-600 hover:from-primary-600 hover:to-secondary-700 text-white font-bold text-lg rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
