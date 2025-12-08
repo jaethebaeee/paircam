@@ -40,7 +40,6 @@ export function useGameSocket(options: UseGameSocketOptions): UseGameSocketRetur
 
     // Game started event
     const handleGameStarted = (data: GameSession) => {
-      console.log('Game started:', data);
       setGameStarted(true);
       setGameError(null);
       callbacksRef.current.onGameStarted?.(data);
@@ -48,20 +47,17 @@ export function useGameSocket(options: UseGameSocketOptions): UseGameSocketRetur
 
     // New question event
     const handleNewQuestion = (data: TriviaQuestion) => {
-      console.log('New question received:', data);
       setCurrentQuestion(data);
       callbacksRef.current.onNewQuestion?.(data);
     };
 
     // Score update event
     const handleScoreUpdate = (data: { player_id: string; score: number; correct: boolean; player_name?: string }) => {
-      console.log('Score updated:', data);
       callbacksRef.current.onScoreUpdate?.(data);
     };
 
     // Game ended event
     const handleGameEnded = (data: GameResult) => {
-      console.log('Game ended:', data);
       setGameStarted(false);
       setCurrentQuestion(null);
       setGameResult(data);
@@ -70,16 +66,14 @@ export function useGameSocket(options: UseGameSocketOptions): UseGameSocketRetur
 
     // Game abandoned event
     const handleGameAbandoned = (data: { session_id: string; abandoned_by: string }) => {
-      console.log('Game abandoned:', data);
       setGameStarted(false);
       setCurrentQuestion(null);
       callbacksRef.current.onGameAbandoned?.(data);
     };
 
     // Error event
-    const handleError = (error: any) => {
-      const errorMessage = error?.message || 'Game error occurred';
-      console.error('Game error:', errorMessage);
+    const handleError = (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : 'Game error occurred';
       setGameError(errorMessage);
       callbacksRef.current.onError?.(errorMessage);
     };
@@ -105,10 +99,8 @@ export function useGameSocket(options: UseGameSocketOptions): UseGameSocketRetur
   const startGame = useCallback(
     (difficulty: Difficulty, gameType: string) => {
       if (!socket?.connected || !sessionId) {
-        console.warn('Cannot start game: socket not connected or no sessionId');
         return;
       }
-      console.log('Starting game:', { sessionId, difficulty, gameType });
       socket.emit(SOCKET_EVENTS.START_GAME, {
         session_id: sessionId,
         difficulty,
@@ -121,10 +113,8 @@ export function useGameSocket(options: UseGameSocketOptions): UseGameSocketRetur
   const submitAnswer = useCallback(
     (payload: SubmitAnswerPayload) => {
       if (!socket?.connected) {
-        console.warn('Cannot submit answer: socket not connected');
         return;
       }
-      console.log('Submitting answer:', payload);
       socket.emit(SOCKET_EVENTS.SUBMIT_ANSWER, payload);
     },
     [socket]
@@ -132,10 +122,8 @@ export function useGameSocket(options: UseGameSocketOptions): UseGameSocketRetur
 
   const abandonGame = useCallback(() => {
     if (!socket?.connected || !sessionId) {
-      console.warn('Cannot abandon game: socket not connected or no sessionId');
       return;
     }
-    console.log('Abandoning game:', sessionId);
     socket.emit(SOCKET_EVENTS.ABANDON_GAME, { session_id: sessionId });
     setGameStarted(false);
     setCurrentQuestion(null);

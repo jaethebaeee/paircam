@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { GameResult } from '../../types/games';
 
@@ -7,7 +8,7 @@ interface GameResultsProps {
   onClose: () => void;
 }
 
-export default function GameResults({ result, isCurrentPlayerWinner, onClose }: GameResultsProps) {
+function GameResults({ result, isCurrentPlayerWinner, onClose }: GameResultsProps) {
   const gameStats = isCurrentPlayerWinner ? result.player_stats : result.opponent_stats;
   const opponentStats = isCurrentPlayerWinner ? result.opponent_stats : result.player_stats;
 
@@ -144,3 +145,5 @@ export default function GameResults({ result, isCurrentPlayerWinner, onClose }: 
     </div>
   );
 }
+
+export default memo(GameResults);

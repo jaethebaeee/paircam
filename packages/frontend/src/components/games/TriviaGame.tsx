@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import { Socket } from 'socket.io-client';
 import GameLobby from './GameLobby';
 import TriviaQuestion from './TriviaQuestion';
@@ -19,7 +19,7 @@ interface TriviaGameProps {
 
 type GamePhase = 'lobby' | 'playing' | 'results' | 'closed';
 
-export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisible }: TriviaGameProps) {
+function TriviaGame({ socket, sessionId, peerId, onClose, isVisible }: TriviaGameProps) {
   const [gamePhase, setGamePhase] = useState<GamePhase>('lobby');
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
@@ -32,26 +32,20 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
     socket,
     sessionId,
     onGameStarted: (data) => {
-      console.log('Game started, waiting for first question');
       setGamePhase('playing');
       setCurrentQuestionNumber(1);
     },
-    onNewQuestion: (question) => {
-      console.log('New question received:', question);
+    onNewQuestion: () => {
       setSelectedAnswer(null);
       setIsAnswerSubmitted(false);
       setIsSubmittingAnswer(false);
     },
     onGameEnded: (result) => {
-      console.log('Game ended:', result);
       setIsCurrentPlayerWinner(result.winner_id === sessionId);
       setGamePhase('results');
     },
-    onScoreUpdate: (data) => {
-      console.log('Score updated:', data);
-    },
-    onError: (error) => {
-      console.error('Game error:', error);
+    onError: () => {
+      // Error state is handled in gameSocket.gameError
     },
   });
 
@@ -61,10 +55,9 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
   // Handle difficulty selection
   const handleSelectDifficulty = useCallback(
     (difficulty: Difficulty) => {
-      console.log('Starting game with difficulty:', difficulty);
       gameSocket.startGame(difficulty, 'trivia');
     },
-    [gameSocket]
+    [gameSocket.startGame]
   );
 
   // Handle answer selection
@@ -105,7 +98,7 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
       setIsSubmittingAnswer(false);
       // Reset for next question (server will send new question via onNewQuestion)
     }, 2000);
-  }, [selectedAnswer, gameSocket.currentQuestion, isAnswerSubmitted, gameState, sessionId, gameSocket]);
+  }, [selectedAnswer, gameSocket.currentQuestion, isAnswerSubmitted, gameState, sessionId, gameSocket.submitAnswer]);
 
   // Handle game close
   const handleClose = useCallback(() => {
@@ -119,7 +112,17 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
     setIsAnswerSubmitted(false);
     setCurrentQuestionNumber(0);
     onClose();
-  }, [gamePhase, gameSocket, gameState, onClose]);
+  }, [gamePhase, gameSocket.abandonGame, gameSocket.clearGameState, gameState.resetGame, onClose]);
+
+  // Memoize results callback to prevent recreation
+  const handleResultsClose = useCallback(() => {
+    gameState.resetGame();
+    gameSocket.clearGameState();
+    setGamePhase('lobby');
+    setSelectedAnswer(null);
+    setIsAnswerSubmitted(false);
+    setCurrentQuestionNumber(0);
+  }, [gameState.resetGame, gameSocket.clearGameState]);
 
   if (!isVisible) return null;
 
@@ -139,14 +142,7 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
       <GameResults
         result={gameSocket.gameResult}
         isCurrentPlayerWinner={isCurrentPlayerWinner}
-        onClose={() => {
-          gameState.resetGame();
-          gameSocket.clearGameState();
-          setGamePhase('lobby');
-          setSelectedAnswer(null);
-          setIsAnswerSubmitted(false);
-          setCurrentQuestionNumber(0);
-        }}
+        onClose={handleResultsClose}
       />
     );
   }
@@ -226,3 +222,5 @@ export default function TriviaGame({ socket, sessionId, peerId, onClose, isVisib
 
   return null;
 }
+
+export default memo(TriviaGame);

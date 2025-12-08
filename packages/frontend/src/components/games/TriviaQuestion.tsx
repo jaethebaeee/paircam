@@ -1,3 +1,4 @@
+import { memo, useMemo, useCallback } from 'react';
 import { TriviaQuestion as TriviaQuestionType } from '../../types/games';
 import { DIFFICULTY_COLORS, DIFFICULTY_LABELS } from '../../constants/games';
 
@@ -13,7 +14,7 @@ interface TriviaQuestionProps {
   isLoading?: boolean;
 }
 
-export default function TriviaQuestion({
+function TriviaQuestion({
   question,
   questionNumber,
   totalQuestions,
@@ -26,6 +27,25 @@ export default function TriviaQuestion({
 }: TriviaQuestionProps) {
   const timePercentage = (timeRemaining / maxTime) * 100;
   const isTimeRunningOut = timeRemaining <= 5;
+
+  // Memoize decoded text to prevent re-decoding on each render
+  const decodedQuestion = useMemo(() => decodeURIComponent(question.question), [question.question]);
+
+  // Memoize decoded answers
+  const decodedAnswers = useMemo(
+    () => question.all_answers.map(answer => decodeURIComponent(answer)),
+    [question.all_answers]
+  );
+
+  // Create stable callback using useCallback for answer selection
+  const handleAnswerClick = useCallback(
+    (answer: string) => {
+      if (!isAnswered && !isLoading) {
+        onAnswerSelect(answer);
+      }
+    },
+    [isAnswered, isLoading, onAnswerSelect]
+  );
 
   return (
     <div className="space-y-4">
@@ -62,38 +82,41 @@ export default function TriviaQuestion({
       {/* Question text */}
       <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5 border border-blue-200">
         <p className="text-lg font-semibold text-gray-800 leading-relaxed">
-          {decodeURIComponent(question.question)}
+          {decodedQuestion}
         </p>
         <p className="text-sm text-gray-500 mt-2">Category: {question.category}</p>
       </div>
 
       {/* Answer options */}
       <div className="space-y-2">
-        {question.all_answers.map((answer, index) => (
-          <button
-            key={index}
-            onClick={() => !isAnswered && !isLoading && onAnswerSelect(answer)}
-            disabled={isAnswered || isLoading}
-            className={`w-full p-4 rounded-xl border-2 transition-all text-left font-medium flex items-center gap-3 ${
-              selectedAnswer === answer
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-            } disabled:cursor-not-allowed ${isAnswered ? 'opacity-70' : ''}`}
-          >
-            <span className="flex-shrink-0 w-6 h-6 rounded-full border-2 border-current flex items-center justify-center">
-              {selectedAnswer === answer && <span className="w-3 h-3 bg-current rounded-full" />}
-            </span>
-            <span className="flex-grow">
-              {decodeURIComponent(answer)}
-            </span>
-            {isAnswered && answer === question.correct_answer && (
-              <span className="text-2xl">✅</span>
-            )}
-            {isAnswered && selectedAnswer === answer && answer !== question.correct_answer && (
-              <span className="text-2xl">❌</span>
-            )}
-          </button>
-        ))}
+        {decodedAnswers.map((answer, index) => {
+          const isSelected = selectedAnswer === answer;
+          const isCorrect = answer === decodeURIComponent(question.correct_answer);
+          const showCheckmark = isAnswered && isCorrect;
+          const showX = isAnswered && isSelected && !isCorrect;
+
+          return (
+            <button
+              key={`${question.question_id}-${index}`}
+              onClick={() => handleAnswerClick(answer)}
+              disabled={isAnswered || isLoading}
+              className={`w-full p-4 rounded-xl border-2 transition-all text-left font-medium flex items-center gap-3 ${
+                isSelected
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              } disabled:cursor-not-allowed ${isAnswered ? 'opacity-70' : ''}`}
+            >
+              <span className="flex-shrink-0 w-6 h-6 rounded-full border-2 border-current flex items-center justify-center">
+                {isSelected && <span className="w-3 h-3 bg-current rounded-full" />}
+              </span>
+              <span className="flex-grow">
+                {answer}
+              </span>
+              {showCheckmark && <span className="text-2xl">✅</span>}
+              {showX && <span className="text-2xl">❌</span>}
+            </button>
+          );
+        })}
       </div>
 
       {/* Submit button */}
@@ -109,7 +132,7 @@ export default function TriviaQuestion({
       {isAnswered && (
         <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl text-center">
           <p className="text-sm font-medium text-green-800">
-            {selectedAnswer === question.correct_answer
+            {selectedAnswer === decodeURIComponent(question.correct_answer)
               ? '✅ Correct! +10 points'
               : '❌ Incorrect. Moving to next question...'}
           </p>
@@ -118,3 +141,5 @@ export default function TriviaQuestion({
     </div>
   );
 }
+
+export default memo(TriviaQuestion);

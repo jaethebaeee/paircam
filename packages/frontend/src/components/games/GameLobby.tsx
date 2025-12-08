@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { Difficulty } from '../../types/games';
 import { DIFFICULTY_COLORS, DIFFICULTY_LABELS, GAME_CONFIG } from '../../constants/games';
@@ -8,7 +9,7 @@ interface GameLobbyProps {
   isLoading?: boolean;
 }
 
-export default function GameLobby({ onSelectDifficulty, onClose, isLoading = false }: GameLobbyProps) {
+function GameLobby({ onSelectDifficulty, onClose, isLoading = false }: GameLobbyProps) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fadeIn">
       <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl animate-scaleIn">
@@ -84,3 +85,5 @@ export default function GameLobby({ onSelectDifficulty, onClose, isLoading = fal
     </div>
   );
 }
+
+export default memo(GameLobby);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { TriviaQuestion } from '../types/games';
 import { GAME_CONFIG } from '../constants/games';
 
@@ -37,7 +37,7 @@ export function useGameState(isGameActive: boolean, currentQuestion: TriviaQuest
     }
   }, [currentQuestion?.question_id]);
 
-  // Timer countdown
+  // Timer countdown - optimized to 200ms interval instead of 100ms
   useEffect(() => {
     if (!isGameActive || !questionStartTime) return;
 
@@ -45,7 +45,7 @@ export function useGameState(isGameActive: boolean, currentQuestion: TriviaQuest
       const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
       const remaining = Math.max(0, GAME_CONFIG.TRIVIA.TIME_PER_QUESTION - elapsed);
       setTimeRemaining(remaining);
-    }, 100);
+    }, 200);
 
     return () => clearInterval(interval);
   }, [isGameActive, questionStartTime]);
@@ -58,7 +58,7 @@ export function useGameState(isGameActive: boolean, currentQuestion: TriviaQuest
   const addAnswer = useCallback((answer: GameAnswer) => {
     setAnswers(prev => [...prev, answer]);
 
-    // Update score and streak
+    // Batch state updates for better performance
     if (answer.is_correct) {
       setCurrentScore(prev => prev + GAME_CONFIG.TRIVIA.POINTS_PER_CORRECT);
       setCurrentStreak(prev => prev + 1);
@@ -66,6 +66,13 @@ export function useGameState(isGameActive: boolean, currentQuestion: TriviaQuest
       setCurrentStreak(0);
     }
   }, []);
+
+  // Memoize accuracy calculation to prevent recalculation on every render
+  const currentAccuracy = useMemo(() => {
+    if (answers.length === 0) return 0;
+    const correct = answers.filter(a => a.is_correct).length;
+    return Math.round((correct / answers.length) * 100);
+  }, [answers]);
 
   const calculateAccuracy = useCallback(() => {
     if (answers.length === 0) return 0;
@@ -84,7 +91,7 @@ export function useGameState(isGameActive: boolean, currentQuestion: TriviaQuest
   return {
     currentScore,
     currentStreak,
-    currentAccuracy: calculateAccuracy(),
+    currentAccuracy,
     answers,
     questionStartTime,
     timeRemaining,
