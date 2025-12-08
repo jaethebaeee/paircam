@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { verifyDTLSSRTP, monitorConnectionSecurity } from '../utils/security';
 
+const isDev = import.meta.env.DEV;
+const debugLog = (...args: unknown[]) => {
+  if (isDev) console.log('[WebRTC]', ...args);
+};
+
 export interface WebRTCConfig {
   iceServers: RTCIceServer[];
 }
@@ -282,7 +287,7 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
       setConnectionState('closed');
       setError(null);
       
-      console.log('[WebRTC] Cleanup completed successfully');
+      debugLog('Cleanup completed successfully');
     } catch (error) {
       console.error('[WebRTC] Error during cleanup:', error);
     }
