@@ -278,8 +278,11 @@ export class MatchmakingService implements OnModuleInit, OnModuleDestroy {
 
   async processQueue(): Promise<void> {
     try {
+      // Track last run for health monitoring
+      await this.redisService.getClient().set('matchmaking:last_run', Date.now().toString());
+
       const queueLength = await this.redisService.getQueueLength();
-      
+
       if (queueLength < 2) {
         return; // Need at least 2 users to match
       }

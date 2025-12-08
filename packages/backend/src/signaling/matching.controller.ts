@@ -615,4 +615,123 @@ export class MatchingController {
       premiumPriorityBoost: MATCHING_CONFIG.PREMIUM_PRIORITY_BOOST,
     };
   }
+
+  // ============================================
+  // ADMIN/ANALYTICS ENDPOINTS
+  // ============================================
+
+  /**
+   * GET /matching/analytics/overview
+   * Get comprehensive matching analytics (for admin dashboard)
+   */
+  @Get('analytics/overview')
+  async getMatchingAnalytics() {
+    const queueStats = await this.matchmakingService.getExtendedQueueStats();
+    const performanceStats = await this.matchmakingService.getPerformanceStats();
+
+    // Get counters from Redis
+    const totalSessions = await this.redisService.getCounter('sessions:created');
+    const totalRuns = await this.redisService.getCounter('matchmaking:runs');
+    const totalComparisons = await this.redisService.getCounter('matchmaking:comparisons');
+    const comparisonsSaved = await this.redisService.getCounter('matchmaking:comparisons_saved');
+
+    return {
+      queue: {
+        currentLength: queueStats.queueLength,
+        averageWaitTime: Math.round(queueStats.averageWaitTime / 1000),
+        regionDistribution: queueStats.regionDistribution,
+        queueTypeDistribution: queueStats.queueTypeDistribution,
+        premiumUsersInQueue: queueStats.premiumCount,
+        averageReputation: queueStats.averageReputation,
+      },
+      performance: {
+        ...performanceStats,
+        totalMatchingRuns: totalRuns,
+        totalComparisons,
+        comparisonsSaved,
+        optimizationRate: comparisonsSaved > 0
+          ? `${((comparisonsSaved / (totalComparisons + comparisonsSaved)) * 100).toFixed(1)}%`
+          : 'N/A',
+      },
+      sessions: {
+        totalCreated: totalSessions,
+      },
+      timestamp: Date.now(),
+    };
+  }
+
+  /**
+   * GET /matching/analytics/regions
+   * Get regional breakdown of sessions
+   */
+  @Get('analytics/regions')
+  async getRegionalAnalytics() {
+    const regions = ['us-east', 'us-west', 'europe', 'asia', 'global'];
+    const regionStats: Record<string, number> = {};
+
+    for (const region of regions) {
+      regionStats[region] = await this.redisService.getCounter(`sessions:region:${region}`);
+    }
+
+    const total = Object.values(regionStats).reduce((a, b) => a + b, 0);
+
+    return {
+      regions: regionStats,
+      total,
+      distribution: Object.fromEntries(
+        Object.entries(regionStats).map(([region, count]) => [
+          region,
+          total > 0 ? `${((count / total) * 100).toFixed(1)}%` : '0%',
+        ]),
+      ),
+    };
+  }
+
+  /**
+   * GET /matching/health
+   * Health check for matching system
+   */
+  @Get('health')
+  async getMatchingHealth() {
+    const queueLength = await this.redisService.getQueueLength();
+    const pendingMatches = await this.redisService.getPendingMatches();
+
+    // Check if queue processing is healthy
+    const lastRunKey = 'matchmaking:last_run';
+    const lastRunStr = await this.redisService.getClient().get(lastRunKey);
+    const lastRun = lastRunStr ? parseInt(lastRunStr, 10) : 0;
+    const timeSinceLastRun = Date.now() - lastRun;
+
+    // Consider unhealthy if no processing in last 30 seconds and queue has users
+    const isHealthy = queueLength < 2 || timeSinceLastRun < 30000;
+
+    return {
+      status: isHealthy ? 'healthy' : 'degraded',
+      checks: {
+        queueLength,
+        pendingMatchesCount: pendingMatches.length,
+        timeSinceLastRun: `${Math.round(timeSinceLastRun / 1000)}s`,
+        isProcessing: timeSinceLastRun < 10000,
+      },
+      timestamp: Date.now(),
+    };
+  }
+
+  // ============================================
+  // RATE LIMITING HELPER
+  // ============================================
+
+  /**
+   * Check rate limit for an endpoint
+   */
+  private async checkRateLimit(
+    deviceId: string,
+    endpoint: string,
+    maxRequests: number,
+    windowSeconds: number,
+  ): Promise<boolean> {
+    const key = `ratelimit:matching:${endpoint}:${deviceId}`;
+    const count = await this.redisService.incrementRateLimit(key, windowSeconds);
+    return count <= maxRequests;
+  }
 }
