@@ -90,222 +90,35 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         Get Premium
       </button>
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* Hero Section */}
-        <div className="text-center mb-12 sm:mb-16 pt-12 sm:pt-8">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-4 rounded-3xl shadow-xl">
-              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="PairCam logo - Global video chat network">
-                <title>PairCam - Connect with people worldwide</title>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight px-2">
-            Instant Video Chat
-            <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl mt-1 sm:mt-2">with Strangers</span>
+      <div className="max-w-5xl mx-auto relative z-10">
+        {/* Hero Section - Clean & Simple */}
+        <div className="text-center mb-8 sm:mb-12 pt-12 sm:pt-8">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4 sm:mb-5 leading-tight px-2">
+            Video Chat with Strangers
           </h1>
-          <h2 className="text-lg sm:text-xl md:text-2xl text-gray-800 mb-3 sm:mb-4 font-semibold max-w-3xl mx-auto px-4">
-            Meet new people instantly - No signup, 100% free
-          </h2>
-          <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-            Anonymous, instant connections with people worldwide. Choose video, voice, or text chat.
+          <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 max-w-xl mx-auto px-4">
+            Meet new people worldwide. No signup required.
           </p>
 
-          {/* Live User Count Badge */}
-          {liveUserCount > 0 && (
-            <div className="flex items-center justify-center gap-2 mb-8">
-              <div className="inline-flex items-center gap-3 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-800 px-6 py-3 rounded-full shadow-lg">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                <span className="font-bold text-2xl text-gray-900">{liveUserCount.toLocaleString()}</span>
-                <span className="font-medium text-gray-600">users online now</span>
-              </div>
-            </div>
-          )}
-
-          {/* Key Value Props */}
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6 text-sm sm:text-base text-gray-700 mb-8 sm:mb-12 px-2">
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
-              <span className="text-lg sm:text-2xl">⚡</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base">5 sec start</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
-              <span className="text-lg sm:text-2xl">🔒</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base">Anonymous</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
-              <span className="text-lg sm:text-2xl">🌍</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base">Global</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-shadow">
-              <span className="text-lg sm:text-2xl">🛡️</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base">Safe</span>
-            </div>
-          </div>
-
-          {/* Hero Visual Mockup */}
-          <div className="max-w-4xl mx-auto mb-10 sm:mb-16 px-2">
-            <div className="bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border-2 sm:border-4 border-white">
-              <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-3 sm:px-6 py-2 sm:py-3 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-white/80"></div>
-                  <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-white/60"></div>
-                  <div className="w-2 sm:w-3 h-2 sm:h-3 rounded-full bg-white/40"></div>
-                </div>
-                <span className="text-white text-xs sm:text-sm font-semibold">Live Video Chat</span>
-                <div className="w-12 sm:w-20"></div>
-              </div>
-              <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg className="w-16 sm:w-24 h-16 sm:h-24 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div className="relative z-10 text-center text-white px-4">
-                  <div className="text-4xl sm:text-5xl mb-2 sm:mb-3">👋</div>
-                  <p className="text-base sm:text-xl font-semibold mb-1">Connect face-to-face</p>
-                  <p className="text-xs sm:text-sm text-gray-300">with people from around the world</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Ad Banner - Below Hero */}
-        <div className="max-w-4xl mx-auto mb-12 sm:mb-16 px-2">
-          <AdBanner format="responsive" className="rounded-xl overflow-hidden" />
-        </div>
-
-        {/* How It Works Section */}
-        <div id="features" className="mb-12 sm:mb-16 px-2 scroll-mt-24">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-2 sm:mb-4">How It Works</h2>
-          <p className="text-center text-gray-600 mb-8 sm:mb-12 text-base sm:text-lg">Get started in three simple steps</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto">
-            {/* Step 1 */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-pink-100 p-5 sm:p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-pink-500 to-pink-600 w-12 sm:w-16 h-12 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                <span className="text-2xl sm:text-3xl font-bold text-white">1</span>
-              </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Enter Your Name</h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Choose a name or nickname. No signup required. Stay anonymous.
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-purple-100 p-5 sm:p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 w-12 sm:w-16 h-12 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                <span className="text-2xl sm:text-3xl font-bold text-white">2</span>
-              </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Get Matched</h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Instantly paired with someone online. Takes just seconds.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-lg border-2 border-blue-100 p-5 sm:p-8 text-center hover:shadow-xl transition-shadow">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-12 sm:w-16 h-12 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                <span className="text-2xl sm:text-3xl font-bold text-white">3</span>
-              </div>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Start Chatting</h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Video, voice, or text. Skip anytime with one click.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Ad Banner - Between Sections (Desktop Only) */}
-        <div className="hidden md:block max-w-4xl mx-auto mb-12 sm:mb-16 px-2">
-          <AdBanner format="horizontal" className="mx-auto" />
-        </div>
-
-        {/* Trust & Safety Section */}
-        <div id="safety" className="mb-12 sm:mb-16 max-w-4xl mx-auto px-2 scroll-mt-24">
-          <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-2xl sm:rounded-3xl shadow-lg border-2 border-green-200 p-5 sm:p-8 md:p-10">
-            <div className="text-center mb-6 sm:mb-8">
-              <div className="inline-flex items-center justify-center w-12 sm:w-16 h-12 sm:h-16 bg-green-500 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg">
-                <svg className="w-6 sm:w-8 h-6 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">Your Safety Matters</h2>
-              <p className="text-gray-700 text-sm sm:text-base md:text-lg">We're committed to creating a safe, respectful community</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-green-500 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">24/7 Moderation</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">AI and human moderators monitor content</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Anonymous by Default</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Your privacy is always protected</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-purple-500 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">Report & Block</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Instantly report rule violators</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-0.5 sm:mb-1">18+ Verification</h3>
-                  <p className="text-xs sm:text-sm text-gray-600">Age verification for video chat</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-white/70 rounded-xl sm:rounded-2xl border border-green-300">
-              <p className="text-xs sm:text-sm text-gray-700 text-center">
-                <strong className="text-gray-900">Remember:</strong> Never share personal info with strangers online.
-              </p>
-            </div>
+          {/* Simple Value Props */}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-sm text-gray-600 mb-8 px-2">
+            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              Free
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+              Anonymous
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+              Instant
+            </span>
           </div>
         </div>
 
         {/* Start Chat Form Section */}
-        <div className="max-w-2xl mx-auto px-2">
+        <div className="max-w-md mx-auto px-2">
 
         {/* Clean Form Box */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-4 sm:mb-6">
@@ -459,48 +272,16 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <a href="/privacy-policy" className="text-gray-700 underline hover:text-gray-900">Privacy Policy</a>.
           </p>
         </div>
-        </div>
 
-        {/* Additional Features Section */}
-        <div id="about" className="max-w-5xl mx-auto mt-10 sm:mt-16 mb-8 sm:mb-12 px-2 scroll-mt-24">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8 sm:mb-12">Why Choose Us?</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-pink-500 to-pink-600 w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
-                <svg className="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Lightning Fast</h3>
-              <p className="text-sm sm:text-base text-gray-600">Connect in seconds. No waiting, just instant conversations.</p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
-                <svg className="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Global Reach</h3>
-              <p className="text-sm sm:text-base text-gray-600">Meet people from 195+ countries worldwide.</p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-12 sm:w-14 h-12 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
-                <svg className="w-6 sm:w-7 h-6 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-              </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">Your Choice</h3>
-              <p className="text-sm sm:text-base text-gray-600">Video, voice, or text – switch modes anytime.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Ad Banner - Bottom of Page */}
-        <div className="max-w-4xl mx-auto mt-8 sm:mt-12 mb-8 px-2">
+        {/* Ad Banner - Below Form */}
+        <div className="max-w-md mx-auto mt-8 px-2">
           <AdBanner format="responsive" className="rounded-xl overflow-hidden" />
         </div>
+      </div>
+
+      {/* Ad Banner - Side placement for desktop */}
+      <div className="hidden xl:block fixed right-4 top-1/2 -translate-y-1/2 w-[160px] z-0">
+        <AdBanner format="vertical" className="rounded-xl overflow-hidden" />
       </div>
 
       {/* Premium Modal */}
