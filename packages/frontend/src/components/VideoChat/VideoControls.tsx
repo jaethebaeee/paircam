@@ -44,11 +44,11 @@ export default function VideoControls({
   isConnected = false,
 }: VideoControlsProps) {
   return (
-    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+    <div className="absolute bottom-safe-lg left-1/2 transform -translate-x-1/2 z-50 w-full px-2 sm:px-0 sm:w-auto safe-area-inset-x">
       {/* Control Bar with Labels */}
-      <div className="bg-gray-900/95 backdrop-blur-xl rounded-[32px] shadow-2xl px-6 py-4 border border-white/10">
-        {/* Label Row */}
-        <div className="flex items-center justify-center gap-3 mb-3">
+      <div className="bg-gray-900/95 backdrop-blur-xl rounded-2xl sm:rounded-[32px] shadow-2xl px-3 sm:px-6 py-3 sm:py-4 border border-white/10 max-w-full overflow-x-auto scrollbar-hide">
+        {/* Label Row - Hidden on small mobile in landscape */}
+        <div className="hidden sm:flex items-center justify-center gap-3 mb-3 landscape-hide">
           <div className="text-center">
             <div className="text-white text-xs font-semibold mb-1 opacity-90">
               You're in control
@@ -59,13 +59,13 @@ export default function VideoControls({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-2 sm:gap-3">
           {/* Video Toggle - Hidden in text mode */}
           {!isTextMode && (
             <div className="relative group">
               <button
                 onClick={onToggleVideo}
-                className={`relative p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 ${
+                className={`relative p-3 sm:p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 touch-target-lg ${
                   isVideoEnabled
                     ? 'bg-gray-700 hover:bg-gray-600'
                     : 'bg-red-500 hover:bg-red-600 animate-pulse'
@@ -74,9 +74,9 @@ export default function VideoControls({
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 {isVideoEnabled ? (
-                  <VideoCameraIcon className="h-6 w-6 text-white relative z-10" />
+                  <VideoCameraIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
                 ) : (
-                  <VideoCameraSlashIcon className="h-6 w-6 text-white relative z-10" />
+                  <VideoCameraSlashIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
                 )}
               </button>
               {/* Tooltip */}
@@ -96,7 +96,7 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onToggleAudio}
-                className={`relative p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 min-w-[48px] min-h-[48px] flex items-center justify-center ${
+                className={`relative p-3 sm:p-4 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-95 touch-target-lg flex items-center justify-center ${
                   isAudioEnabled
                     ? 'bg-gray-700 hover:bg-gray-600'
                     : 'bg-red-500 hover:bg-red-600'
@@ -104,7 +104,7 @@ export default function VideoControls({
                 aria-label={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <MicrophoneIcon className="h-6 w-6 text-white relative z-10" />
+                <MicrophoneIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
               </button>
               {/* Tooltip */}
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -122,11 +122,11 @@ export default function VideoControls({
           <div className="relative group">
             <button
               onClick={onStopChatting}
-              className="relative p-5 rounded-full bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/50 transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-red-500/70"
+              className="relative p-4 sm:p-5 rounded-full bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/50 transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-red-500/70 touch-target-lg"
               aria-label="Stop chatting"
             >
               <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <PhoneXMarkIcon className="h-7 w-7 text-white relative z-10 rotate-[135deg]" />
+              <PhoneXMarkIcon className="h-6 w-6 sm:h-7 sm:w-7 text-white relative z-10 rotate-[135deg]" />
             </button>
             {/* Tooltip */}
             <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -144,7 +144,7 @@ export default function VideoControls({
             <button
               onClick={onNext}
               disabled={isSkipping}
-              className={`relative p-4 sm:p-4 rounded-full shadow-lg transition-all duration-300 transform min-w-[48px] min-h-[48px] flex items-center justify-center ${
+              className={`relative p-3 sm:p-4 rounded-full shadow-lg transition-all duration-300 transform touch-target-lg flex items-center justify-center ${
                 isSkipping
                   ? 'bg-gray-400 cursor-not-allowed opacity-50'
                   : 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 shadow-pink-500/50 hover:scale-110 active:scale-95 hover:shadow-pink-500/70'
@@ -152,7 +152,7 @@ export default function VideoControls({
               aria-label={isSkipping ? 'Finding new match, please wait...' : 'Skip to next person'}
             >
               <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <ArrowPathIcon className={`h-6 w-6 text-white relative z-10 transition-transform duration-300 ${
+              <ArrowPathIcon className={`h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10 transition-transform duration-300 ${
                 isSkipping ? 'animate-spin' : 'group-hover:rotate-180'
               }`} />
             </button>
@@ -185,11 +185,11 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onToggleChat}
-                className="relative p-4 rounded-full bg-gray-700 hover:bg-gray-600 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                className="relative p-3 sm:p-4 rounded-full bg-gray-700 hover:bg-gray-600 transition-all duration-300 transform hover:scale-110 active:scale-95 touch-target-lg"
                 aria-label="Toggle chat"
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <ChatBubbleLeftIcon className="h-6 w-6 text-white relative z-10" />
+                <ChatBubbleLeftIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
               </button>
               {/* Tooltip */}
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -208,11 +208,11 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onFriendRequest}
-                className="relative p-4 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                className="relative p-3 sm:p-4 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95 touch-target-lg"
                 aria-label="Send friend request"
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <UserPlusIcon className="h-6 w-6 text-white relative z-10" />
+                <UserPlusIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
               </button>
               {/* Tooltip */}
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -230,11 +230,11 @@ export default function VideoControls({
           <div className="relative group">
             <button
               onClick={onReport}
-              className="relative p-4 rounded-full bg-orange-600 hover:bg-orange-700 transition-all duration-300 transform hover:scale-110 active:scale-95"
+              className="relative p-3 sm:p-4 rounded-full bg-orange-600 hover:bg-orange-700 transition-all duration-300 transform hover:scale-110 active:scale-95 touch-target-lg"
               aria-label="Report user"
             >
               <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <FlagIcon className="h-6 w-6 text-white relative z-10" />
+              <FlagIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
             </button>
             {/* Tooltip */}
             <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
@@ -252,11 +252,11 @@ export default function VideoControls({
             <div className="relative group">
               <button
                 onClick={onSwitchToAudioOnly}
-                className="relative p-4 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 transform hover:scale-110 active:scale-95"
+                className="relative p-3 sm:p-4 rounded-full bg-blue-600 hover:bg-blue-700 transition-all duration-300 transform hover:scale-110 active:scale-95 touch-target-lg"
                 aria-label="Switch to audio only"
               >
                 <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <SpeakerWaveIcon className="h-6 w-6 text-white relative z-10" />
+                <SpeakerWaveIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white relative z-10" />
               </button>
               {/* Tooltip */}
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
@@ -282,15 +282,15 @@ export default function VideoControls({
         )}
       </div>
 
-      {/* Secondary Info Bar */}
-      <div className="mt-3 text-center">
-        <div className="inline-flex items-center gap-2 bg-black/60 backdrop-blur-sm text-gray-300 px-4 py-2 rounded-full text-xs">
-          <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+      {/* Secondary Info Bar - Hidden on mobile landscape */}
+      <div className="mt-2 sm:mt-3 text-center landscape-hide">
+        <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-black/60 backdrop-blur-sm text-gray-300 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs">
+          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
           <span>Safe & Moderated</span>
-          <span className="text-gray-500">•</span>
-          <span>Your Safety Matters</span>
+          <span className="hidden sm:inline text-gray-500">•</span>
+          <span className="hidden sm:inline">Your Safety Matters</span>
         </div>
       </div>
     </div>
