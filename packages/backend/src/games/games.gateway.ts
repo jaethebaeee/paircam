@@ -70,7 +70,7 @@ export class GamesGateway implements OnGatewayDisconnect {
       // Get user
       const user = await this.usersService.findOrCreate(deviceId);
 
-      // Enforce premium restrictions
+      // Enforce premium restrictions for initiating user
       let premiumConfig: { timePerQuestion: number; scoreMultiplier: number };
       try {
         premiumConfig = await this.premiumFeatures.enforceGameStart(user.id, data.difficulty);
@@ -82,7 +82,7 @@ export class GamesGateway implements OnGatewayDisconnect {
         return;
       }
 
-      // Increment games played counter
+      // Increment games played counter for initiating user
       await this.premiumFeatures.incrementGamesPlayedToday(user.id);
 
       // Start game
@@ -98,9 +98,15 @@ export class GamesGateway implements OnGatewayDisconnect {
         return;
       }
 
-      // Get premium status for both users
-      const isPremium = await this.premiumFeatures.isPremium(user.id);
-      const showAds = !isPremium;
+      // Get premium status for BOTH users
+      const user1Id = session.peers[0];
+      const user2Id = session.peers[1];
+      const user1Premium = await this.premiumFeatures.isPremium(user1Id);
+      const user2Premium = await this.premiumFeatures.isPremium(user2Id);
+
+      // Get premium configs for both users
+      const user1PremiumConfig = await this.premiumFeatures.getPremiumConfig(user1Id);
+      const user2PremiumConfig = await this.premiumFeatures.getPremiumConfig(user2Id);
 
       // Track analytics
       await this.gameAnalytics.trackGameCreated({
@@ -111,7 +117,7 @@ export class GamesGateway implements OnGatewayDisconnect {
         questionCount: gameData.totalQuestions,
       });
 
-      // Send to both users with premium config
+      // Send to both users with PERSONALIZED premium configs
       const gameStartedEvent: GameStartedEvent = {
         gameSessionId: gameData.gameSessionId,
         totalQuestions: gameData.totalQuestions,
@@ -129,23 +135,39 @@ export class GamesGateway implements OnGatewayDisconnect {
         timeLimit: premiumConfig.timePerQuestion,
       };
 
-      // Send with additional premium info
-      const startMessage = {
+      // Send personalized messages to both users with their respective configs
+      await this.emitToSessionPeers(data.sessionId, 'game-started', {
         ...gameStartedEvent,
-        isPremium,
-        scoreMultiplier: premiumConfig.scoreMultiplier,
-        showAds,
-      };
+        user1Config: {
+          isPremium: user1Premium,
+          timePerQuestion: user1PremiumConfig.timePerQuestion,
+          scoreMultiplier: user1PremiumConfig.scoreMultiplier,
+        },
+        user2Config: {
+          isPremium: user2Premium,
+          timePerQuestion: user2PremiumConfig.timePerQuestion,
+          scoreMultiplier: user2PremiumConfig.scoreMultiplier,
+        },
+      });
 
-      await this.emitToSessionPeers(data.sessionId, 'game-started', startMessage);
-      await this.emitToSessionPeers(data.sessionId, 'new-question', questionEvent);
+      // Send first question with both users' time limits
+      await this.emitToSessionPeers(data.sessionId, 'new-question', {
+        ...questionEvent,
+        user1TimeLimit: user1PremiumConfig.timePerQuestion,
+        user2TimeLimit: user2PremiumConfig.timePerQuestion,
+      });
 
-      this.logger.debug('Game started with premium config', {
+      this.logger.debug('Game started with personalized premium configs', {
         gameSessionId: gameData.gameSessionId,
         sessionId: data.sessionId,
-        isPremium,
-        scoreMultiplier: premiumConfig.scoreMultiplier,
-        timePerQuestion: premiumConfig.timePerQuestion,
+        user1Id,
+        user1Premium,
+        user1TimePerQuestion: user1PremiumConfig.timePerQuestion,
+        user1ScoreMultiplier: user1PremiumConfig.scoreMultiplier,
+        user2Id,
+        user2Premium,
+        user2TimePerQuestion: user2PremiumConfig.timePerQuestion,
+        user2ScoreMultiplier: user2PremiumConfig.scoreMultiplier,
       });
     } catch (error) {
       this.logger.error('Error starting game', error instanceof Error ? error.message : 'Unknown error');
@@ -219,25 +241,9 @@ export class GamesGateway implements OnGatewayDisconnect {
 
       await this.emitToSessionPeers(data.sessionId, 'score-update', scoreUpdateEvent);
 
-      // Send next question or game end
-      if (result.nextQuestion) {
-        // Get stored timePerQuestion from game metadata for consistency
-        const metadata = await this.triviaService.getGameMetadata(data.gameSessionId);
-        const timePerQuestion = metadata?.timePerQuestion || 15;
-
-        const nextQuestionEvent: NewQuestionEvent = {
-          questionNumber: data.questionNumber + 1,
-          question: result.nextQuestion.question,
-          options: this.shuffleOptions([
-            result.nextQuestion.correct_answer,
-            ...result.nextQuestion.incorrect_answers,
-          ]),
-          timeLimit: timePerQuestion,
-        };
-
-        await this.emitToSessionPeers(data.sessionId, 'new-question', nextQuestionEvent);
-      } else {
-        // Game over
+      // Check if game is complete (both users answered all questions)
+      if (result.gameComplete) {
+        // Game over - both users have answered all questions
         const finalResult = await this.triviaService.completeGame(data.gameSessionId);
 
         // Get fresh game session with completed results
@@ -305,6 +311,30 @@ export class GamesGateway implements OnGatewayDisconnect {
 
         // Clean up active game tracking
         this.activeGames.delete(data.sessionId);
+      } else if (result.nextQuestion) {
+        // Current user has more questions - send next question
+        // Get stored timePerQuestion from game metadata for consistency
+        const metadata = await this.triviaService.getGameMetadata(data.gameSessionId);
+        const timePerQuestion = metadata?.timePerQuestion || 15;
+
+        const nextQuestionEvent: NewQuestionEvent = {
+          questionNumber: data.questionNumber + 1,
+          question: result.nextQuestion.question,
+          options: this.shuffleOptions([
+            result.nextQuestion.correct_answer,
+            ...result.nextQuestion.incorrect_answers,
+          ]),
+          timeLimit: timePerQuestion,
+        };
+
+        await this.emitToSessionPeers(data.sessionId, 'new-question', nextQuestionEvent);
+      } else {
+        // Current user finished all questions but other user hasn't - wait for peer
+        this.logger.debug('User finished all questions, waiting for peer', {
+          gameSessionId: data.gameSessionId,
+          userId: user.id,
+          questionNumber: data.questionNumber,
+        });
       }
     } catch (error) {
       this.logger.error('Error submitting answer', error instanceof Error ? error.message : 'Unknown error');

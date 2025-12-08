@@ -129,6 +129,27 @@ export class TriviaService {
   }
 
   /**
+   * Check if both users have answered all questions (game is complete)
+   */
+  private async isGameComplete(gameSessionId: string): Promise<boolean> {
+    const gameSession = await this.gameSessionRepository.findOne({
+      where: { id: gameSessionId },
+    });
+
+    if (!gameSession) {
+      return false;
+    }
+
+    const user1Answers = await this.getAnswers(gameSessionId, gameSession.user1Id);
+    const user2Answers = await this.getAnswers(gameSessionId, gameSession.user2Id);
+
+    return (
+      user1Answers.length === this.QUESTIONS_PER_GAME &&
+      user2Answers.length === this.QUESTIONS_PER_GAME
+    );
+  }
+
+  /**
    * Submit an answer to a trivia question
    */
   async submitAnswer(data: {
@@ -145,6 +166,7 @@ export class TriviaService {
     user1CorrectAnswers: number;
     user2CorrectAnswers: number;
     nextQuestion: TriviaQuestion | null;
+    gameComplete: boolean;
   }> {
     const gameSession = await this.gameSessionRepository.findOne({
       where: { id: data.gameSessionId },
@@ -200,10 +222,13 @@ export class TriviaService {
     const user1CorrectAnswers = user1Answers.filter(a => a.correct).length;
     const user2CorrectAnswers = user2Answers.filter(a => a.correct).length;
 
-    // Get next question or null if game is over
+    // Get next question or null if current user answered all their questions
     const nextQuestion = data.questionNumber < questions.length
       ? questions[data.questionNumber]
       : null;
+
+    // Check if game is actually complete (both users answered all questions)
+    const gameComplete = await this.isGameComplete(data.gameSessionId);
 
     this.logger.debug('Answer submitted', {
       gameSessionId: data.gameSessionId,
@@ -214,6 +239,7 @@ export class TriviaService {
       user2Score,
       user1CorrectAnswers,
       user2CorrectAnswers,
+      gameComplete,
     });
 
     return {
@@ -224,14 +250,15 @@ export class TriviaService {
       user1CorrectAnswers,
       user2CorrectAnswers,
       nextQuestion,
+      gameComplete,
     };
   }
 
   /**
    * Complete a game and save results to database
+   * NOTE: Winner determination is deferred to GamesGateway after applying premium multipliers
    */
   async completeGame(gameSessionId: string): Promise<{
-    winnerId: string;
     user1Score: number;
     user2Score: number;
   }> {
@@ -251,14 +278,12 @@ export class TriviaService {
     const user1Answers = await this.getAnswers(gameSessionId, gameSession.user1Id);
     const user2Answers = await this.getAnswers(gameSessionId, gameSession.user2Id);
 
-    // Calculate final scores
+    // Calculate final scores (base scores, without premium multipliers)
     const user1Score = this.calculateScoreFromAnswers(user1Answers, gameSession.user1Id);
     const user2Score = this.calculateScoreFromAnswers(user2Answers, gameSession.user2Id);
 
-    // Determine winner
-    const winnerId = user1Score > user2Score ? gameSession.user1Id : gameSession.user2Id;
-
-    // Update game session
+    // Store game results with base scores
+    // NOTE: Winner determination is deferred to GamesGateway after applying premium multipliers
     gameSession.user1Results = {
       score: user1Score,
       correctAnswers: user1Answers.filter(a => a.correct).length,
@@ -273,7 +298,7 @@ export class TriviaService {
       answers: user2Answers,
     };
 
-    gameSession.winnerId = winnerId;
+    // DO NOT set winnerId here - it will be determined in GamesGateway after premium calculations
     gameSession.completedAt = new Date();
     gameSession.durationSeconds = Math.round(
       (gameSession.completedAt.getTime() - gameSession.startedAt.getTime()) / 1000,
@@ -284,16 +309,17 @@ export class TriviaService {
     // Cleanup Redis
     await this.cleanupGameRedis(gameSessionId);
 
-    this.logger.debug('Game completed', {
+    this.logger.debug('Game completed with base scores', {
       gameSessionId,
-      winnerId,
       user1Score,
       user2Score,
+      user1Answers: user1Answers.length,
+      user2Answers: user2Answers.length,
       durationSeconds: gameSession.durationSeconds,
     });
 
+    // Return base scores - winner determination happens in GamesGateway after premium multipliers
     return {
-      winnerId,
       user1Score,
       user2Score,
     };
