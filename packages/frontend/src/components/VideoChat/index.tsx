@@ -410,7 +410,6 @@ export default function VideoChat({
         <TriviaGame
           socket={signaling.socket}
           sessionId={signaling.matched.sessionId}
-          peerId={signaling.matched.peerId}
           onClose={() => setShowGameModal(false)}
           isVisible={showGameModal}
         />
