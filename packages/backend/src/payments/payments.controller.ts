@@ -48,5 +48,11 @@ export class PaymentsController {
 
     return this.paymentsService.verifyCheckoutSession(sessionId, req.user.deviceId);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('customer-portal')
+  async createCustomerPortal(@Req() req: { user: { deviceId: string } }) {
+    return this.paymentsService.createCustomerPortalSession(req.user.deviceId);
+  }
 }
 

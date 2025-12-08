@@ -10,6 +10,7 @@ async function bootstrap() {
   const logger = new LoggerService();
   const app = await NestFactory.create(AppModule, {
     logger,
+    rawBody: true, // Required for Stripe webhook signature verification
   });
 
   // Security middleware

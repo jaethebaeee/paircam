@@ -1,15 +1,20 @@
 import { Injectable, BadRequestException, Inject } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import Stripe from 'stripe';
 import { env } from '../env';
 import { UsersService } from '../users/users.service';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { LoggerService } from '../services/logger.service';
+import { WebhookEvent } from './entities/webhook-event.entity';
 import { STRIPE_CLIENT, STRIPE_WEBHOOK_EVENTS, STRIPE_PAYMENT_STATUS } from './stripe';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @Inject(STRIPE_CLIENT) private readonly stripe: Stripe | null,
+    @InjectRepository(WebhookEvent)
+    private readonly webhookEventRepository: Repository<WebhookEvent>,
     private readonly usersService: UsersService,
     private readonly subscriptionsService: SubscriptionsService,
     private readonly logger: LoggerService,
@@ -40,6 +45,7 @@ export class PaymentsService {
     try {
       const session = await this.stripe.checkout.sessions.create({
         customer_email: user.email || undefined,
+        client_reference_id: user.id, // For reconciliation with our system
         line_items: [
           {
             price: priceId,
@@ -54,6 +60,8 @@ export class PaymentsService {
           deviceId: user.deviceId,
           plan,
         },
+        // Allow promotion codes for marketing
+        allow_promotion_codes: true,
       });
 
       this.logger.log('Checkout session created', {
@@ -94,7 +102,29 @@ export class PaymentsService {
       throw new BadRequestException('Invalid webhook signature');
     }
 
-    this.logger.log('Webhook received', { type: event.type });
+    // Idempotency check - prevent duplicate processing
+    const existingEvent = await this.webhookEventRepository.findOne({
+      where: { stripeEventId: event.id },
+    });
+
+    if (existingEvent?.status === 'processed') {
+      this.logger.debug('Webhook already processed, skipping', { eventId: event.id });
+      return { received: true, duplicate: true };
+    }
+
+    // Store the event for tracking
+    const webhookEvent = existingEvent || this.webhookEventRepository.create({
+      stripeEventId: event.id,
+      eventType: event.type,
+      status: 'pending',
+      payload: JSON.stringify(event.data.object),
+    });
+
+    if (!existingEvent) {
+      await this.webhookEventRepository.save(webhookEvent);
+    }
+
+    this.logger.log('Webhook received', { type: event.type, eventId: event.id });
 
     try {
       switch (event.type) {
@@ -121,7 +151,19 @@ export class PaymentsService {
         default:
           this.logger.debug('Unhandled webhook event', { type: event.type });
       }
+
+      // Mark as processed
+      webhookEvent.status = 'processed';
+      webhookEvent.processedAt = new Date();
+      await this.webhookEventRepository.save(webhookEvent);
+
     } catch (error) {
+      // Mark as failed with error message
+      webhookEvent.status = 'failed';
+      webhookEvent.errorMessage = error.message;
+      webhookEvent.retryCount += 1;
+      await this.webhookEventRepository.save(webhookEvent);
+
       this.logger.error('Webhook handler error', error.stack);
       throw error;
     }
@@ -300,6 +342,45 @@ export class PaymentsService {
     } catch (error) {
       this.logger.error('Failed to verify payment', error.stack);
       throw new BadRequestException('Failed to verify payment');
+    }
+  }
+
+  /**
+   * Create a customer portal session for subscription management
+   * Allows users to update payment methods, view invoices, cancel subscriptions
+   */
+  async createCustomerPortalSession(deviceId: string) {
+    if (!this.stripe) {
+      throw new BadRequestException('Payment system not configured');
+    }
+
+    const user = await this.usersService.findByDeviceId(deviceId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const subscription = await this.subscriptionsService.findActiveByUserId(user.id);
+    if (!subscription?.stripeCustomerId) {
+      throw new BadRequestException('No subscription found');
+    }
+
+    try {
+      const portalSession = await this.stripe.billingPortal.sessions.create({
+        customer: subscription.stripeCustomerId,
+        return_url: `${env.FRONTEND_URL}/account`,
+      });
+
+      this.logger.log('Customer portal session created', {
+        userId: user.id,
+        customerId: subscription.stripeCustomerId,
+      });
+
+      return {
+        url: portalSession.url,
+      };
+    } catch (error) {
+      this.logger.error('Failed to create customer portal session', error.stack);
+      throw new BadRequestException('Failed to create portal session');
     }
   }
 }

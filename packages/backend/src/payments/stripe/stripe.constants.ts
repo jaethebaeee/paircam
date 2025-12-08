@@ -4,7 +4,8 @@
  */
 
 // Stripe API version - update this when upgrading Stripe SDK
-export const STRIPE_API_VERSION = '2025-09-30.clover' as const;
+// Latest stable version as of Dec 2024
+export const STRIPE_API_VERSION = '2024-12-18.acacia' as const;
 
 // Stripe webhook event types we handle
 export const STRIPE_WEBHOOK_EVENTS = {
