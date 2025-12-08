@@ -55,7 +55,7 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {step === 'reason' ? (
             <>
               <p className="text-gray-600 mb-4 text-sm">
@@ -66,14 +66,14 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
                   <button
                     key={reason.id}
                     onClick={() => handleReasonSelect(reason.id)}
-                    className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
+                    className={`w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all text-left ${
                       selectedReason === reason.id
                         ? 'border-orange-500 bg-orange-50'
                         : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50'
                     }`}
                   >
-                    <span className="text-2xl">{reason.icon}</span>
-                    <span className="font-medium text-gray-800">{reason.label}</span>
+                    <span className="text-xl sm:text-2xl">{reason.icon}</span>
+                    <span className="font-medium text-gray-800 text-sm sm:text-base">{reason.label}</span>
                   </button>
                 ))}
               </div>
@@ -145,7 +145,7 @@ export default function ReportModal({ onSubmit, onClose, isLoading = false }: Re
         </div>
 
         {/* Footer Note */}
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6">
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
             <p className="text-xs text-blue-800">
               Reports are reviewed within 24 hours. Thank you for helping keep PairCam safe.
