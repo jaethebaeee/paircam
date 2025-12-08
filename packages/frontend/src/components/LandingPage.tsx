@@ -13,24 +13,49 @@ interface LandingPageProps {
   }) => void;
 }
 
-// Simulated live user count (in production, fetch from API)
+// Simulated live user count - realistic for a growing platform
 function useLiveUserCount() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    // Start with a realistic base count
-    const baseCount = 1247 + Math.floor(Math.random() * 500);
+    // Time-based multiplier for realism (more users in evening, fewer late night)
+    const getTimeMultiplier = () => {
+      const hour = new Date().getHours();
+      if (hour >= 20 || hour <= 1) return 1.3;      // Peak evening: 8pm-1am
+      if (hour >= 17 && hour < 20) return 1.15;     // After work: 5pm-8pm
+      if (hour >= 12 && hour < 17) return 1.0;      // Afternoon
+      if (hour >= 9 && hour < 12) return 0.7;       // Morning
+      return 0.5;                                    // Late night/early morning
+    };
+
+    // Base count: 47-89 users, adjusted by time
+    const baseCount = Math.floor((47 + Math.random() * 42) * getTimeMultiplier());
     setCount(baseCount);
 
-    // Simulate fluctuation
-    const interval = setInterval(() => {
+    // Natural fluctuation every 3-7 seconds
+    const tick = () => {
       setCount(prev => {
-        const change = Math.floor(Math.random() * 20) - 10;
-        return Math.max(800, prev + change);
+        // Small changes: -2 to +3 (slight upward bias for "growth" feel)
+        const change = Math.floor(Math.random() * 6) - 2;
+        const timeAdjusted = Math.floor(prev * getTimeMultiplier() / prev || 1);
+        const newCount = prev + change;
+        // Keep between 23 and 247
+        return Math.max(23, Math.min(247, newCount));
       });
-    }, 5000);
+    };
 
-    return () => clearInterval(interval);
+    // Randomize interval between 3-7 seconds for natural feel
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const scheduleNext = () => {
+      const delay = 3000 + Math.random() * 4000;
+      timeoutId = setTimeout(() => {
+        tick();
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return count;
