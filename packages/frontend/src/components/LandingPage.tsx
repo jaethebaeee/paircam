@@ -93,7 +93,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Hero Section - Clean & Simple */}
         <div className="text-center mb-8 sm:mb-12 pt-12 sm:pt-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4 sm:mb-5 leading-tight px-2">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent mb-4 sm:mb-5 leading-tight px-2">
             Video Chat with Strangers
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 max-w-xl mx-auto px-4">
@@ -277,6 +277,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className="max-w-md mx-auto mt-8 px-2">
           <AdBanner format="responsive" className="rounded-xl overflow-hidden" />
         </div>
+      </div>
       </div>
 
       {/* Ad Banner - Side placement for desktop */}

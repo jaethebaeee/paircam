@@ -1,11 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getFlagUrl } from '../../hooks/useGeolocation';
+
+// Random animal names for anonymous users
+const ANIMAL_NAMES = [
+  'Monkey', 'Panda', 'Tiger', 'Fox', 'Wolf', 'Bear', 'Owl', 'Eagle',
+  'Dolphin', 'Koala', 'Lion', 'Penguin', 'Rabbit', 'Deer', 'Hawk',
+  'Otter', 'Seal', 'Raven', 'Falcon', 'Lynx', 'Jaguar', 'Panther'
+];
 
 interface PartnerInfoProps {
   country?: string;
   countryCode?: string;
   matchedAt?: Date;
   className?: string;
+  partnerName?: string;
 }
 
 function ChatDuration({ startTime }: { startTime: Date }) {
@@ -34,9 +42,15 @@ function ChatDuration({ startTime }: { startTime: Date }) {
   );
 }
 
-export default function PartnerInfo({ country, countryCode, matchedAt, className = '' }: PartnerInfoProps) {
+export default function PartnerInfo({ country, countryCode, matchedAt, className = '', partnerName }: PartnerInfoProps) {
   const displayCountry = country || 'Unknown Location';
   const flagUrl = getFlagUrl(countryCode || 'XX', 'w40');
+
+  // Generate a random animal name if no partner name provided
+  const displayName = useMemo(() => {
+    if (partnerName) return partnerName;
+    return ANIMAL_NAMES[Math.floor(Math.random() * ANIMAL_NAMES.length)];
+  }, [partnerName]);
 
   return (
     <div className={`flex items-center gap-3 bg-black/60 backdrop-blur-md px-4 py-2.5 rounded-2xl animate-slideInLeft ${className}`}>
@@ -56,7 +70,7 @@ export default function PartnerInfo({ country, countryCode, matchedAt, className
 
       {/* Partner Info */}
       <div className="flex flex-col">
-        <span className="text-white text-sm font-semibold">Stranger</span>
+        <span className="text-white text-sm font-semibold">{displayName}</span>
         <span className="text-white/70 text-xs">{displayCountry}</span>
       </div>
 
