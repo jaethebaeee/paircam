@@ -122,7 +122,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            <div className="text-2xl font-bold">$2.99</div>
+            <div className="text-2xl font-bold">$9.99</div>
             <div className="text-sm opacity-90">per week</div>
           </button>
           <button
@@ -136,7 +136,7 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
             <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
               Save 25%
             </div>
-            <div className="text-2xl font-bold">$9.99</div>
+            <div className="text-2xl font-bold">$29.99</div>
             <div className="text-sm opacity-90">per month</div>
           </button>
         </div>
