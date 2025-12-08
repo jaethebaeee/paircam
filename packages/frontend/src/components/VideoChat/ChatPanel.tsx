@@ -109,10 +109,9 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
           <button
             onClick={handleSend}
             disabled={!message.trim()}
-            className="group relative p-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105 active:scale-95 disabled:transform-none"
+            className="group relative p-3 rounded-xl bg-gradient-to-r from-pink-700 to-purple-700 text-white hover:from-pink-800 hover:to-purple-800 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-pink-500/20 hover:shadow-pink-500/30 transform hover:scale-105 active:scale-95 disabled:transform-none flex items-center justify-center"
           >
-            <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <PaperAirplaneIcon className="h-5 w-5 relative z-10" />
+            <PaperAirplaneIcon className="h-5 w-5" />
           </button>
         </div>
       </div>

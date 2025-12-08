@@ -143,9 +143,9 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
           {/* Cancel Button */}
           <button
             onClick={onCancel}
-            className="w-full py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 hover:shadow-lg active:scale-95"
+            className="w-full px-6 py-3 border-2 border-gray-400 text-gray-600 font-semibold rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center text-center"
           >
-            Cancel and Go Back
+            <span>Cancel and Go Back</span>
           </button>
 
           {/* Additional Info */}

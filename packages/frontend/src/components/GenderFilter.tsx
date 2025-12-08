@@ -89,15 +89,12 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
               </p>
               <button
                 onClick={onUpgradeClick}
-                className="group relative bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-orange-300/40 hover:shadow-xl hover:shadow-orange-300/60 transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden"
+                className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl font-semibold text-sm shadow-md shadow-orange-300/30 hover:from-yellow-600 hover:to-orange-700 transition-all flex items-center justify-center text-center gap-2"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <span className="relative flex items-center gap-2">
-                  Upgrade to Premium
-                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
+                <span>Upgrade to Premium</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
               </button>
             </div>
           </div>
