@@ -4,6 +4,7 @@ import { LoggerService } from '../services/logger.service';
 import { FeedbackService } from '../feedback/feedback.service';
 import { MatchFeedback } from '../feedback/entities/match-feedback.entity';
 import { firstValueFrom } from 'rxjs';
+import { AxiosResponse } from 'axios';
 
 /**
  * Gorse Integration Service
@@ -18,7 +19,7 @@ import { firstValueFrom } from 'rxjs';
 export class GorseService {
   private readonly gorseApiUrl: string;
   private readonly syncIntervalMinutes: number = 60; // Sync every 1 hour
-  private syncInterval: NodeJS.Timer | null = null;
+  private syncInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private readonly httpService: HttpService,
@@ -77,11 +78,11 @@ export class GorseService {
   async checkGorseHealth(): Promise<boolean> {
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.gorseApiUrl}/api/health`),
+        this.httpService.get<any>(`${this.gorseApiUrl}/api/health`),
       );
       return response.status === 200;
     } catch (error) {
-      this.logger.debug('Gorse health check failed', error.message);
+      this.logger.debug('Gorse health check failed', (error as any).message);
       return false;
     }
   }
@@ -136,7 +137,7 @@ export class GorseService {
   ): Promise<void> {
     try {
       const response = await firstValueFrom(
-        this.httpService.post(`${this.gorseApiUrl}/api/ratings`, ratings),
+        this.httpService.post<any>(`${this.gorseApiUrl}/api/ratings`, ratings),
       );
 
       if (response.status !== 200 && response.status !== 201) {
@@ -158,7 +159,7 @@ export class GorseService {
   async getRecommendations(userId: string, limit: number = 10): Promise<string[]> {
     try {
       const response = await firstValueFrom(
-        this.httpService.get(
+        this.httpService.get<any>(
           `${this.gorseApiUrl}/api/recommend/${userId}?n=${limit}`,
         ),
       );
@@ -171,7 +172,7 @@ export class GorseService {
       const items = response.data as Array<{ Id: string; Score: number }>;
       return items.map((item) => item.Id).slice(0, limit);
     } catch (error) {
-      this.logger.debug('Failed to get recommendations from Gorse', error.message);
+      this.logger.debug('Failed to get recommendations from Gorse', (error as any).message);
       return []; // Return empty array if Gorse is unavailable
     }
   }
@@ -183,7 +184,7 @@ export class GorseService {
   async triggerTraining(): Promise<void> {
     try {
       await firstValueFrom(
-        this.httpService.post(`${this.gorseApiUrl}/api/reload`, {}),
+        this.httpService.post<any>(`${this.gorseApiUrl}/api/reload`, {}),
       );
       this.logger.log('Gorse model training triggered');
     } catch (error) {
@@ -197,7 +198,7 @@ export class GorseService {
   async getStatus(): Promise<any> {
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.gorseApiUrl}/api/stats`),
+        this.httpService.get<any>(`${this.gorseApiUrl}/api/stats`),
       );
       return response.data;
     } catch (error) {

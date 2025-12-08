@@ -55,9 +55,9 @@ export class MatchmakingService {
     private readonly signalingGateway: SignalingGateway,
     @Inject(forwardRef(() => MatchAnalyticsService))
     private readonly analyticsService: MatchAnalyticsService,
+    private readonly logger: LoggerService,
     @Optional()
     private readonly gorseService?: GorseService,
-    private readonly logger: LoggerService,
   ) {}
 
   async addToQueue(userId: string, metadata: { 

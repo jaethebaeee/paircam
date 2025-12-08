@@ -22,7 +22,7 @@ export interface FeedbackStats {
   totalFeedback: number;
   ratingDistribution: Record<number, number>; // { 1: count, 2: count, ... }
   topReasons: Array<{ reason: string; count: number }>;
-  connectionQualityStats: Record<string, number>;
+  connectionQualityStats?: Record<string, number>;
 }
 
 @Injectable()
