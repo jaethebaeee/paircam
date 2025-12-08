@@ -17,6 +17,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { BlockingModule } from './blocking/blocking.module';
 import { MatchesModule } from './matches/matches.module';
+import { ReputationModule } from './reputation/reputation.module';
 import { HealthController } from './health/health.controller';
 import { env } from './env';
 
@@ -26,6 +27,8 @@ import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { BlockedUser } from './blocking/entities/blocked-user.entity';
 import { Match } from './matches/entities/match.entity';
+import { UserReputation } from './reputation/entities/user-reputation.entity';
+import { ReputationEvent } from './reputation/entities/reputation-event.entity';
 
 @Module({
   imports: [
@@ -38,7 +41,7 @@ import { Match } from './matches/entities/match.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment, BlockedUser, Match],
+      entities: [User, Subscription, Payment, BlockedUser, Match, UserReputation, ReputationEvent],
       synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
       ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
@@ -52,6 +55,7 @@ import { Match } from './matches/entities/match.entity';
     PaymentsModule,
     BlockingModule,
     MatchesModule, // 🆕 Match persistence for analytics
+    ReputationModule, // 🆕 Reputation persistence for long-term tracking
     AnalyticsModule,
     SignalingModule,
     TurnModule,

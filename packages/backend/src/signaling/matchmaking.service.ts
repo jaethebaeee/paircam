@@ -5,6 +5,7 @@ import { SignalingGateway } from './signaling.gateway';
 import { LoggerService } from '../services/logger.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { BlockingService } from '../blocking/blocking.service';
+import { MatchesService } from '../matches/matches.service';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface QueueUser {
@@ -75,6 +76,8 @@ export class MatchmakingService {
     private readonly analyticsService: MatchAnalyticsService,
     @Inject(forwardRef(() => BlockingService))
     private readonly blockingService: BlockingService,
+    @Inject(forwardRef(() => MatchesService))
+    private readonly matchesService: MatchesService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -777,7 +780,9 @@ export class MatchmakingService {
     const commonInterests = user1.interests && user2.interests
       ? user1.interests.filter(i => user2.interests?.includes(i))
       : [];
-    
+
+    const now = Date.now();
+
     await this.analyticsService.trackMatchCreated({
       matchId,
       sessionId,
@@ -788,6 +793,25 @@ export class MatchmakingService {
       queueType: user1.queueType || 'casual',
       commonInterests,
     });
+
+    // 🆕 Persist match to PostgreSQL for long-term analytics
+    try {
+      await this.matchesService.createMatch({
+        sessionId,
+        user1Id: user1.userId,
+        user2Id: user2.userId,
+        compatibilityScore: compatibilityScore || 0,
+        commonInterests,
+        region: user1.region,
+        language: user1.language,
+        queueType: user1.queueType || 'casual',
+        user1WaitTime: now - user1.timestamp,
+        user2WaitTime: now - user2.timestamp,
+      });
+    } catch (dbError) {
+      // Don't fail the match if DB persistence fails
+      this.logger.error('Failed to persist match to DB', dbError.stack);
+    }
 
     // Notify both users
     await this.signalingGateway.notifyMatch(user1.userId, user2.userId, sessionId);

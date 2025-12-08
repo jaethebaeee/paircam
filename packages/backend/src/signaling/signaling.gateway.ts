@@ -15,6 +15,8 @@ import { RedisService } from '../redis/redis.service';
 import { RedisPubSubService, MatchNotifyEvent, SessionEndEvent, SignalForwardEvent } from '../redis/redis-pubsub.service';
 import { MatchmakingService } from './matchmaking.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
+import { MatchesService } from '../matches/matches.service';
+import { ReputationService } from '../reputation/reputation.service';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
 
@@ -69,6 +71,10 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     private readonly matchmakingService: MatchmakingService,
     @Inject(forwardRef(() => MatchAnalyticsService))
     private readonly analyticsService: MatchAnalyticsService,
+    @Inject(forwardRef(() => MatchesService))
+    private readonly matchesService: MatchesService,
+    @Inject(forwardRef(() => ReputationService))
+    private readonly reputationService: ReputationService,
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly logger: LoggerService,
@@ -520,6 +526,37 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
         });
       }
 
+      // 🆕 Persist to PostgreSQL for long-term tracking
+      try {
+        // Update match record
+        await this.matchesService.endMatch(sessionId, {
+          wasSkipped,
+          endedBy: deviceId,
+          callDuration,
+          qualityScore: this.calculateQualityScore(callDuration, wasSkipped),
+        });
+
+        // Update reputation in PostgreSQL
+        await this.reputationService.recordCallCompleted(
+          user.id,
+          sessionId,
+          callDuration,
+          wasSkipped,
+        );
+
+        if (peerId) {
+          const peerUser = await this.usersService.findOrCreate(peerId);
+          await this.reputationService.recordCallCompleted(
+            peerUser.id,
+            sessionId,
+            callDuration,
+            wasSkipped,
+          );
+        }
+      } catch (dbError) {
+        this.logger.warn('Failed to persist call data to DB', { error: dbError.message });
+      }
+
       this.logger.debug('Reputation and analytics tracked', {
         sessionId,
         matchId: session.matchId,
@@ -530,6 +567,29 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     } catch (error) {
       this.logger.error('Reputation tracking error', error.stack);
     }
+  }
+
+  /**
+   * Calculate quality score based on call metrics (0-100)
+   */
+  private calculateQualityScore(callDuration: number, wasSkipped: boolean): number {
+    let score = 0;
+
+    // Call duration scoring (0-60 points)
+    if (callDuration >= 300) score += 60; // 5+ minutes
+    else if (callDuration >= 120) score += 45; // 2+ minutes
+    else if (callDuration >= 60) score += 30; // 1+ minute
+    else if (callDuration >= 30) score += 15; // 30+ seconds
+
+    // Not skipped bonus (0-40 points)
+    if (!wasSkipped) {
+      score += 40;
+    } else if (callDuration >= 60) {
+      // Partial credit if call lasted 1+ minute before skip
+      score += 20;
+    }
+
+    return Math.min(100, score);
   }
 
   // 🆕 Track connection success/failure
@@ -549,12 +609,37 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
           sessionId: data.sessionId,
           connectionTime: data.connectionTime,
         });
+
+        // 🆕 Persist to PostgreSQL
+        try {
+          await this.matchesService.markConnected(
+            data.sessionId,
+            data.connectionTime,
+            (data as any).connectionType, // direct or relay
+          );
+        } catch (dbError) {
+          this.logger.warn('Failed to persist connection status', { error: dbError.message });
+        }
       } else if (data.status === 'failed') {
         await this.analyticsService.trackConnectionFailed({
           matchId: session.matchId,
           sessionId: data.sessionId,
           reason: 'WebRTC connection failed',
         });
+
+        // 🆕 Persist failure and update reputation
+        try {
+          await this.matchesService.markConnectionFailed(data.sessionId);
+
+          // Update reputation for connection failure
+          const deviceId = client.data.deviceId;
+          if (deviceId) {
+            const user = await this.usersService.findOrCreate(deviceId);
+            await this.reputationService.recordConnectionFailure(user.id, data.sessionId);
+          }
+        } catch (dbError) {
+          this.logger.warn('Failed to persist connection failure', { error: dbError.message });
+        }
       }
 
       this.logger.debug('Connection status tracked', {
