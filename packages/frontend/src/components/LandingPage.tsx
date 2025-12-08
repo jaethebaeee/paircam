@@ -40,9 +40,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [userName, setUserName] = useState('');
-  const [userAge, setUserAge] = useState('');
   const [showNameError, setShowNameError] = useState(false);
-  const [showAgeError, setShowAgeError] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [isFormFocused, setIsFormFocused] = useState(false);
   const liveUserCount = useLiveUserCount();
@@ -52,11 +50,9 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       setShowNameError(true);
       return;
     }
-    if (isAdultConfirmed && (!userAge || parseInt(userAge) < 18)) {
-      setShowAgeError(true);
+    if (!isAdultConfirmed) {
       return;
     }
-    // Just pass basic info, preferences will be collected in modal
     onStartCall({
       name: userName.trim(),
       isTextMode: textMode,
@@ -125,22 +121,22 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Get Started</h3>
 
           <div className="space-y-5">
-            {/* Name Input */}
+            {/* Username Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Your name
+                Username
               </label>
               <input
                 type="text"
                 value={userName}
                 onChange={(e) => {
-                  setUserName(e.target.value.slice(0, 30));
+                  setUserName(e.target.value.slice(0, 20));
                   setShowNameError(false);
                 }}
                 onFocus={() => setIsFormFocused(true)}
                 onBlur={() => setIsFormFocused(false)}
-                placeholder="Enter a nickname"
-                aria-label="Your name or nickname"
+                placeholder="Choose a username"
+                aria-label="Username"
                 aria-required="true"
                 aria-invalid={showNameError}
                 className={`w-full px-4 py-3 rounded-lg border ${
@@ -148,11 +144,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                     ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
                     : 'border-gray-300 focus:border-gray-900 focus:ring-gray-100'
                 } focus:ring-2 outline-none text-base transition-colors`}
-                maxLength={30}
+                maxLength={20}
               />
               {showNameError && (
                 <p className="mt-2 text-sm text-red-600" role="alert">
-                  Please enter your name to continue
+                  Please enter a username to continue
                 </p>
               )}
             </div>
@@ -184,13 +180,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               <input
                 type="checkbox"
                 checked={isAdultConfirmed}
-                onChange={() => {
-                  setIsAdultConfirmed(!isAdultConfirmed);
-                  if (isAdultConfirmed) {
-                    setUserAge('');
-                    setShowAgeError(false);
-                  }
-                }}
+                onChange={() => setIsAdultConfirmed(!isAdultConfirmed)}
                 className="sr-only"
               />
               <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
@@ -203,47 +193,15 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 )}
               </div>
               <div>
-                <span className="text-sm font-medium text-gray-900">I'm 18 or older</span>
-                <p className="text-xs text-gray-500">Required for video chat</p>
+                <span className="text-sm font-medium text-gray-900">I confirm I'm 18+</span>
+                <p className="text-xs text-gray-500">Required to use this service</p>
               </div>
             </label>
-
-            {/* Age Input */}
-            {isAdultConfirmed && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Your age
-                </label>
-                <input
-                  type="number"
-                  value={userAge}
-                  onChange={(e) => {
-                    setUserAge(e.target.value);
-                    setShowAgeError(false);
-                  }}
-                  onFocus={() => setIsFormFocused(true)}
-                  onBlur={() => setIsFormFocused(false)}
-                  placeholder="18"
-                  min="18"
-                  max="120"
-                  className={`w-full px-4 py-3 rounded-lg border ${
-                    showAgeError
-                      ? 'border-red-400 focus:border-red-500'
-                      : 'border-gray-300 focus:border-gray-900'
-                  } focus:ring-2 focus:ring-gray-100 outline-none text-base transition-colors`}
-                />
-                {showAgeError && (
-                  <p className="mt-2 text-sm text-red-600" role="alert">
-                    You must be 18 or older
-                  </p>
-                )}
-              </div>
-            )}
 
             {/* Start Button */}
             <button
               onClick={() => handleStartChat(false)}
-              disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
+              disabled={!userName.trim() || !isAdultConfirmed}
               className="w-full py-4 px-6 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-300 text-white font-semibold text-base rounded-lg transition-colors disabled:cursor-not-allowed"
             >
               Start Video Chat
