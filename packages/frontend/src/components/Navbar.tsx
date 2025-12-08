@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuthContext } from '../contexts/AuthContext';
 
 interface NavbarProps {
   onPremiumClick?: () => void;
@@ -8,7 +8,7 @@ interface NavbarProps {
 export default function Navbar({ onPremiumClick }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { user, isAuthenticated, isPremium, signOut } = useAuth();
+  const { user, isAuthenticated, isPremium, signOut } = useAuthContext();
 
   const navLinks = [
     { href: '/#features', label: 'Features' },
@@ -79,7 +79,7 @@ export default function Navbar({ onPremiumClick }: NavbarProps) {
                     aria-haspopup="true"
                   >
                     <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                      {user?.email?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'}
+                      {user?.email?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -89,7 +89,7 @@ export default function Navbar({ onPremiumClick }: NavbarProps) {
                   {isUserMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50">
                       <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900 truncate">{user?.email || user?.username || 'User'}</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">{user?.email || 'User'}</p>
                         <p className="text-xs text-gray-500">{isPremium ? 'Premium Member' : 'Free Plan'}</p>
                       </div>
                       <a href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Account Settings</a>
