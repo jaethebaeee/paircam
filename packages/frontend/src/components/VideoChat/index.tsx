@@ -335,9 +335,9 @@ export default function VideoChat({
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] bg-slate-900 relative">
-      {/* Network Quality Indicator */}
-      {!isTextMode && (
+    <div className="h-screen w-screen bg-black relative overflow-hidden">
+      {/* Network Quality Indicator - Only show on poor connection */}
+      {!isTextMode && networkInfo.quality === 'poor' && (
         <NetworkQualityIndicator
           quality={networkInfo.quality}
           type={networkInfo.type}
@@ -361,12 +361,12 @@ export default function VideoChat({
 
       {isTextMode ? (
         // Text-only mode UI
-        <div className="h-full flex items-center justify-center p-4">
-          <div className="max-w-4xl w-full h-[600px]">
+        <div className="h-full flex items-center justify-center p-4 pb-32">
+          <div className="max-w-2xl w-full h-full max-h-[600px]">
             <ChatPanel
               messages={messages}
               onSendMessage={handleSendMessage}
-              onClose={() => {}} // Can't close in text mode
+              onClose={() => {}}
               isFullScreen={true}
             />
           </div>

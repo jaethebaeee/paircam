@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { XMarkIcon, PaperAirplaneIcon, FaceSmileIcon } from '@heroicons/react/24/solid';
 
 interface ChatPanelProps {
   messages: Array<{ text: string; isMine: boolean; sender?: string }>;
@@ -9,9 +9,14 @@ interface ChatPanelProps {
   isFullScreen?: boolean;
 }
 
+// Quick reply suggestions
+const QUICK_REPLIES = ['Hey! 👋', 'How are you?', 'Nice to meet you!', 'Where are you from?'];
+
 export default function ChatPanel({ messages, onSendMessage, onClose, isFullScreen = false }: ChatPanelProps) {
   const [message, setMessage] = useState('');
+  const [showQuickReplies, setShowQuickReplies] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [messagesParent] = useAutoAnimate();
 
   const scrollToBottom = () => {
@@ -20,71 +25,102 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
 
   useEffect(() => {
     scrollToBottom();
+    // Hide quick replies after first message is sent or received
+    if (messages.length > 0) {
+      setShowQuickReplies(false);
+    }
   }, [messages]);
 
   const handleSend = () => {
     if (message.trim()) {
       onSendMessage(message);
       setMessage('');
+      inputRef.current?.focus();
+    }
+  };
+
+  const handleQuickReply = (text: string) => {
+    onSendMessage(text);
+    setShowQuickReplies(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
   };
 
   return (
-    <div className={isFullScreen 
-      ? "h-full bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col"
-      : "absolute right-4 bottom-24 w-80 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-200"
-    }>
-      {/* Modern Header */}
-      <div className="bg-gradient-to-r from-pink-500 to-purple-600 px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          <h3 className="text-white font-semibold text-base">Chat</h3>
+    <div
+      className={
+        isFullScreen
+          ? 'h-full bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/10 flex flex-col'
+          : 'absolute right-4 bottom-28 w-80 sm:w-96 bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[60vh]'
+      }
+    >
+      {/* Header */}
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-4 py-3 flex items-center justify-between border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <span className="text-white font-semibold text-sm">Chat</span>
+          <span className="text-white/40 text-xs">with Stranger</span>
         </div>
         {!isFullScreen && (
           <button
             onClick={onClose}
-            className="text-white/90 hover:text-white hover:bg-white/20 p-1.5 rounded-full transition-all duration-200"
+            className="text-white/60 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-all"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
         )}
       </div>
-      
-      {/* Messages Area */}
-      <div ref={messagesParent} className={`${isFullScreen ? 'flex-1' : 'h-72'} overflow-y-auto p-4 space-y-3 bg-gray-50/50`}>
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-400 py-12">
-            <div className="bg-gradient-to-br from-pink-100 to-purple-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 shadow-sm">
-              <span className="text-4xl block mt-1">👋</span>
+
+      {/* Messages */}
+      <div
+        ref={messagesParent}
+        className={`${isFullScreen ? 'flex-1' : 'h-64'} overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent`}
+      >
+        {messages.length === 0 && showQuickReplies ? (
+          <div className="text-center py-8">
+            <div className="mb-4">
+              <FaceSmileIcon className="h-12 w-12 text-white/20 mx-auto" />
             </div>
-            <p className="text-base font-semibold text-gray-700">Break the ice!</p>
-            <p className="text-sm mt-2 text-gray-500 max-w-[200px] mx-auto">
-              Send a friendly message to start the conversation
-            </p>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">Hey there!</span>
-              <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">Where are you from?</span>
-              <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">Hi!</span>
+            <p className="text-white/60 text-sm mb-4">Start the conversation!</p>
+
+            {/* Quick replies */}
+            <div className="flex flex-wrap justify-center gap-2">
+              {QUICK_REPLIES.map((reply) => (
+                <button
+                  key={reply}
+                  onClick={() => handleQuickReply(reply)}
+                  className="text-xs bg-white/10 hover:bg-white/20 text-white/80 px-3 py-2 rounded-full transition-all hover:scale-105"
+                >
+                  {reply}
+                </button>
+              ))}
             </div>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="text-center py-8">
+            <FaceSmileIcon className="h-12 w-12 text-white/20 mx-auto mb-4" />
+            <p className="text-white/40 text-sm">No messages yet</p>
           </div>
         ) : (
           <>
             {messages.map((msg, idx) => (
               <div
-                key={`${idx}-${msg.text.substring(0, 10)}-${msg.isMine}`}
-                className={`flex ${msg.isMine ? 'justify-end' : 'justify-start'} animate-fadeIn`}
+                key={`${idx}-${msg.text.substring(0, 10)}`}
+                className={`flex ${msg.isMine ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[75%] px-4 py-2.5 rounded-2xl shadow-sm ${
+                  className={`max-w-[80%] px-4 py-2.5 rounded-2xl ${
                     msg.isMine
-                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-br-md'
-                      : 'bg-white text-gray-800 rounded-bl-md border border-gray-200'
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-br-sm'
+                      : 'bg-white/10 text-white rounded-bl-sm'
                   }`}
                 >
-                  <p className="text-sm leading-relaxed">{msg.text}</p>
-                  {msg.sender && (
-                    <p className="text-xs mt-1 opacity-75">{msg.sender}</p>
-                  )}
+                  <p className="text-sm break-words">{msg.text}</p>
                 </div>
               </div>
             ))}
@@ -92,27 +128,25 @@ export default function ChatPanel({ messages, onSendMessage, onClose, isFullScre
           </>
         )}
       </div>
-      
-      {/* Modern Input Area */}
-      <div className="p-4 bg-white border-t border-gray-200">
+
+      {/* Input */}
+      <div className="p-3 bg-slate-800/50 border-t border-white/5">
         <div className="flex items-center gap-2">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Type a message..."
-              className="w-full px-4 py-3 pr-12 rounded-2xl border-2 border-gray-200 focus:border-pink-500 focus:ring-0 outline-none text-sm bg-gray-50 focus:bg-white transition-all placeholder:text-gray-400"
-            />
-          </div>
+          <input
+            ref={inputRef}
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a message..."
+            className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/10 focus:border-blue-500/50 focus:bg-white/5 outline-none text-white text-sm placeholder:text-white/30 transition-all"
+          />
           <button
             onClick={handleSend}
             disabled={!message.trim()}
-            className="group relative p-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transform hover:scale-105 active:scale-95 disabled:transform-none"
+            className="p-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 transition-all disabled:opacity-30 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95 disabled:transform-none"
           >
-            <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <PaperAirplaneIcon className="h-5 w-5 relative z-10" />
+            <PaperAirplaneIcon className="h-5 w-5" />
           </button>
         </div>
       </div>
