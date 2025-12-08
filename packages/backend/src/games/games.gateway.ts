@@ -18,7 +18,7 @@ import {
   LeaderboardService,
 } from './services';
 import { JwtService } from '@nestjs/jwt';
-import * as amplitude from '@amplitude/analytics-node';
+// Analytics tracking (optional - implement when amplitude is configured)
 
 @WebSocketGateway({
   cors: {
@@ -107,16 +107,7 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
         reward: this.gameService.getGameReward(game.type),
       });
 
-      // Track analytics
-      amplitude.track({
-        userId,
-        eventType: 'game_started',
-        eventProperties: {
-          gameType: game.type,
-          opponent: data.peerId,
-          sessionId: data.sessionId,
-        },
-      });
+      // TODO: Track analytics (amplitude.track when configured)
 
       return {
         success: true,
@@ -210,18 +201,7 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
             newBalance: wallet.coinsBalance,
           });
 
-          // Track analytics
-          amplitude.track({
-            userId: winnerId,
-            eventType: 'game_won',
-            eventProperties: {
-              gameType: updatedGame.type,
-              reward,
-              duration: Math.floor(
-                (updatedGame.endedAt.getTime() - updatedGame.createdAt.getTime()) / 1000,
-              ),
-            },
-          });
+          // TODO: Track analytics (amplitude.track when configured)
         }
       }
 
@@ -285,16 +265,7 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
         newBalance: wallet.coinsBalance,
       });
 
-      // Track analytics
-      amplitude.track({
-        userId,
-        eventType: 'gift_sent',
-        eventProperties: {
-          giftId: data.giftId,
-          cost: transaction.costCoins,
-          recipientId: data.toUserId,
-        },
-      });
+      // TODO: Track analytics (amplitude.track when configured)
 
       return { success: true, newBalance: wallet.coinsBalance };
     } catch (error) {
