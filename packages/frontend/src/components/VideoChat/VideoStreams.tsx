@@ -66,7 +66,7 @@ export default function VideoStreams({
       videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
       videoElement.removeEventListener('emptied', handleEmptied);
     };
-  }, [remoteVideoReady]);
+  }, [remoteVideoReady, remoteVideoRef]);
 
   // Reset disconnecting state when reconnecting
   useEffect(() => {

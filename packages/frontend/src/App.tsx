@@ -64,6 +64,34 @@ const softwareAppSchema = {
   }
 };
 
+type AppState = 'landing' | 'preferences' | 'safety' | 'permissions' | 'waiting' | 'chatting';
+type QueueType = 'casual' | 'serious' | 'language' | 'gaming';
+
+interface AppRoutesProps {
+  appState: AppState;
+  handleStartCall: (data: { name: string; gender?: string; genderPreference?: string; isTextMode?: boolean; isVideoEnabled?: boolean }) => void;
+  handleStopChatting: () => void;
+  handlePreferencesSet: (preferences: { gender?: string; genderPreference: string; interests?: string[]; queueType?: QueueType; nativeLanguage?: string; learningLanguage?: string }) => void;
+  handlePreferencesCancel: () => void;
+  handleSafetyAccept: () => void;
+  handleSafetyDecline: () => void;
+  handlePermissionsGranted: () => void;
+  handlePermissionsDenied: () => void;
+  handleWaitingCancel: () => void;
+  showPremiumModal: boolean;
+  setShowPremiumModal: (show: boolean) => void;
+  userName: string;
+  userGender: string;
+  genderPreference: string;
+  interests: string[];
+  queueType: QueueType;
+  nativeLanguage: string;
+  learningLanguage: string;
+  isTextMode: boolean;
+  initialVideoEnabled: boolean;
+  isPremium: boolean;
+}
+
 // Inner component to access useLocation
 function AppRoutes({
   appState,
@@ -81,14 +109,14 @@ function AppRoutes({
   userName,
   userGender,
   genderPreference,
-  interests, // 🆕
-  queueType, // 🆕
-  nativeLanguage, // 🆕
-  learningLanguage, // 🆕
+  interests,
+  queueType,
+  nativeLanguage,
+  learningLanguage,
   isTextMode,
   initialVideoEnabled,
   isPremium,
-}: any) {
+}: AppRoutesProps) {
   const location = useLocation();
   const [currentRoute, setCurrentRoute] = useState<string>(location.pathname);
 

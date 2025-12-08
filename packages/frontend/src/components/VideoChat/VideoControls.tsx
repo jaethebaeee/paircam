@@ -21,14 +21,12 @@ interface VideoControlsProps {
   onToggleChat: () => void;
   onReport: () => void;
   onBlock?: () => void;
-  onPlayGame?: () => void;
   onFriendRequest?: () => void;
   isSkipping?: boolean;
   isTextMode?: boolean;
   isAudioOnlyMode?: boolean;
   onSwitchToAudioOnly?: () => void;
   isConnected?: boolean;
-  isGamingMode?: boolean;
 }
 
 export default function VideoControls({
@@ -41,14 +39,12 @@ export default function VideoControls({
   onToggleChat,
   onReport,
   onBlock,
-  onPlayGame,
   onFriendRequest,
   isSkipping = false,
   isTextMode = false,
   isAudioOnlyMode = false,
   onSwitchToAudioOnly,
   isConnected = false,
-  isGamingMode = false,
 }: VideoControlsProps) {
   return (
     <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-50">
@@ -202,29 +198,6 @@ export default function VideoControls({
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
                   Chat
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                    <div className="border-4 border-transparent border-t-black/90"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Play Game - Only show when connected and in gaming mode */}
-          {isConnected && isGamingMode && onPlayGame && (
-            <div className="relative group">
-              <button
-                onClick={onPlayGame}
-                className="relative p-4 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/30 transition-all duration-300 transform hover:scale-110 active:scale-95"
-                aria-label="Play game"
-              >
-                <div className="absolute inset-0 rounded-full bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="text-2xl relative z-10">🎮</span>
-              </button>
-              {/* Tooltip */}
-              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                <div className="bg-black/90 text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">
-                  Play Trivia Battle
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                     <div className="border-4 border-transparent border-t-black/90"></div>
                   </div>

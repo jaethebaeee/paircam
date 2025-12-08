@@ -15,7 +15,6 @@ import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
 import ReportModal from '../ReportModal';
 import BlockModal from '../BlockModal';
-import { TriviaGame } from '../games';
 import { blockUser } from '../../api/blocking';
 
 type TurnCredentials = {
@@ -70,7 +69,6 @@ export default function VideoChat({
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [isBlocking, setIsBlocking] = useState(false);
   const [matchedAt, setMatchedAt] = useState<Date | undefined>(undefined);
-  const [showGameModal, setShowGameModal] = useState(false);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Geolocation for country flags
@@ -432,25 +430,12 @@ export default function VideoChat({
         onToggleChat={() => setShowChat(!showChat)}
         onReport={handleOpenReport}
         onBlock={handleOpenBlock}
-        onPlayGame={() => setShowGameModal(true)}
         isSkipping={isSkipping}
         isTextMode={isTextMode}
         isAudioOnlyMode={isAudioOnlyMode}
         onSwitchToAudioOnly={handleSwitchToAudioOnly}
         isConnected={!!signaling.matched}
-        isGamingMode={queueType === 'gaming'}
       />
-
-      {/* Game Modal */}
-      {signaling.matched && (
-        <TriviaGame
-          socket={signaling.socket}
-          sessionId={signaling.matched.sessionId}
-          peerId={signaling.matched.peerId}
-          onClose={() => setShowGameModal(false)}
-          isVisible={showGameModal}
-        />
-      )}
 
       {/* Report Modal */}
       {showReportModal && (
