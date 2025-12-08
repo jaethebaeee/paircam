@@ -1,6 +1,8 @@
-# 🎥 Connect - Random Video Chat Application
+# 🎥 PairCam - Random Video Chat
 
-A production-ready, modern random video chat application built with React, NestJS, WebRTC, and Redis. Features beautiful UI, real-time matching, and comprehensive backend infrastructure.
+A production-ready random video chat app. Meet new people worldwide with instant 1-on-1 video connections.
+
+**Live:** [paircam.live](https://paircam.live)
 
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue)
@@ -232,10 +234,17 @@ npm run test
 - **WebRTC:** Native API
 - **WebSocket:** Socket.io-client 4
 
-### Infrastructure
+### Infrastructure (Production)
+- **Frontend Hosting:** Vercel
+- **Backend Hosting:** Railway
+- **Database:** Neon (Serverless PostgreSQL 17)
+- **Cache/Queue:** Upstash (Serverless Redis)
+- **Payments:** Stripe
+- **TURN:** Metered.ca (managed)
+
+### Infrastructure (Development)
 - **Container:** Docker
-- **Orchestration:** Kubernetes
-- **Cache:** Redis 7
+- **Cache:** Redis 7 (local)
 - **TURN:** Coturn (optional)
 
 ---
@@ -425,10 +434,49 @@ npm run lint
 
 ### Deployment Options
 
-1. **Docker Compose** - Simple single-server deployment
-2. **Kubernetes** - Scalable multi-server deployment
-3. **Cloud VMs** - AWS, GCP, or Azure virtual machines
-4. **Managed Services** - Use managed Redis, load balancers
+1. **Recommended (Serverless)**
+   - Frontend: Vercel
+   - Backend: Railway
+   - Database: Neon
+   - Redis: Upstash
+
+2. **Docker Compose** - Simple single-server deployment
+3. **Kubernetes** - Scalable multi-server deployment
+4. **Cloud VMs** - AWS, GCP, or Azure virtual machines
+
+### Production Services
+
+| Service | Provider | Dashboard |
+|---------|----------|-----------|
+| Frontend | Vercel | vercel.com |
+| Backend | Railway | railway.app |
+| Database | Neon | console.neon.tech |
+| Redis | Upstash | console.upstash.com |
+| Payments | Stripe | dashboard.stripe.com |
+| TURN | Metered | metered.ca |
+
+### Environment Variables (Production)
+
+```env
+# Neon Database
+DATABASE_URL=postgresql://user:pass@ep-xxx.us-east-1.aws.neon.tech/paircam?sslmode=require
+
+# Upstash Redis
+REDIS_URL=rediss://default:xxx@xxx.upstash.io:6379
+
+# Stripe
+STRIPE_SECRET_KEY=sk_live_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+
+# Frontend URL
+FRONTEND_URL=https://paircam.live
+
+# TURN Server (Metered)
+TURN_PROVIDER=managed
+TURN_URLS=turn:a.relay.metered.ca:80,turns:a.relay.metered.ca:443
+TURN_USERNAME=xxx
+TURN_PASSWORD=xxx
+```
 
 ---
 
