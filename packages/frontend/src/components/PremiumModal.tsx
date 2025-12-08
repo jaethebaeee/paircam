@@ -1,51 +1,25 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 
 interface PremiumModalProps {
   onClose: () => void;
 }
 
 export default function PremiumModal({ onClose }: PremiumModalProps) {
-  const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'monthly'>('monthly');
-  const [loading, setLoading] = useState(false);
+  // Load Stripe Buy Button script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://js.stripe.com/v3/buy-button.js';
+    script.async = true;
+    document.body.appendChild(script);
 
-  const handleUpgrade = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('paircam_access_token');
-      if (!token) {
-        throw new Error('Please sign in to upgrade');
+    return () => {
+      // Cleanup script on unmount
+      const existingScript = document.querySelector('script[src="https://js.stripe.com/v3/buy-button.js"]');
+      if (existingScript) {
+        existingScript.remove();
       }
-
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3333';
-
-      const response = await fetch(`${apiUrl}/payments/create-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ plan: selectedPlan }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
-
-      const data = await response.json();
-      if (!data.url) {
-        throw new Error('Invalid checkout response');
-      }
-
-      // Redirect to Stripe Checkout
-      window.location.href = data.url;
-    } catch (error) {
-      console.error('Checkout error:', error);
-      const message = error instanceof Error ? error.message : 'Failed to start checkout';
-      alert(`${message}. Please try again or contact support.`);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -120,53 +94,22 @@ export default function PremiumModal({ onClose }: PremiumModalProps) {
           </div>
         </div>
 
-        {/* Pricing Toggle */}
-        <div className="flex justify-center gap-4 mb-6">
-          <button
-            onClick={() => setSelectedPlan('weekly')}
-            className={`px-8 py-4 rounded-2xl font-semibold transition-all ${
-              selectedPlan === 'weekly'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <div className="text-2xl font-bold">$2.99</div>
-            <div className="text-sm opacity-90">per week</div>
-          </button>
-          <button
-            onClick={() => setSelectedPlan('monthly')}
-            className={`px-8 py-4 rounded-2xl font-semibold transition-all relative ${
-              selectedPlan === 'monthly'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-              Save 25%
-            </div>
-            <div className="text-2xl font-bold">$9.99</div>
-            <div className="text-sm opacity-90">per month</div>
-          </button>
+        {/* Pricing - Monthly */}
+        <div className="text-center mb-6">
+          <div className="inline-block bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-4 border border-pink-100">
+            <div className="text-3xl font-bold text-gray-900">$9.99<span className="text-lg font-normal text-gray-500">/month</span></div>
+            <div className="text-sm text-gray-500">Cancel anytime</div>
+          </div>
         </div>
 
-        {/* CTA Button */}
-        <button
-          onClick={handleUpgrade}
-          disabled={loading}
-          className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg rounded-2xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Loading...
-            </span>
-          ) : (
-            'Upgrade Now'
-          )}
-        </button>
+        {/* Stripe Buy Button */}
+        <div className="flex justify-center mb-4">
+          {/* @ts-expect-error Stripe Buy Button is a web component */}
+          <stripe-buy-button
+            buy-button-id="buy_btn_1Sc8UsQ77jsomY7koQXdwZSM"
+            publishable-key="pk_live_51SbtK5Q77jsomY7k84jtpZxsb8MOMeZenCKMoQjYqovKqBQ6Uwl25lDG22AzTsL9MPbrGUCDeznUhdYRxUvzBKnC00EQ2nLitg"
+          />
+        </div>
 
         {/* Trust signals */}
         <div className="mt-6 space-y-3">
