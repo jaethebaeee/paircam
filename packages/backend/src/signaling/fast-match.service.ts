@@ -101,23 +101,23 @@ export class FastMatchService {
 
   /**
    * Leave the fast queue without being matched
+   * Uses atomic LREM for safe removal without race conditions
    */
   async leaveFastQueue(userId: string): Promise<void> {
-    // Remove from queue if present
-    const queue = await this.redisService.lrange(this.QUEUE_KEY, 0, -1) as FastQueueUser[];
-    const filtered = queue.filter(u => u.userId !== userId);
+    try {
+      // Get the queue to find user's record
+      const queue = await this.redisService.lrange(this.QUEUE_KEY, 0, -1) as FastQueueUser[];
+      const userToRemove = queue.find(u => u.userId === userId);
 
-    // Delete old queue and recreate
-    if (filtered.length === 0) {
-      await this.redisService.del(this.QUEUE_KEY);
-    } else {
-      await this.redisService.del(this.QUEUE_KEY);
-      for (const user of filtered) {
-        await this.redisService.rpush(this.QUEUE_KEY, user);
+      if (userToRemove) {
+        // Atomically remove this exact user object from queue
+        // count=1: remove first occurrence
+        await this.redisService.lrem(this.QUEUE_KEY, 1, userToRemove);
+        this.logger.debug('User removed from fast queue', { userId });
       }
+    } catch (error) {
+      this.logger.error('Failed to leave fast queue', error.stack);
     }
-
-    this.logger.debug('User left fast queue', { userId });
   }
 
   /**

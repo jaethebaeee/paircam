@@ -284,6 +284,15 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     }
 
     try {
+      // Rate limiting: prevent spam (max 10 per minute)
+      const rateLimitKey = `ratelimit:fast-queue:${deviceId}`;
+      const callCount = await this.redisService.incrementRateLimit(rateLimitKey, 60);
+
+      if (callCount > 10) {
+        client.emit('error', { message: 'Rate limit exceeded. Please wait.' });
+        return;
+      }
+
       const result = await this.fastMatchService.joinFastQueue(deviceId, {
         deviceId,
         socketId: client.id,

@@ -600,4 +600,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       this.logger.error(`Failed to set ${key}`, error.stack);
     }
   }
+
+  async lrem(key: string, count: number, value: unknown): Promise<number> {
+    try {
+      return await this.client.lRem(key, count, JSON.stringify(value));
+    } catch (error) {
+      this.logger.error(`Failed to lrem from ${key}`, error.stack);
+      return 0;
+    }
+  }
 }
