@@ -11,6 +11,9 @@ import SEO from './components/SEO';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useAuthContext } from './contexts/AuthContext';
 import PremiumModal from './components/PremiumModal';
+import ReferralBanner from './components/ReferralBanner';
+import ReferralModal from './components/ReferralModal';
+import { useReferralCode } from './hooks/useReferralCode';
 
 // Lazy load heavy components for better performance and SEO
 const LandingPage = lazy(() => import('./components/LandingPage'));
@@ -76,15 +79,17 @@ function AppRoutes({
   handlePermissionsGranted,
   handlePermissionsDenied,
   handleWaitingCancel,
+  handleReferralClose,
+  handleReferralSkip,
   showPremiumModal,
   setShowPremiumModal,
   userName,
   userGender,
   genderPreference,
-  interests, // 🆕
-  queueType, // 🆕
-  nativeLanguage, // 🆕
-  learningLanguage, // 🆕
+  interests,
+  queueType,
+  nativeLanguage,
+  learningLanguage,
   isTextMode,
   initialVideoEnabled,
   isPremium,
@@ -148,6 +153,7 @@ function AppRoutes({
       <SEO {...getSEOProps()} />
 
       {!isInChat && <Navbar />}
+      {!isInChat && appState === 'landing' && <ReferralBanner />}
 
       <main className="flex-1 relative">
         <Suspense fallback={<LoadingSpinner />}>
@@ -228,13 +234,22 @@ function AppRoutes({
       {showPremiumModal && (
         <PremiumModal onClose={() => setShowPremiumModal(false)} />
       )}
+
+      {/* Referral Modal */}
+      {appState === 'referral' && (
+        <ReferralModal
+          onClose={handleReferralClose}
+          onSkip={handleReferralSkip}
+        />
+      )}
     </div>
   );
 }
 
 function App() {
-  const [appState, setAppState] = useState<'landing' | 'preferences' | 'safety' | 'permissions' | 'waiting' | 'chatting'>('landing');
+  const [appState, setAppState] = useState<'landing' | 'preferences' | 'referral' | 'safety' | 'permissions' | 'waiting' | 'chatting'>('landing');
   const [userName, setUserName] = useState('');
+  const { pendingReferralCode, hasAppliedCode } = useReferralCode();
   const [userGender, setUserGender] = useState('');
   const [genderPreference, setGenderPreference] = useState('any');
   const [interests, setInterests] = useState<string[]>([]); // 🆕 User interests
@@ -272,11 +287,26 @@ function App() {
   }) => {
     setUserGender(preferences.gender || '');
     setGenderPreference(preferences.genderPreference);
-    setInterests(preferences.interests || []); // 🆕
-    setQueueType(preferences.queueType || 'casual'); // 🆕
-    setNativeLanguage(preferences.nativeLanguage || 'en'); // 🆕
-    setLearningLanguage(preferences.learningLanguage || 'es'); // 🆕
-    // Show safety modal
+    setInterests(preferences.interests || []);
+    setQueueType(preferences.queueType || 'casual');
+    setNativeLanguage(preferences.nativeLanguage || 'en');
+    setLearningLanguage(preferences.learningLanguage || 'es');
+    // Show referral modal if user hasn't applied a code and has a pending code from URL
+    if (!hasAppliedCode && pendingReferralCode) {
+      setAppState('referral');
+    } else {
+      // Show safety modal
+      setAppState('safety');
+    }
+  };
+
+  const handleReferralClose = () => {
+    // User applied a code, continue to safety
+    setAppState('safety');
+  };
+
+  const handleReferralSkip = () => {
+    // User skipped referral, continue to safety
     setAppState('safety');
   };
 
@@ -344,15 +374,17 @@ function App() {
         handlePermissionsGranted={handlePermissionsGranted}
         handlePermissionsDenied={handlePermissionsDenied}
         handleWaitingCancel={handleWaitingCancel}
+        handleReferralClose={handleReferralClose}
+        handleReferralSkip={handleReferralSkip}
         showPremiumModal={showPremiumModal}
         setShowPremiumModal={setShowPremiumModal}
         userName={userName}
         userGender={userGender}
         genderPreference={genderPreference}
-        interests={interests} // 🆕
-        queueType={queueType} // 🆕
-        nativeLanguage={nativeLanguage} // 🆕
-        learningLanguage={learningLanguage} // 🆕
+        interests={interests}
+        queueType={queueType}
+        nativeLanguage={nativeLanguage}
+        learningLanguage={learningLanguage}
         isTextMode={isTextMode}
         initialVideoEnabled={initialVideoEnabled}
         isPremium={isPremium}

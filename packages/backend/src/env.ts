@@ -118,4 +118,8 @@ export const env = {
   ABUSE_DETECTION_ENABLED: process.env.ABUSE_DETECTION_ENABLED !== 'false',
   MAX_CALLS_PER_MINUTE: parseInt(process.env.MAX_CALLS_PER_MINUTE || '10', 10),
   MAX_SKIPS_PER_SESSION: parseInt(process.env.MAX_SKIPS_PER_SESSION || '5', 10),
+
+  // Supabase Configuration (for realtime notifications)
+  SUPABASE_URL: process.env.SUPABASE_URL || '',
+  SUPABASE_SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY || '',
 } as const;

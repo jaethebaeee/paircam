@@ -5,12 +5,14 @@ import { ReferralService } from './referral.service';
 import { Referral, ReferralSuccess } from './entities';
 import { GamesModule } from '../games/games.module';
 import { UsersModule } from '../users/users.module';
+import { SupabaseModule } from '../supabase/supabase.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Referral, ReferralSuccess]),
     GamesModule, // For WalletService
     UsersModule, // For UsersService
+    SupabaseModule, // For real-time notifications
   ],
   controllers: [ReferralController],
   providers: [ReferralService],

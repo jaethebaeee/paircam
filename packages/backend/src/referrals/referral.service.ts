@@ -8,7 +8,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Referral, ReferralSuccess } from './entities';
 import { WalletService } from '../games/services/wallet.service';
+import { SupabaseService } from '../supabase/supabase.service';
 import { ReferralStatsDto, ReferralHistoryItemDto, ReferralTierDto } from './dto';
+import { UsersService } from '../users/users.service';
 
 // Referral reward configuration
 const REFERRAL_TIERS: ReferralTierDto[] = [
@@ -28,6 +30,8 @@ export class ReferralService {
     @InjectRepository(Referral) private referralRepo: Repository<Referral>,
     @InjectRepository(ReferralSuccess) private successRepo: Repository<ReferralSuccess>,
     private walletService: WalletService,
+    private supabaseService: SupabaseService,
+    private usersService: UsersService,
   ) {}
 
   /**
@@ -177,6 +181,32 @@ export class ReferralService {
     // Award coins to both users
     await this.walletService.rewardCoins(referral.referrerId, totalCoinsThisReferral, 'referral');
     await this.walletService.rewardCoins(userId, REFERRED_USER_BONUS, 'referral_bonus');
+
+    // Send real-time notification to referrer via Supabase
+    try {
+      // Get referred user's username for the notification
+      const referredUser = await this.usersService.findById(userId);
+      const referredUsername = referredUser?.username || 'Someone';
+
+      // Notify about new referral
+      await this.supabaseService.notifyNewReferral(
+        referral.referrerId,
+        referredUsername,
+        tier.bonusPerReferral,
+      );
+
+      // If tier milestone was reached, send milestone notification
+      if (newTier.tier > tier.tier) {
+        await this.supabaseService.notifyMilestoneReached(
+          referral.referrerId,
+          newTier.name,
+          newTier.milestoneBonus,
+        );
+      }
+    } catch (error) {
+      // Don't fail the referral if notification fails
+      console.error('Failed to send referral notification:', error);
+    }
 
     return {
       success: true,

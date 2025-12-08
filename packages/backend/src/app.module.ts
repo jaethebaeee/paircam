@@ -15,6 +15,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { GamesModule } from './games/games.module'; // 🆕 Games & Gamification
 import { ReferralModule } from './referrals/referral.module'; // 🆕 Referral System
+import { SupabaseModule } from './supabase/supabase.module'; // 🆕 Supabase Realtime
 import { HealthController } from './health/health.controller';
 import { env } from './env';
 
@@ -42,6 +43,7 @@ import { Referral, ReferralSuccess } from './referrals/entities';
     }),
     LoggerModule,
     RedisModule,
+    SupabaseModule, // Global Supabase module for realtime notifications
     AuthModule, // AuthModule already provides JwtModule and PassportModule globally
     UsersModule,
     SubscriptionsModule,
