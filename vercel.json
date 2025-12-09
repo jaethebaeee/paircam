@@ -4,5 +4,10 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": "vite",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "build": {
+    "env": {
+      "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true"
+    }
+  }
 }
