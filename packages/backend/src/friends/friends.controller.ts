@@ -12,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FriendsService } from './friends.service';
-import { SendFriendRequestDto, RespondFriendRequestDto, BlockUserDto } from './dto';
+import { SendFriendRequestDto, RespondFriendRequestDto } from './dto';
+import { BlockUserDto } from '../blocking/dto';
 
 // Type for authenticated request with JWT payload
 type AuthRequest = { user: { sub: string } };
@@ -189,7 +190,7 @@ export class FriendsController {
     @Req() req: AuthRequest,
     @Body() dto: BlockUserDto,
   ) {
-    const block = await this.friendsService.blockUser(req.user.sub, dto.userId, dto.reason);
+    const block = await this.friendsService.blockUser(req.user.sub, dto.blockedUserId, dto.reason);
     return {
       success: true,
       blockId: block.id,
@@ -222,9 +223,9 @@ export class FriendsController {
       blockedUsers: blocked.map((b) => ({
         blockId: b.id,
         user: {
-          id: b.blockedUser.id,
-          username: b.blockedUser.username,
-          avatarUrl: b.blockedUser.avatarUrl,
+          id: b.blocked.id,
+          username: b.blocked.username,
+          avatarUrl: b.blocked.avatarUrl,
         },
         reason: b.reason,
         createdAt: b.createdAt,
