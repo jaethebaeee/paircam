@@ -6,8 +6,9 @@ import {
   ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  WsException,
 } from '@nestjs/websockets';
-import { Inject, forwardRef, OnModuleInit } from '@nestjs/common';
+import { Inject, forwardRef, OnModuleInit, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { LoggerService } from '../services/logger.service';
 import { RedisService } from '../redis/redis.service';
@@ -16,37 +17,14 @@ import { MatchmakingService } from './matchmaking.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
-
-export interface JoinQueueDto {
-  region?: string;
-  language?: string;
-  gender?: string;
-  genderPreference?: string;
-  interests?: string[]; // 🆕 Interest tags
-  queueType?: 'casual' | 'serious' | 'language' | 'gaming'; // 🆕 Queue type
-  nativeLanguage?: string; // 🆕 For language learning
-  learningLanguage?: string; // 🆕 For language learning
-  preferences?: Record<string, unknown>;
-}
-
-export interface WebRTCSignalDto {
-  sessionId: string;
-  type: 'offer' | 'answer' | 'candidate';
-  data: unknown;
-}
-
-export interface ChatMessageDto {
-  sessionId: string;
-  message: string;
-  sender?: string;
-  timestamp: number;
-}
-
-export interface ReactionDto {
-  sessionId: string;
-  emoji: string;
-  timestamp: number;
-}
+import {
+  JoinQueueDto,
+  WebRTCSignalDto,
+  ChatMessageDto,
+  ReactionDto,
+  EndCallDto,
+  ConnectionStatusDto,
+} from './dto';
 
 @WebSocketGateway({
   cors: {
@@ -55,6 +33,18 @@ export interface ReactionDto {
   },
   namespace: '/signaling',
 })
+@UsePipes(new ValidationPipe({
+  whitelist: true,
+  forbidNonWhitelisted: true,
+  transform: true,
+  transformOptions: { enableImplicitConversion: true },
+  exceptionFactory: (errors) => {
+    const messages = errors.map(err =>
+      Object.values(err.constraints || {}).join(', ')
+    ).join('; ');
+    return new WsException(`Validation failed: ${messages}`);
+  },
+}))
 export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit {
   @WebSocketServer()
   server: Server;
@@ -216,22 +206,33 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       });
 
       const queueLength = await this.redisService.getQueueLength();
-      client.emit('queue-joined', { 
+      client.emit('queue-joined', {
         position: queueLength,
         queueLength: queueLength,
         timestamp: Date.now(),
         isPremium, // Let frontend know premium status
       });
-      
+
+      // MEMORY LEAK FIX: Clear any existing interval before creating a new one
+      if (client.data.queueUpdateInterval) {
+        clearInterval(client.data.queueUpdateInterval);
+        client.data.queueUpdateInterval = null;
+      }
+
       // Send periodic queue position updates every 2 seconds
       const queueUpdateInterval = setInterval(async () => {
+        // Safety check: stop if client disconnected
+        if (!this.connectedClients.has(deviceId)) {
+          clearInterval(queueUpdateInterval);
+          return;
+        }
         const currentPosition = await this.redisService.getQueueLength();
         client.emit('queue-update', {
           position: currentPosition,
           estimatedWaitTime: Math.max(5, currentPosition * 3), // Estimate 3 seconds per person in queue
         });
       }, 2000);
-      
+
       // Store interval ID to clear it later
       client.data.queueUpdateInterval = queueUpdateInterval;
 

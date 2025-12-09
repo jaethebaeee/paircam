@@ -180,9 +180,9 @@ export class FriendsService {
       throw new BadRequestException('Cannot block yourself');
     }
 
-    // Check if already blocked
+    // Check if already blocked (using blocking module's field names)
     const existing = await this.blockedUserRepo.findOne({
-      where: { userId, blockedUserId },
+      where: { blockerId: userId, blockedId: blockedUserId },
     });
 
     if (existing) {
@@ -202,10 +202,10 @@ export class FriendsService {
       { status: FriendRequestStatus.BLOCKED },
     );
 
-    // Create block record
+    // Create block record (using blocking module's field names)
     const block = this.blockedUserRepo.create({
-      userId,
-      blockedUserId,
+      blockerId: userId,
+      blockedId: blockedUserId,
       reason,
     });
 
@@ -219,7 +219,7 @@ export class FriendsService {
    * Unblock a user
    */
   async unblockUser(userId: string, blockedUserId: string): Promise<void> {
-    const result = await this.blockedUserRepo.delete({ userId, blockedUserId });
+    const result = await this.blockedUserRepo.delete({ blockerId: userId, blockedId: blockedUserId });
 
     if (result.affected === 0) {
       throw new NotFoundException('Block record not found');
@@ -233,8 +233,8 @@ export class FriendsService {
    */
   async getBlockedUsers(userId: string): Promise<BlockedUser[]> {
     return this.blockedUserRepo.find({
-      where: { userId },
-      relations: ['blockedUser'],
+      where: { blockerId: userId },
+      relations: ['blocked'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -244,7 +244,7 @@ export class FriendsService {
    */
   async isBlocked(userId: string, byUserId: string): Promise<boolean> {
     const block = await this.blockedUserRepo.findOne({
-      where: { userId: byUserId, blockedUserId: userId },
+      where: { blockerId: byUserId, blockedId: userId },
     });
     return !!block;
   }
