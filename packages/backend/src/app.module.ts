@@ -25,6 +25,8 @@ import { User } from './users/entities/user.entity';
 import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { BlockedUser } from './blocking/entities/blocked-user.entity';
+import { FriendRequest } from './friends/entities/friend-request.entity';
+import { Friendship } from './friends/entities/friendship.entity';
 
 @Module({
   imports: [
