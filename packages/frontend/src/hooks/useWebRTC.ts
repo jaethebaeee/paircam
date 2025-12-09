@@ -16,7 +16,10 @@ export interface UseWebRTCReturn {
   localVideoRef: React.RefObject<HTMLVideoElement>;
   remoteVideoRef: React.RefObject<HTMLVideoElement>;
   connectionState: RTCPeerConnectionState;
+  iceConnectionState: RTCIceConnectionState | null;
   error: string | null;
+  isRecovering: boolean;
+  recoveryAttempt: number;
   createOffer: () => Promise<RTCSessionDescriptionInit>;
   createAnswer: (offer: RTCSessionDescriptionInit) => Promise<RTCSessionDescriptionInit>;
   setRemoteDescription: (sdp: RTCSessionDescriptionInit) => Promise<void>;
@@ -25,17 +28,23 @@ export interface UseWebRTCReturn {
   toggleAudio: (enabled: boolean) => void;
   toggleVideo: (enabled: boolean) => void;
   endCall: () => void;
+  restartIce: () => Promise<void>;
 }
 
 export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTCIceCandidate) => void): UseWebRTCReturn {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [connectionState, setConnectionState] = useState<RTCPeerConnectionState>('new');
+  const [iceConnectionState, setIceConnectionState] = useState<RTCIceConnectionState | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isRecovering, setIsRecovering] = useState(false);
+  const [recoveryAttempt, setRecoveryAttempt] = useState(0);
 
   const peerRef = useRef<RTCPeerConnection | null>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const recoveryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const maxRecoveryAttempts = 3;
 
   // Create or get peer connection
   const getPeerConnection = useCallback(() => {
@@ -52,25 +61,49 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
 
       pc.onconnectionstatechange = async () => {
         setConnectionState(pc.connectionState);
-        
+
         if (pc.connectionState === 'connected') {
-          // ✅ Verify DTLS-SRTP encryption is active
+          // Reset recovery state on successful connection
+          setIsRecovering(false);
+          setRecoveryAttempt(0);
+          setError(null);
+
+          // Verify DTLS-SRTP encryption is active
           const isSecure = await verifyDTLSSRTP(pc);
           if (!isSecure && import.meta.env.PROD) {
-            console.warn('⚠️  WebRTC connection security could not be verified');
+            console.warn('[WebRTC] Connection security could not be verified');
           }
-          
+
           // Start monitoring connection security
           const stopMonitoring = monitorConnectionSecurity(pc, () => {
-            console.error('🚨 WebRTC connection security compromised!');
+            console.error('[WebRTC] Connection security compromised!');
           });
-          
+
           // Store cleanup function
           (pc as RTCPeerConnectionWithCleanup)._securityMonitorCleanup = stopMonitoring;
         }
-        
+
         if (pc.connectionState === 'failed') {
           setError('Connection failed. Attempting to reconnect...');
+          // Trigger ICE restart for recovery
+          handleConnectionFailure();
+        }
+
+        if (pc.connectionState === 'disconnected') {
+          // Start recovery countdown - disconnected can recover automatically
+          console.log('[WebRTC] Connection disconnected, monitoring for recovery...');
+        }
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        setIceConnectionState(pc.iceConnectionState);
+        console.log('[WebRTC] ICE connection state:', pc.iceConnectionState);
+
+        if (pc.iceConnectionState === 'failed') {
+          handleConnectionFailure();
+        } else if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+          setIsRecovering(false);
+          setRecoveryAttempt(0);
         }
       };
 
@@ -229,9 +262,87 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
     }
   }, [localStream]);
 
+  // Handle connection failure with automatic recovery
+  const handleConnectionFailure = useCallback(async () => {
+    if (recoveryAttempt >= maxRecoveryAttempts) {
+      setIsRecovering(false);
+      setError('Connection failed after multiple attempts. Please try again.');
+      return;
+    }
+
+    setIsRecovering(true);
+    const nextAttempt = recoveryAttempt + 1;
+    setRecoveryAttempt(nextAttempt);
+
+    console.log(`[WebRTC] Recovery attempt ${nextAttempt}/${maxRecoveryAttempts}`);
+
+    // Clear any existing timeout
+    if (recoveryTimeoutRef.current) {
+      clearTimeout(recoveryTimeoutRef.current);
+    }
+
+    // Exponential backoff: 1s, 2s, 4s
+    const delayMs = Math.pow(2, nextAttempt - 1) * 1000;
+
+    recoveryTimeoutRef.current = setTimeout(async () => {
+      try {
+        const pc = peerRef.current;
+        if (!pc) {
+          setError('No peer connection available for recovery');
+          setIsRecovering(false);
+          return;
+        }
+
+        // Attempt ICE restart
+        console.log('[WebRTC] Attempting ICE restart...');
+        pc.restartIce();
+
+        // Create new offer with ICE restart
+        const offer = await pc.createOffer({ iceRestart: true });
+        await pc.setLocalDescription(offer);
+
+        console.log('[WebRTC] ICE restart offer created');
+      } catch (error) {
+        console.error('[WebRTC] ICE restart failed:', error);
+        // Will trigger another recovery attempt via oniceconnectionstatechange
+      }
+    }, delayMs);
+  }, [recoveryAttempt, maxRecoveryAttempts]);
+
+  // Manual ICE restart
+  const restartIce = useCallback(async () => {
+    const pc = peerRef.current;
+    if (!pc) {
+      throw new Error('No peer connection available');
+    }
+
+    setIsRecovering(true);
+    setRecoveryAttempt(1);
+
+    try {
+      pc.restartIce();
+      const offer = await pc.createOffer({ iceRestart: true });
+      await pc.setLocalDescription(offer);
+      console.log('[WebRTC] Manual ICE restart initiated');
+    } catch (error) {
+      console.error('[WebRTC] Manual ICE restart failed:', error);
+      setError('Failed to restart connection');
+      setIsRecovering(false);
+      throw error;
+    }
+  }, []);
+
   // End call cleanup - CRITICAL for preventing memory leaks
   const endCall = useCallback(() => {
     try {
+      // Clear recovery timeout
+      if (recoveryTimeoutRef.current) {
+        clearTimeout(recoveryTimeoutRef.current);
+        recoveryTimeoutRef.current = null;
+      }
+      setIsRecovering(false);
+      setRecoveryAttempt(0);
+
       // Close peer connection properly
       if (peerRef.current) {
         // Stop security monitoring
@@ -307,7 +418,10 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
     localVideoRef,
     remoteVideoRef,
     connectionState,
+    iceConnectionState,
     error,
+    isRecovering,
+    recoveryAttempt,
     createOffer,
     createAnswer,
     setRemoteDescription,
@@ -316,5 +430,6 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
     toggleAudio,
     toggleVideo,
     endCall,
+    restartIce,
   };
 }

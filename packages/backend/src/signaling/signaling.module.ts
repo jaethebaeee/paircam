@@ -5,12 +5,14 @@ import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { BlockingModule } from '../blocking/blocking.module';
+import { ModerationModule } from '../moderation/moderation.module';
 
 @Module({
   imports: [
     forwardRef(() => AuthModule),
-    forwardRef(() => AnalyticsModule), // 🆕 Analytics for match quality tracking
-    forwardRef(() => BlockingModule), // User blocking for matchmaking
+    forwardRef(() => AnalyticsModule),
+    forwardRef(() => BlockingModule),
+    forwardRef(() => ModerationModule),
     UsersModule,
   ],
   providers: [SignalingGateway, MatchmakingService],
