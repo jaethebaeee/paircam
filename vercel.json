@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd packages/frontend && npm install && npm run build",
+  "buildCommand": "cd packages/frontend && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm install && npm run build",
   "outputDirectory": "packages/frontend/dist",
   "rewrites": [
     {

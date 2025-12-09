@@ -8,8 +8,6 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run generate:sitemap && npm run generate:rss && tsc && vite build",
-    "build:prerender": "npm run generate:sitemap && npm run generate:rss && tsc && vite build && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm run snap",
-    "snap": "react-snap",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -64,7 +62,6 @@
     "jsdom": "^27.2.0",
     "postcss": "^8.4.0",
     "prettier": "^3.1.0",
-    "react-snap": "^1.23.0",
     "sitemap": "^8.0.1",
     "tailwindcss": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
@@ -74,29 +71,5 @@
     "vite": "^5.0.0",
     "vite-plugin-compression": "^0.5.1",
     "vitest": "^1.0.0"
-  },
-  "reactSnap": {
-    "source": "dist",
-    "minifyHtml": {
-      "collapseWhitespace": true,
-      "removeComments": true
-    },
-    "puppeteerArgs": [
-      "--no-sandbox",
-      "--disable-setuid-sandbox"
-    ],
-    "include": [
-      "/",
-      "/terms-of-service",
-      "/privacy-policy",
-      "/cookie-policy",
-      "/blog",
-      "/blog/omegle-alternatives-2024-best-random-video-chat-sites",
-      "/blog/video-chat-safety-tips-protect-yourself-online",
-      "/blog/make-friends-online-random-video-chat-guide",
-      "/blog/random-video-chat-vs-dating-apps-which-better",
-      "/blog/learn-languages-random-video-chat-native-speakers",
-      "/blog/random-video-chat-for-introverts-social-anxiety-tips"
-    ]
   }
 }
