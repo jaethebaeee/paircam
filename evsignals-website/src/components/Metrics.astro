@@ -1,0 +1,25 @@
+---
+const metrics = [
+  { value: '50M+', label: 'Data Points Daily', icon: 'database' },
+  { value: '99.9%', label: 'Uptime SLA', icon: 'shield' },
+  { value: '<100ms', label: 'API Latency', icon: 'bolt' },
+  { value: '24/7', label: 'Support', icon: 'clock' },
+];
+---
+
+<section class="py-16 bg-gray-900">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      {metrics.map((metric) => (
+        <div class="text-center">
+          <div class="text-3xl md:text-4xl font-bold text-white mb-2">
+            {metric.value}
+          </div>
+          <div class="text-gray-400 text-sm md:text-base">
+            {metric.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
