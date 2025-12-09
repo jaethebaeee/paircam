@@ -92,11 +92,11 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Hero Section - Clean & Simple */}
         <div className="text-center mb-8 sm:mb-12 pt-12 sm:pt-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4 sm:mb-5 leading-tight px-2">
-            Video Chat with Strangers
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-violet-600 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent mb-4 sm:mb-5 leading-tight px-2">
+            Your Next Conversation Awaits
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-6 sm:mb-8 max-w-xl mx-auto px-4">
-            Meet new people worldwide. No signup required.
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-xl mx-auto px-4">
+            Connect instantly with people around the world. No signup, no hassle.
           </p>
 
           {/* Simple Value Props */}
