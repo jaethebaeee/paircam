@@ -51,10 +51,13 @@ import { BlockedUser } from './blocking/entities/blocked-user.entity';
       type: 'postgres',
       url: env.DATABASE_URL,
       entities: [User, Subscription, Payment, BlockedUser],
-      synchronize: false, // NEVER use synchronize in production - use migrations
+      // Use synchronize only in dev until migrations are set up
+      synchronize: env.NODE_ENV === 'development',
       ssl: env.NODE_ENV === 'production' ? {
-        rejectUnauthorized: true, // Enforce SSL certificate validation
-        ca: process.env.DATABASE_CA_CERT || undefined, // Optional CA cert
+        // Most cloud providers (Railway, Heroku, Neon) use self-signed certs
+        // Set DATABASE_SSL_REJECT_UNAUTHORIZED=true if you have a valid CA cert
+        rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true',
+        ca: process.env.DATABASE_CA_CERT || undefined,
       } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
     }),
