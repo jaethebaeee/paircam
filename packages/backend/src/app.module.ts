@@ -25,6 +25,8 @@ import { User } from './users/entities/user.entity';
 import { Subscription } from './subscriptions/entities/subscription.entity';
 import { Payment } from './payments/entities/payment.entity';
 import { BlockedUser } from './blocking/entities/blocked-user.entity';
+import { FriendRequest } from './friends/entities/friend-request.entity';
+import { Friendship } from './friends/entities/friendship.entity';
 
 @Module({
   imports: [
@@ -50,12 +52,9 @@ import { BlockedUser } from './blocking/entities/blocked-user.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
-      entities: [User, Subscription, Payment, BlockedUser],
-      synchronize: false, // NEVER use synchronize in production - use migrations
-      ssl: env.NODE_ENV === 'production' ? {
-        rejectUnauthorized: true, // Enforce SSL certificate validation
-        ca: process.env.DATABASE_CA_CERT || undefined, // Optional CA cert
-      } : false,
+      entities: [User, Subscription, Payment, BlockedUser, FriendRequest, Friendship],
+      synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
+      ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
     }),
     LoggerModule,

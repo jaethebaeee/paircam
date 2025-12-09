@@ -23,13 +23,16 @@ export default function Navbar({ onPremiumClick }: NavbarProps) {
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="flex items-center gap-2" aria-label="PairCam Home">
-              <div className="bg-gray-900 p-2 rounded-xl">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
+            <a href="/" className="flex items-center gap-2.5 group" aria-label="PairCam Home">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-xl blur-sm opacity-75 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative bg-gradient-to-br from-violet-600 to-fuchsia-600 p-2 rounded-xl shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
               </div>
-              <span className="text-xl font-bold text-gray-900">PairCam</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">PairCam</span>
             </a>
           </div>
 
@@ -114,7 +117,7 @@ export default function Navbar({ onPremiumClick }: NavbarProps) {
                 </a>
                 <a
                   href="/"
-                  className="bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition-all"
+                  className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition-all shadow-md hover:shadow-lg"
                 >
                   Start Free
                 </a>
@@ -197,7 +200,7 @@ export default function Navbar({ onPremiumClick }: NavbarProps) {
                   </a>
                   <a
                     href="/"
-                    className="block mt-2 px-4 py-3 bg-gray-900 text-white font-semibold rounded-lg text-center"
+                    className="block mt-2 px-4 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold rounded-lg text-center shadow-md"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Start Free
