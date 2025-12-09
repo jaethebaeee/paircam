@@ -108,7 +108,7 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
                 onClick={() => setUserGender('female')}
                 className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                   userGender === 'female'
-                    ? 'border-pink-500 bg-pink-50 shadow-md scale-105'
+                    ? 'border-fuchsia-500 bg-fuchsia-50 shadow-md scale-105'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
@@ -183,9 +183,9 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
             />
 
             {/* 🆕 Queue Type Selection */}
-            <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-pink-50/50 border-2 border-purple-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
+            <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-violet-50/50 border-2 border-purple-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-2.5 shadow-md">
+                <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-2.5 shadow-md">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
@@ -273,9 +273,9 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
             )}
 
             {/* 🆕 Interest Tags */}
-            <div className="bg-gradient-to-br from-pink-50/50 via-orange-50/50 to-yellow-50/50 border-2 border-orange-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
+            <div className="bg-gradient-to-br from-amber-50/50 via-orange-50/50 to-yellow-50/50 border-2 border-amber-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="bg-gradient-to-br from-orange-500 to-pink-600 rounded-2xl p-2.5 shadow-md">
+                <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-2.5 shadow-md">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                   </svg>
@@ -303,10 +303,10 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
                       disabled={isDisabled}
                       className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
                         isSelected
-                          ? 'bg-gradient-to-r from-orange-500 to-pink-600 text-white shadow-lg shadow-orange-200/50 scale-105'
+                          ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-200/50 scale-105'
                           : isDisabled
                           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50 hover:scale-105 shadow-sm'
+                          : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-amber-300 hover:bg-amber-50 hover:scale-105 shadow-sm'
                       }`}
                     >
                       <span className="mr-2">{interest.emoji}</span>

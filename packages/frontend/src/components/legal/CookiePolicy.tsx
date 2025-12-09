@@ -200,12 +200,12 @@ export default function CookiePolicy() {
               You have several options to manage cookies:
             </p>
             
-            <div className="bg-gradient-to-r from-pink-50 to-purple-50 border-2 border-pink-200 rounded-xl p-6 mb-4">
-              <h3 className="font-bold text-pink-900 mb-3">🎛️ Cookie Preference Center</h3>
-              <p className="text-pink-800 mb-4">
+            <div className="bg-gradient-to-r from-violet-50 to-purple-50 border-2 border-violet-200 rounded-xl p-6 mb-4">
+              <h3 className="font-bold text-violet-900 mb-3">🎛️ Cookie Preference Center</h3>
+              <p className="text-violet-800 mb-4">
                 Click the button below to open our Cookie Preference Center where you can enable/disable optional cookies:
               </p>
-              <button className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
+              <button className="bg-gradient-to-r from-violet-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg shadow-violet-500/25 transition-all">
                 Manage Cookie Preferences
               </button>
             </div>
@@ -268,9 +268,9 @@ export default function CookiePolicy() {
 
         {/* Back Button */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <a 
-            href="/" 
-            className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold transition-colors"
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

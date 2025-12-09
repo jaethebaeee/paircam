@@ -111,7 +111,7 @@ export default function PermissionErrorModal({
           <div className="flex flex-col gap-3 w-full">
             <button
               onClick={onRetry}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all"
+              className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold py-3 rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all shadow-lg shadow-violet-500/25"
             >
               Try Again
             </button>
