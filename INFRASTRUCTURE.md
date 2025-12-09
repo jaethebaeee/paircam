@@ -32,6 +32,11 @@
 └─────────────────────────┘     └─────────────────────────┘
 ```
 
+## Vercel Project
+
+- **Project ID**: `prj_5q6wSqXnlSPaX7dRxkTWPCZ9MB9E`
+- **Dashboard**: [vercel.com/dashboard](https://vercel.com)
+
 ## Services Overview
 
 | Service | Provider | Status | Dashboard |
@@ -56,8 +61,8 @@ REDIS_URL=redis://...
 # Required
 NODE_ENV=production
 PORT=3333
-DATABASE_URL=postgresql://neondb_owner:npg_q6iv1NTAbhdD@ep-shiny-frog-ah6hwcj6-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require
-REDIS_URL=redis://default:mRplKxIRmtFvN4S3nnrGFutu4kgV6mh6@redis-11699.c16.us-east-1-2.ec2.cloud.redislabs.com:11699
+DATABASE_URL=<get-from-vercel-storage-dashboard>
+REDIS_URL=<get-from-vercel-storage-dashboard>
 JWT_SECRET=<generate-32-char-secret>
 TURN_SHARED_SECRET=<generate-32-char-secret>
 
@@ -100,10 +105,12 @@ Sign up for a TURN service like [Metered](https://www.metered.ca/) or [Twilio](h
 
 ## Connection URLs
 
-| Service | Connection String |
-|---------|-------------------|
-| PostgreSQL | `postgresql://neondb_owner:npg_q6iv1NTAbhdD@ep-shiny-frog-ah6hwcj6-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require` |
-| Redis | `redis://default:mRplKxIRmtFvN4S3nnrGFutu4kgV6mh6@redis-11699.c16.us-east-1-2.ec2.cloud.redislabs.com:11699` |
+Connection strings are stored securely in Vercel Storage dashboard. Do NOT commit credentials to this repo.
+
+| Service | Where to Find |
+|---------|---------------|
+| PostgreSQL | Vercel Dashboard → Storage → Neon |
+| Redis | Vercel Dashboard → Storage → Upstash |
 
 ## Cost Estimates (Monthly)
 
