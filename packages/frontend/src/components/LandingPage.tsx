@@ -64,19 +64,19 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
   };
 
   return (
-    <div className="min-h-screen py-8 sm:py-12 px-4 relative overflow-hidden">
+    <div className="min-h-screen py-8 sm:py-12 px-4 relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
       {/* Animated Background */}
       <AnimatedBackground variant="gradient-orbs" />
 
       {/* Live Users Indicator - Fixed Top Left */}
-      <div className="fixed top-20 sm:top-24 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-lg border border-green-200 animate-fadeIn">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+      <div className="fixed top-20 sm:top-24 left-4 z-10 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full shadow-soft border border-gray-100 animate-fadeIn">
+        <div className="flex items-center gap-2.5">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span className="text-sm font-semibold text-gray-700">
-            <span className="text-green-600">{liveUserCount.toLocaleString()}</span> online
+          <span className="text-sm font-medium text-gray-700">
+            <span className="text-emerald-600 font-semibold">{liveUserCount.toLocaleString()}</span> online
           </span>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       {/* Premium Button - Fixed Top Right */}
       <button
         onClick={() => setShowPremiumModal(true)}
-        className="group fixed top-20 sm:top-24 right-4 z-10 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-4 sm:px-5 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all text-sm"
+        className="group fixed top-20 sm:top-24 right-4 z-10 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-4 sm:px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/25 transition-all text-sm"
       >
         <span className="flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -95,27 +95,27 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       </button>
 
       <div className="max-w-5xl mx-auto relative z-10">
-        {/* Hero Section - Clean & Simple */}
+        {/* Hero Section */}
         <div className="text-center mb-8 sm:mb-12 pt-12 sm:pt-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-violet-600 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent mb-4 sm:mb-5 leading-tight px-2">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent mb-5 leading-tight tracking-tight px-2">
             Your Next Conversation Awaits
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-xl mx-auto px-4">
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 max-w-xl mx-auto px-4 leading-relaxed">
             Connect instantly with people around the world. No signup, no hassle.
           </p>
 
           {/* Simple Value Props */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-sm text-gray-600 mb-8 px-2">
-            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-600 mb-8 px-2">
+            <span className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-soft border border-gray-100">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
               Free
             </span>
-            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
-              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+            <span className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-soft border border-gray-100">
+              <span className="w-2 h-2 bg-violet-500 rounded-full"></span>
               Anonymous
             </span>
-            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
-              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+            <span className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-soft border border-gray-100">
+              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
               Instant
             </span>
           </div>
@@ -125,8 +125,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className="max-w-md mx-auto px-2">
 
         {/* Clean Form Box */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-4 sm:mb-6">
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Get Started</h3>
+        <div className="bg-white rounded-2xl shadow-soft-lg border border-gray-100 p-6 sm:p-8 mb-4 sm:mb-6">
+          <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-6">Get Started</h3>
 
           <div className="space-y-5">
             {/* Name Input */}
@@ -145,15 +145,18 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 aria-label="Your name or nickname"
                 aria-required="true"
                 aria-invalid={showNameError}
-                className={`w-full px-4 py-3 rounded-lg border ${
+                className={`w-full px-4 py-3 rounded-xl border ${
                   showNameError
-                    ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
-                    : 'border-gray-300 focus:border-gray-900 focus:ring-gray-100'
-                } focus:ring-2 outline-none text-base transition-colors`}
+                    ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
+                    : 'border-gray-200 focus:border-violet-500 focus:ring-violet-500/20'
+                } focus:ring-2 outline-none text-base transition-all hover:border-gray-300`}
                 maxLength={30}
               />
               {showNameError && (
-                <p className="mt-2 text-sm text-red-600" role="alert">
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5" role="alert">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
                   Please enter your name to continue
                 </p>
               )}
@@ -163,26 +166,26 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
               <div>
                 <span className="text-sm font-medium text-gray-900">Enable video</span>
-                <p className="text-xs text-gray-500">Share your camera during calls</p>
+                <p className="text-xs text-gray-500 mt-0.5">Share your camera during calls</p>
               </div>
               <button
                 onClick={() => setIsVideoEnabled(!isVideoEnabled)}
                 role="switch"
                 aria-checked={isVideoEnabled}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  isVideoEnabled ? 'bg-gray-900' : 'bg-gray-300'
+                className={`relative w-12 h-7 rounded-full transition-colors ${
+                  isVideoEnabled ? 'bg-violet-600' : 'bg-gray-200'
                 }`}
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                    isVideoEnabled ? 'translate-x-6' : 'translate-x-0'
+                  className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
+                    isVideoEnabled ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
               </button>
             </div>
 
             {/* Age Confirmation */}
-            <label className="flex items-center gap-3 py-3 cursor-pointer">
+            <label className="flex items-start gap-3 py-3 cursor-pointer group">
               <input
                 type="checkbox"
                 checked={isAdultConfirmed}
@@ -195,8 +198,8 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 }}
                 className="sr-only"
               />
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                isAdultConfirmed ? 'bg-gray-900 border-gray-900' : 'border-gray-300'
+              <div className={`w-5 h-5 mt-0.5 rounded-md border-2 flex items-center justify-center transition-all ${
+                isAdultConfirmed ? 'bg-violet-600 border-violet-600' : 'border-gray-300 group-hover:border-gray-400'
               }`}>
                 {isAdultConfirmed && (
                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,13 +209,13 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-900">I'm 18 or older</span>
-                <p className="text-xs text-gray-500">Required for video chat</p>
+                <p className="text-xs text-gray-500 mt-0.5">Required for video chat</p>
               </div>
             </label>
 
             {/* Age Input */}
             {isAdultConfirmed && (
-              <div>
+              <div className="animate-fadeIn">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Your age
                 </label>
@@ -226,14 +229,17 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                   placeholder="18"
                   min="18"
                   max="120"
-                  className={`w-full px-4 py-3 rounded-lg border ${
+                  className={`w-full px-4 py-3 rounded-xl border ${
                     showAgeError
-                      ? 'border-red-400 focus:border-red-500'
-                      : 'border-gray-300 focus:border-gray-900'
-                  } focus:ring-2 focus:ring-gray-100 outline-none text-base transition-colors`}
+                      ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20'
+                      : 'border-gray-200 focus:border-violet-500 focus:ring-violet-500/20'
+                  } focus:ring-2 outline-none text-base transition-all hover:border-gray-300`}
                 />
                 {showAgeError && (
-                  <p className="mt-2 text-sm text-red-600" role="alert">
+                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5" role="alert">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
                     You must be 18 or older
                   </p>
                 )}
@@ -244,14 +250,14 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <button
               onClick={() => handleStartChat(false)}
               disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
-              className="group w-full py-4 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold text-base rounded-xl transition-all disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+              className="group w-full py-3.5 px-6 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:from-gray-200 disabled:to-gray-200 text-white disabled:text-gray-400 font-semibold text-base rounded-xl transition-all disabled:cursor-not-allowed shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/25 disabled:shadow-none active:scale-[0.98]"
             >
               <span className="flex items-center justify-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
                 Start Video Chat
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </span>
@@ -261,7 +267,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
             <button
               onClick={() => handleStartChat(true)}
               disabled={!userName.trim()}
-              className="w-full py-3 px-6 border-2 border-gray-200 hover:border-gray-300 disabled:border-gray-100 text-gray-700 hover:text-gray-900 disabled:text-gray-400 font-medium text-sm rounded-xl transition-all disabled:cursor-not-allowed hover:bg-gray-50"
+              className="w-full py-3 px-6 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 disabled:border-gray-100 disabled:bg-transparent text-gray-700 hover:text-gray-900 disabled:text-gray-300 font-medium text-sm rounded-xl transition-all disabled:cursor-not-allowed"
             >
               <span className="flex items-center justify-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,43 +280,45 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         </div>
 
         {/* Compact Safety Section */}
-        <div className="bg-green-50 rounded-xl border border-green-200 p-4 mb-4">
+        <div className="bg-emerald-50 rounded-xl border border-emerald-100 p-4 mb-4">
           <div className="flex items-center gap-2 mb-3">
-            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
+            <div className="p-1.5 bg-emerald-100 rounded-lg">
+              <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
             <span className="text-sm font-semibold text-gray-900">Your Safety Matters</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+          <div className="grid grid-cols-2 gap-2.5 text-xs text-gray-600">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
               <span>24/7 Moderation</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-violet-500 rounded-full"></span>
               <span>Anonymous by Default</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
               <span>Report & Block</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
               <span>18+ Verification</span>
             </div>
           </div>
         </div>
 
         {/* Disclaimer */}
-        <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+        <div className="bg-gray-50 rounded-xl border border-gray-100 p-4">
           <p className="text-xs text-gray-600 mb-1">
             <span className="font-medium text-gray-900">Stay safe:</span> Never share personal info with strangers.
           </p>
           <p className="text-xs text-gray-500">
             By using this service, you agree to our{' '}
-            <a href="/terms-of-service" className="text-gray-700 underline hover:text-gray-900">Terms</a>
+            <a href="/terms-of-service" className="text-violet-600 hover:text-violet-700 font-medium">Terms</a>
             {' '}and{' '}
-            <a href="/privacy-policy" className="text-gray-700 underline hover:text-gray-900">Privacy Policy</a>.
+            <a href="/privacy-policy" className="text-violet-600 hover:text-violet-700 font-medium">Privacy Policy</a>.
           </p>
         </div>
 
