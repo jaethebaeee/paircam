@@ -14,10 +14,10 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:cov": "vitest --coverage",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint src",
     "format": "prettier --write src",
-    "generate:sitemap": "tsx scripts/generate-sitemap.ts",
-    "generate:rss": "tsx scripts/generate-rss.ts"
+    "generate:sitemap": "npx tsx scripts/generate-sitemap.ts",
+    "generate:rss": "npx tsx scripts/generate-rss.ts"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.9.0",
@@ -39,6 +39,7 @@
     "zustand": "^4.4.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@headlessui/react": "^1.7.0",
     "@heroicons/react": "^2.0.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
