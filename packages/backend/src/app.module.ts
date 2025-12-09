@@ -13,12 +13,13 @@ import { ReportingModule } from './reporting/reporting.module';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { UsersModule } from './users/users.module';
-import { FriendsModule } from './friends/friends.module'; // 🆕 Friends & Social
+import { FriendsModule } from './friends/friends.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PaymentsModule } from './payments/payments.module';
 import { BlockingModule } from './blocking/blocking.module';
 import { HealthController } from './health/health.controller';
 import { env } from './env';
+import { RATE_LIMITS } from './config/constants';
 
 // Import entities
 import { User } from './users/entities/user.entity';
@@ -34,19 +35,19 @@ import { Friendship } from './friends/entities/friendship.entity';
       isGlobal: true,
       load: [() => env],
     }),
-    // Rate Limiting - Global throttler for all endpoints
+    // Rate Limiting - Global throttler for all endpoints (using centralized constants)
     ThrottlerModule.forRoot([{
       name: 'short',
-      ttl: 1000,   // 1 second
-      limit: 10,   // 10 requests per second max
+      ttl: RATE_LIMITS.GLOBAL_SHORT.ttl,
+      limit: RATE_LIMITS.GLOBAL_SHORT.limit,
     }, {
       name: 'medium',
-      ttl: 10000,  // 10 seconds
-      limit: 50,   // 50 requests per 10 seconds
+      ttl: RATE_LIMITS.GLOBAL_MEDIUM.ttl,
+      limit: RATE_LIMITS.GLOBAL_MEDIUM.limit,
     }, {
       name: 'long',
-      ttl: 60000,  // 1 minute
-      limit: 200,  // 200 requests per minute
+      ttl: RATE_LIMITS.GLOBAL_LONG.ttl,
+      limit: RATE_LIMITS.GLOBAL_LONG.limit,
     }]),
     // TypeORM Configuration
     TypeOrmModule.forRoot({

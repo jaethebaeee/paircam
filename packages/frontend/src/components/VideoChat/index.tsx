@@ -16,6 +16,7 @@ import WaitingQueue from '../WaitingQueue';
 import ReportModal from '../ReportModal';
 import BlockModal from '../BlockModal';
 import { blockUser } from '../../api/blocking';
+import { trackChatStart, trackMatchFound, trackSkip, trackChatEnd, trackReport } from '../../utils/analytics';
 
 type TurnCredentials = {
   urls: string[];
@@ -70,6 +71,7 @@ export default function VideoChat({
   const [isBlocking, setIsBlocking] = useState(false);
   const [matchedAt, setMatchedAt] = useState<Date | undefined>(undefined);
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const queueJoinedAt = useRef<Date | null>(null);
 
   // Geolocation for country flags
   const geoLocation = useGeolocation();
@@ -131,10 +133,13 @@ export default function VideoChat({
     }
   );
 
-  // Initialize
+  // Initialize and track chat start
   useEffect(() => {
     authenticate();
-  }, [authenticate]);
+    // Track chat session start
+    const mode = isTextMode ? 'text' : (isAudioOnlyMode ? 'voice' : 'video');
+    trackChatStart(mode);
+  }, [authenticate, isTextMode, isAudioOnlyMode]);
 
   // Start local stream with adaptive quality (skip in text mode)
   useEffect(() => {
@@ -182,12 +187,13 @@ export default function VideoChat({
 
   // Join queue when ready (in text mode, skip waiting for local stream)
   useEffect(() => {
-    const canJoinQueue = isTextMode 
+    const canJoinQueue = isTextMode
       ? signaling.connected && !signaling.matched
       : webrtc.localStream && signaling.connected && !signaling.matched;
-      
+
     if (canJoinQueue) {
-      signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage); // 🆕 Pass new params
+      queueJoinedAt.current = new Date();
+      signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage);
     }
   }, [webrtc.localStream, signaling.connected, signaling, userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage, isTextMode]);
 
@@ -195,6 +201,11 @@ export default function VideoChat({
   useEffect(() => {
     if (signaling.matched) {
       setMatchedAt(new Date());
+      // Track match found with wait time
+      if (queueJoinedAt.current) {
+        const waitTimeSeconds = Math.round((Date.now() - queueJoinedAt.current.getTime()) / 1000);
+        trackMatchFound(waitTimeSeconds);
+      }
       if (onMatched) {
         onMatched();
       }
@@ -224,14 +235,21 @@ export default function VideoChat({
   const handleNext = useCallback(() => {
     // Prevent rapid clicking (debounce)
     if (isSkipping) return;
-    
+
     setIsSkipping(true);
-    
+
+    // Track skip with chat duration
+    if (matchedAt) {
+      const chatDurationSeconds = Math.round((Date.now() - matchedAt.getTime()) / 1000);
+      trackSkip(chatDurationSeconds);
+    }
+
     if (signaling.matched) {
-      signaling.endCall(signaling.matched.sessionId, true); // 🆕 Mark as skipped
+      signaling.endCall(signaling.matched.sessionId, true);
     }
     setMessages([]);
-    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage); // 🆕 Pass new params
+    queueJoinedAt.current = new Date();
+    signaling.joinQueue('global', 'en', userGender, genderPreference, interests, queueType, nativeLanguage, learningLanguage);
     
     // Clear any existing timeout
     if (skipTimeoutRef.current) {
@@ -255,6 +273,12 @@ export default function VideoChat({
   }, []);
 
   const handleStopChatting = () => {
+    // Track chat end with duration
+    if (matchedAt) {
+      const chatDurationSeconds = Math.round((Date.now() - matchedAt.getTime()) / 1000);
+      trackChatEnd(chatDurationSeconds, 'user');
+    }
+
     if (signaling.matched) {
       signaling.endCall(signaling.matched.sessionId);
     }
@@ -335,6 +359,8 @@ export default function VideoChat({
       });
       if (!res.ok) throw new Error('Failed to submit report');
       setShowReportModal(false);
+      // Track report submission
+      trackReport(reason);
       toast.success('Report submitted', {
         description: 'Thank you for helping keep our community safe.',
       });

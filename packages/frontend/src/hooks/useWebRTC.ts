@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { verifyDTLSSRTP, monitorConnectionSecurity } from '../utils/security';
+import { handleMediaError, handleWebRTCError, logError, getUserFriendlyMessage, AppError } from '../utils/errorHandler';
 
 // Extended RTCPeerConnection with security monitor cleanup
 interface RTCPeerConnectionWithCleanup extends RTCPeerConnection {
@@ -107,18 +108,9 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
         }
         setError(null);
       } catch (err) {
-        const errorName = err instanceof Error ? err.name : 'UnknownError';
-        
-        // Provide user-friendly error messages
-        let userMessage = 'Failed to access camera/microphone.';
-        if (errorName === 'NotAllowedError' || errorName === 'PermissionDeniedError') {
-          userMessage = 'Camera and microphone access was denied. Please allow access in your browser settings.';
-        } else if (errorName === 'NotFoundError') {
-          userMessage = 'No camera or microphone found. Please connect a device and try again.';
-        } else if (errorName === 'NotReadableError') {
-          userMessage = 'Camera or microphone is already in use by another application.';
-        }
-        
+        const appError = handleMediaError(err instanceof Error ? err : new Error(String(err)));
+        logError(appError, 'useWebRTC.startLocalStream');
+        const userMessage = getUserFriendlyMessage(appError);
         setError(userMessage);
         throw new Error(userMessage);
       }
@@ -148,8 +140,9 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
       setError(null);
       return offer;
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(`Failed to create offer: ${msg}`);
+      const appError = handleWebRTCError(err instanceof Error ? err : new Error(String(err)));
+      logError(appError, 'useWebRTC.createOffer');
+      setError(getUserFriendlyMessage(appError));
       throw err;
     }
   }, [getPeerConnection, localStream]);
@@ -174,8 +167,9 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
         setError(null);
         return answer;
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        setError(`Failed to create answer: ${msg}`);
+        const appError = handleWebRTCError(err instanceof Error ? err : new Error(String(err)));
+        logError(appError, 'useWebRTC.createAnswer');
+        setError(getUserFriendlyMessage(appError));
         throw err;
       }
     },
@@ -190,8 +184,9 @@ export function useWebRTC(config: WebRTCConfig, onIceCandidate?: (candidate: RTC
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
       setError(null);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(`Failed to set remote description: ${msg}`);
+      const appError = handleWebRTCError(err instanceof Error ? err : new Error(String(err)));
+      logError(appError, 'useWebRTC.setRemoteDescription');
+      setError(getUserFriendlyMessage(appError));
       throw err;
     }
   }, []);

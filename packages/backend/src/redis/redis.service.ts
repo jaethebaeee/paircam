@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { createClient, RedisClientType } from 'redis';
 import { LoggerService } from '../services/logger.service';
 import { env } from '../env';
+import { SESSION, REPUTATION, REPORTS, CLIENT, MATCHMAKING, TIME } from '../config/constants';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
@@ -121,7 +122,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try {
       const key = `recent-matches:${userId}`;
       await this.client.sAdd(key, matchedUserId);
-      await this.client.expire(key, 3600); // Remember for 1 hour
+      await this.client.expire(key, MATCHMAKING.RECENT_MATCH_MEMORY_HOURS * 3600);
       this.logger.debug('Added to recent matches', { userId, matchedUserId });
     } catch (error) {
       this.logger.error(`Failed to add recent match for ${userId}`, error.stack);
@@ -202,7 +203,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       if (!data) {
         // Default reputation for new users
         return {
-          rating: 70, // Neutral start (0-100 scale)
+          rating: REPUTATION.DEFAULT_RATING,
           totalRatings: 0,
           skipRate: 0,
           reportCount: 0,
@@ -216,7 +217,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       } catch (parseError) {
         this.logger.error(`Failed to parse reputation data for ${userId}`, parseError.stack);
         return {
-          rating: 70,
+          rating: REPUTATION.DEFAULT_RATING,
           totalRatings: 0,
           skipRate: 0,
           reportCount: 0,
@@ -227,7 +228,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       this.logger.error(`Failed to get reputation for ${userId}`, error.stack);
       return {
-        rating: 70,
+        rating: REPUTATION.DEFAULT_RATING,
         totalRatings: 0,
         skipRate: 0,
         reportCount: 0,
@@ -267,28 +268,38 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         rep.reportCount++;
       }
       
-      // Calculate overall rating (0-100)
-      // Good call duration: +points, Low skip rate: +points, Few reports: +points
-      let rating = 70; // Base score
-      
-      // Call duration bonus (0-20 points): longer calls = better
-      if (rep.averageCallDuration > 120) rating += 20; // 2+ minutes
-      else if (rep.averageCallDuration > 60) rating += 10; // 1+ minute
-      else if (rep.averageCallDuration > 30) rating += 5; // 30+ seconds
-      
-      // Skip rate penalty (0-30 points): lower is better
-      if (rep.skipRate < 20) rating += 30; // <20% skip rate = excellent
-      else if (rep.skipRate < 50) rating += 15; // <50% = good
-      else rating -= 10; // >50% = poor
-      
-      // Report penalty (0-30 points)
-      rating -= Math.min(rep.reportCount * 10, 50); // -10 per report, cap at -50
-      
-      rep.rating = Math.max(0, Math.min(100, rating)); // Clamp 0-100
+      // Calculate overall rating using centralized constants
+      let rating = REPUTATION.DEFAULT_RATING;
+
+      // Call duration bonus: longer calls = better
+      if (rep.averageCallDuration > REPUTATION.CALL_DURATION_BONUS.LONG.threshold) {
+        rating += REPUTATION.CALL_DURATION_BONUS.LONG.points;
+      } else if (rep.averageCallDuration > REPUTATION.CALL_DURATION_BONUS.MEDIUM.threshold) {
+        rating += REPUTATION.CALL_DURATION_BONUS.MEDIUM.points;
+      } else if (rep.averageCallDuration > REPUTATION.CALL_DURATION_BONUS.SHORT.threshold) {
+        rating += REPUTATION.CALL_DURATION_BONUS.SHORT.points;
+      }
+
+      // Skip rate penalty: lower is better
+      if (rep.skipRate < REPUTATION.SKIP_RATE_PENALTY.EXCELLENT.threshold) {
+        rating += REPUTATION.SKIP_RATE_PENALTY.EXCELLENT.points;
+      } else if (rep.skipRate < REPUTATION.SKIP_RATE_PENALTY.GOOD.threshold) {
+        rating += REPUTATION.SKIP_RATE_PENALTY.GOOD.points;
+      } else {
+        rating += REPUTATION.SKIP_RATE_PENALTY.POOR.points;
+      }
+
+      // Report penalty
+      rating -= Math.min(
+        rep.reportCount * REPUTATION.REPORT_PENALTY_PER_REPORT,
+        REPUTATION.REPORT_PENALTY_MAX
+      );
+
+      rep.rating = Math.max(REPUTATION.MIN_RATING, Math.min(REPUTATION.MAX_RATING, rating));
       rep.lastUpdated = Date.now();
-      
-      // Store with 90 day TTL
-      await this.client.setEx(key, 86400 * 90, JSON.stringify(rep));
+
+      // Store with configurable TTL
+      await this.client.setEx(key, REPUTATION.TTL_DAYS * TIME.DAY / 1000, JSON.stringify(rep));
       
       this.logger.debug('Reputation updated', { userId, reputation: rep });
     } catch (error) {
@@ -297,7 +308,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Session operations
-  async createSession(sessionId: string, data: Record<string, unknown>, ttlSeconds = 300): Promise<void> {
+  async createSession(sessionId: string, data: Record<string, unknown>, ttlSeconds = SESSION.TTL_SECONDS): Promise<void> {
     try {
       await this.client.setEx(`session:${sessionId}`, ttlSeconds, JSON.stringify(data));
     } catch (error) {
@@ -333,7 +344,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Offer/Answer operations
-  async storeOffer(sessionId: string, offer: unknown, ttlSeconds = 30): Promise<void> {
+  async storeOffer(sessionId: string, offer: unknown, ttlSeconds = SESSION.OFFER_TTL_SECONDS): Promise<void> {
     try {
       await this.client.setEx(`offer:${sessionId}`, ttlSeconds, JSON.stringify(offer));
     } catch (error) {
@@ -359,7 +370,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async storeAnswer(sessionId: string, answer: unknown, ttlSeconds = 30): Promise<void> {
+  async storeAnswer(sessionId: string, answer: unknown, ttlSeconds = SESSION.ANSWER_TTL_SECONDS): Promise<void> {
     try {
       await this.client.setEx(`answer:${sessionId}`, ttlSeconds, JSON.stringify(answer));
     } catch (error) {
@@ -390,7 +401,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     sessionId: string,
     peerId: string,
     candidate: unknown,
-    ttlSeconds = 60,
+    ttlSeconds = SESSION.ICE_CANDIDATE_TTL_SECONDS,
   ): Promise<void> {
     try {
       const key = `candidates:${sessionId}:${peerId}`;
@@ -488,7 +499,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async addReport(reportId: string, reportData: unknown): Promise<void> {
     try {
       await this.client.lPush('reports:queue', reportId);
-      await this.client.setEx(`report:${reportId}`, 86400, JSON.stringify(reportData)); // 24 hours
+      await this.client.setEx(`report:${reportId}`, REPORTS.TTL_SECONDS, JSON.stringify(reportData));
     } catch (error) {
       this.logger.error(`Failed to add report ${reportId}`, error.stack);
       throw new Error('Failed to add report');
@@ -526,7 +537,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try {
       const key = `client:${deviceId}`;
       const data = JSON.stringify({ instanceId, socketId, timestamp: Date.now() });
-      await this.client.setEx(key, 600, data); // 10 minute TTL, refreshed on activity
+      await this.client.setEx(key, CLIENT.REGISTRATION_TTL_SECONDS, data);
       this.logger.debug('Client registered', { deviceId, instanceId });
     } catch (error) {
       this.logger.error(`Failed to register client ${deviceId}`, error.stack);
@@ -560,7 +571,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async refreshClientTTL(deviceId: string): Promise<void> {
     try {
-      await this.client.expire(`client:${deviceId}`, 600);
+      await this.client.expire(`client:${deviceId}`, CLIENT.REGISTRATION_TTL_SECONDS);
     } catch (error) {
       this.logger.error(`Failed to refresh client TTL for ${deviceId}`, error.stack);
     }
