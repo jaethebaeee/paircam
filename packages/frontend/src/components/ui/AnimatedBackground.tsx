@@ -11,10 +11,10 @@ export default function AnimatedBackground({
 }: AnimatedBackgroundProps) {
   // Memoize orb positions to prevent re-renders
   const orbs = useMemo(() => [
-    { color: 'from-pink-400/30 to-purple-400/30', size: 'w-72 h-72', position: 'top-0 -left-20', delay: '0s' },
+    { color: 'from-cyan-400/30 to-sky-400/30', size: 'w-72 h-72', position: 'top-0 -left-20', delay: '0s' },
     { color: 'from-blue-400/20 to-cyan-400/20', size: 'w-96 h-96', position: 'top-1/4 -right-32', delay: '2s' },
-    { color: 'from-purple-400/25 to-pink-400/25', size: 'w-80 h-80', position: 'bottom-0 left-1/4', delay: '4s' },
-    { color: 'from-indigo-400/20 to-blue-400/20', size: 'w-64 h-64', position: 'bottom-1/4 right-0', delay: '1s' },
+    { color: 'from-teal-400/25 to-cyan-400/25', size: 'w-80 h-80', position: 'bottom-0 left-1/4', delay: '4s' },
+    { color: 'from-sky-400/20 to-blue-400/20', size: 'w-64 h-64', position: 'bottom-1/4 right-0', delay: '1s' },
   ], []);
 
   if (variant === 'gradient-orbs') {

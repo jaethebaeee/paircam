@@ -92,7 +92,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Hero Section - Clean & Simple */}
         <div className="text-center mb-8 sm:mb-12 pt-12 sm:pt-8">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-violet-600 via-fuchsia-500 to-rose-500 bg-clip-text text-transparent mb-4 sm:mb-5 leading-tight px-2">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-cyan-700 to-gray-900 bg-clip-text text-transparent mb-4 sm:mb-5 leading-tight px-2">
             Your Next Conversation Awaits
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-xl mx-auto px-4">
@@ -110,7 +110,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               Anonymous
             </span>
             <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
-              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+              <span className="w-2 h-2 bg-cyan-500 rounded-full"></span>
               Instant
             </span>
           </div>
@@ -273,7 +273,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
               <span>Anonymous by Default</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+              <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span>
               <span>Report & Block</span>
             </div>
             <div className="flex items-center gap-1.5">
