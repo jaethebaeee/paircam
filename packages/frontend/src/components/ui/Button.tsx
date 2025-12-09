@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import Spinner from './Spinner';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline' | 'premium';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   leftIcon?: React.ReactNode;
@@ -12,11 +12,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-  primary: 'bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700 shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 focus:ring-pink-500',
-  secondary: 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:from-indigo-700 hover:to-blue-700 shadow-lg shadow-indigo-500/25 focus:ring-indigo-500',
+  primary: 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:from-violet-700 hover:to-fuchsia-700 shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/30 focus:ring-violet-500',
+  secondary: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300 shadow-md focus:ring-gray-400',
   danger: 'bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 shadow-lg shadow-red-500/25 focus:ring-red-500',
   ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-300',
-  outline: 'bg-white border-2 border-gray-200 text-gray-700 hover:border-pink-500 hover:text-pink-600 focus:ring-pink-500',
+  outline: 'bg-white border-2 border-gray-200 text-gray-700 hover:border-violet-500 hover:text-violet-600 focus:ring-violet-500',
+  premium: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-500/25 focus:ring-amber-500',
 };
 
 const sizeClasses = {

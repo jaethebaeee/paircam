@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import PremiumModal from './PremiumModal';
 import AnimatedBackground from './ui/AnimatedBackground';
 import AdBanner from './ads/AdBanner';
+import Button from './ui/Button';
+import Input from './ui/Input';
+import Card from './ui/Card';
+import Badge from './ui/Badge';
 
 interface LandingPageProps {
   onStartCall: (data: {
@@ -82,17 +86,20 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
       </div>
 
       {/* Premium Button - Fixed Top Right */}
-      <button
-        onClick={() => setShowPremiumModal(true)}
-        className="group fixed top-20 sm:top-24 right-4 z-10 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-4 sm:px-5 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all text-sm"
-      >
-        <span className="flex items-center gap-1.5">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
+      <div className="fixed top-20 sm:top-24 right-4 z-10">
+        <Button
+          variant="premium"
+          size="sm"
+          onClick={() => setShowPremiumModal(true)}
+          leftIcon={
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          }
+        >
           Get Premium
-        </span>
-      </button>
+        </Button>
+      </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Hero Section - Clean & Simple */}
@@ -105,19 +112,10 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
           </p>
 
           {/* Simple Value Props */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-sm text-gray-600 mb-8 px-2">
-            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              Free
-            </span>
-            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
-              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-              Anonymous
-            </span>
-            <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
-              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-              Instant
-            </span>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-sm mb-8 px-2">
+            <Badge variant="success" size="md" dot>Free</Badge>
+            <Badge variant="info" size="md" dot>Anonymous</Badge>
+            <Badge variant="default" size="md" dot className="bg-purple-100 text-purple-700">Instant</Badge>
           </div>
         </div>
 
@@ -125,39 +123,24 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
         <div className="max-w-md mx-auto px-2">
 
         {/* Clean Form Box */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 sm:p-8 mb-4 sm:mb-6">
+        <Card variant="default" padding="lg" className="mb-4 sm:mb-6">
           <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Get Started</h3>
 
           <div className="space-y-5">
             {/* Name Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Your name
-              </label>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => {
-                  setUserName(e.target.value.slice(0, 30));
-                  setShowNameError(false);
-                }}
-                placeholder="Enter a nickname"
-                aria-label="Your name or nickname"
-                aria-required="true"
-                aria-invalid={showNameError}
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  showNameError
-                    ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
-                    : 'border-gray-300 focus:border-gray-900 focus:ring-gray-100'
-                } focus:ring-2 outline-none text-base transition-colors`}
-                maxLength={30}
-              />
-              {showNameError && (
-                <p className="mt-2 text-sm text-red-600" role="alert">
-                  Please enter your name to continue
-                </p>
-              )}
-            </div>
+            <Input
+              label="Your name"
+              type="text"
+              value={userName}
+              onChange={(e) => {
+                setUserName(e.target.value.slice(0, 30));
+                setShowNameError(false);
+              }}
+              placeholder="Enter a nickname"
+              aria-required="true"
+              maxLength={30}
+              error={showNameError ? "Please enter your name to continue" : undefined}
+            />
 
             {/* Video Toggle */}
             <div className="flex items-center justify-between py-3 border-b border-gray-100">
@@ -170,7 +153,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 role="switch"
                 aria-checked={isVideoEnabled}
                 className={`relative w-12 h-6 rounded-full transition-colors ${
-                  isVideoEnabled ? 'bg-gray-900' : 'bg-gray-300'
+                  isVideoEnabled ? 'bg-violet-600' : 'bg-gray-300'
                 }`}
               >
                 <span
@@ -196,7 +179,7 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
                 className="sr-only"
               />
               <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                isAdultConfirmed ? 'bg-gray-900 border-gray-900' : 'border-gray-300'
+                isAdultConfirmed ? 'bg-violet-600 border-violet-600' : 'border-gray-300'
               }`}>
                 {isAdultConfirmed && (
                   <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,66 +195,59 @@ export default function LandingPage({ onStartCall }: LandingPageProps) {
 
             {/* Age Input */}
             {isAdultConfirmed && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Your age
-                </label>
-                <input
-                  type="number"
-                  value={userAge}
-                  onChange={(e) => {
-                    setUserAge(e.target.value);
-                    setShowAgeError(false);
-                  }}
-                  placeholder="18"
-                  min="18"
-                  max="120"
-                  className={`w-full px-4 py-3 rounded-lg border ${
-                    showAgeError
-                      ? 'border-red-400 focus:border-red-500'
-                      : 'border-gray-300 focus:border-gray-900'
-                  } focus:ring-2 focus:ring-gray-100 outline-none text-base transition-colors`}
-                />
-                {showAgeError && (
-                  <p className="mt-2 text-sm text-red-600" role="alert">
-                    You must be 18 or older
-                  </p>
-                )}
-              </div>
+              <Input
+                label="Your age"
+                type="number"
+                value={userAge}
+                onChange={(e) => {
+                  setUserAge(e.target.value);
+                  setShowAgeError(false);
+                }}
+                placeholder="18"
+                min={18}
+                max={120}
+                error={showAgeError ? "You must be 18 or older" : undefined}
+              />
             )}
 
             {/* Start Button */}
-            <button
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
               onClick={() => handleStartChat(false)}
               disabled={!userName.trim() || (isAdultConfirmed && (!userAge || parseInt(userAge) < 18))}
-              className="group w-full py-4 px-6 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold text-base rounded-xl transition-all disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <span className="flex items-center justify-center gap-2">
+              leftIcon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
-                Start Video Chat
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              }
+              rightIcon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </span>
-            </button>
+              }
+            >
+              Start Video Chat
+            </Button>
 
             {/* Text Mode Button */}
-            <button
+            <Button
+              variant="outline"
+              size="md"
+              fullWidth
               onClick={() => handleStartChat(true)}
               disabled={!userName.trim()}
-              className="w-full py-3 px-6 border-2 border-gray-200 hover:border-gray-300 disabled:border-gray-100 text-gray-700 hover:text-gray-900 disabled:text-gray-400 font-medium text-sm rounded-xl transition-all disabled:cursor-not-allowed hover:bg-gray-50"
-            >
-              <span className="flex items-center justify-center gap-2">
+              leftIcon={
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                Text-Only Mode
-              </span>
-            </button>
+              }
+            >
+              Text-Only Mode
+            </Button>
           </div>
-        </div>
+        </Card>
 
         {/* Compact Safety Section */}
         <div className="bg-green-50 rounded-xl border border-green-200 p-4 mb-4">
