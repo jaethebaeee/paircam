@@ -16,7 +16,7 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
       setTimeout(() => setShowUpgradePrompt(false), 5000); // Auto-hide after 5 seconds
       return;
     }
-    
+
     setGenderPreference(preference);
     onPreferenceChange(preference);
   };
@@ -26,31 +26,31 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
       <label className="block text-sm font-semibold text-gray-900">
         Who would you like to meet?
         {!isPremium && (
-          <span className="ml-2 text-xs bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2.5 py-1 rounded-full font-bold shadow-sm">
-            ⭐ Premium
+          <span className="ml-2 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-1 rounded-full font-bold shadow-sm">
+            Premium
           </span>
         )}
       </label>
-      
+
       <div className="grid grid-cols-3 gap-3">
         <button
           onClick={() => handlePreferenceChange('any')}
           className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
             genderPreference === 'any'
-              ? 'border-pink-500 bg-pink-100/70 shadow-lg shadow-pink-200/50 scale-105'
-              : 'border-gray-200 hover:border-pink-300 bg-white hover:bg-pink-50 shadow-sm hover:shadow-md hover:scale-105'
+              ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-200/50 scale-105'
+              : 'border-gray-200 hover:border-violet-300 bg-white hover:bg-violet-50/50 shadow-sm hover:shadow-md hover:scale-105'
           }`}
         >
           <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">🌍</div>
           <div className="text-sm font-semibold text-gray-700">Anyone</div>
         </button>
-        
+
         <button
           onClick={() => handlePreferenceChange('female')}
           className={`group p-4 rounded-xl border-2 transition-all duration-200 relative ${
             genderPreference === 'female'
-              ? 'border-pink-500 bg-pink-100/70 shadow-lg shadow-pink-200/50 scale-105'
-              : 'border-gray-200 hover:border-pink-300 bg-white hover:bg-pink-50 shadow-sm hover:shadow-md hover:scale-105'
+              ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-200/50 scale-105'
+              : 'border-gray-200 hover:border-violet-300 bg-white hover:bg-violet-50/50 shadow-sm hover:shadow-md hover:scale-105'
           } ${!isPremium ? 'opacity-70 hover:opacity-80' : ''}`}
         >
           {!isPremium && (
@@ -59,13 +59,13 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
           <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">👩</div>
           <div className="text-sm font-semibold text-gray-700">Women</div>
         </button>
-        
+
         <button
           onClick={() => handlePreferenceChange('male')}
           className={`group p-4 rounded-xl border-2 transition-all duration-200 relative ${
             genderPreference === 'male'
-              ? 'border-pink-500 bg-pink-100/70 shadow-lg shadow-pink-200/50 scale-105'
-              : 'border-gray-200 hover:border-pink-300 bg-white hover:bg-pink-50 shadow-sm hover:shadow-md hover:scale-105'
+              ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-200/50 scale-105'
+              : 'border-gray-200 hover:border-violet-300 bg-white hover:bg-violet-50/50 shadow-sm hover:shadow-md hover:scale-105'
           } ${!isPremium ? 'opacity-70 hover:opacity-80' : ''}`}
         >
           {!isPremium && (
@@ -75,11 +75,15 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
           <div className="text-sm font-semibold text-gray-700">Men</div>
         </button>
       </div>
-      
+
       {showUpgradePrompt && (
-        <div className="mt-2 p-5 bg-gradient-to-br from-yellow-50 via-orange-50 to-yellow-50 rounded-2xl border-2 border-yellow-300/60 animate-slideUp shadow-lg">
+        <div className="mt-2 p-5 bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 rounded-2xl border-2 border-amber-200/60 animate-slideUp shadow-lg">
           <div className="flex items-start gap-3">
-            <div className="text-3xl animate-bounce-subtle">⭐</div>
+            <div className="text-3xl animate-bounce-subtle">
+              <svg className="w-8 h-8 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            </div>
             <div className="flex-1">
               <p className="font-bold text-gray-900 mb-1.5 text-base">
                 Premium Feature
@@ -89,7 +93,7 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
               </p>
               <button
                 onClick={onUpgradeClick}
-                className="group relative bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-orange-300/40 hover:shadow-xl hover:shadow-orange-300/60 transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden"
+                className="group relative bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/35 transition-all duration-300 hover:scale-105 active:scale-95 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <span className="relative flex items-center gap-2">
@@ -106,4 +110,3 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
     </div>
   );
 }
-

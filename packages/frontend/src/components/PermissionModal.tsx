@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { 
-  VideoCameraIcon, 
-  MicrophoneIcon, 
+import {
+  VideoCameraIcon,
+  MicrophoneIcon,
   ShieldCheckIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon
@@ -57,7 +57,7 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
       }
     } catch (err) {
       console.error('Permission error:', err);
-      
+
       if (err instanceof Error) {
         if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
           setError('Camera and microphone access was denied. Please allow access in your browser settings.');
@@ -71,17 +71,17 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
       } else {
         setError('Failed to access camera and microphone. Please check your browser settings.');
       }
-      
+
       setIsRequesting(false);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full p-8 animate-scaleIn">
+      <div className="bg-white rounded-2xl shadow-soft-lg max-w-2xl w-full p-8 animate-scaleIn">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full mb-4">
             <ShieldCheckIcon className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -95,12 +95,12 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
         {/* Permissions List */}
         <div className="space-y-4 mb-6">
           <div className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all ${
-            cameraGranted 
-              ? 'border-green-500 bg-green-50' 
+            cameraGranted
+              ? 'border-emerald-500 bg-emerald-50'
               : 'border-gray-200 bg-gray-50'
           }`}>
             <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-              cameraGranted ? 'bg-green-500' : 'bg-pink-500'
+              cameraGranted ? 'bg-emerald-500' : 'bg-violet-500'
             }`}>
               {cameraGranted ? (
                 <CheckCircleIcon className="w-6 h-6 text-white" />
@@ -117,12 +117,12 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
           </div>
 
           <div className={`flex items-start gap-4 p-4 rounded-2xl border-2 transition-all ${
-            micGranted 
-              ? 'border-green-500 bg-green-50' 
+            micGranted
+              ? 'border-emerald-500 bg-emerald-50'
               : 'border-gray-200 bg-gray-50'
           }`}>
             <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-              micGranted ? 'bg-green-500' : 'bg-purple-500'
+              micGranted ? 'bg-emerald-500' : 'bg-purple-500'
             }`}>
               {micGranted ? (
                 <CheckCircleIcon className="w-6 h-6 text-white" />
@@ -140,12 +140,12 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
         </div>
 
         {/* Safety Notice */}
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-4 mb-6">
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 mb-6">
           <div className="flex items-start gap-3">
-            <ExclamationTriangleIcon className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <ExclamationTriangleIcon className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h4 className="font-semibold text-yellow-900 mb-1">Safety Reminder</h4>
-              <ul className="text-sm text-yellow-800 space-y-1">
+              <h4 className="font-semibold text-amber-900 mb-1">Safety Reminder</h4>
+              <ul className="text-sm text-amber-800 space-y-1">
                 <li>• Never share personal information (address, phone, email)</li>
                 <li>• Report inappropriate behavior immediately</li>
                 <li>• You can end any call at any time</li>
@@ -175,9 +175,9 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
         <div className="bg-gray-50 rounded-2xl p-4 mb-6">
           <h4 className="font-semibold text-gray-900 mb-2 text-sm">🔒 Your Privacy</h4>
           <p className="text-xs text-gray-600 leading-relaxed">
-            Your camera and microphone will only be active during video calls. 
-            We do not record, store, or share your video or audio. 
-            All connections are peer-to-peer and encrypted. 
+            Your camera and microphone will only be active during video calls.
+            We do not record, store, or share your video or audio.
+            All connections are peer-to-peer and encrypted.
             You can disable your camera or microphone at any time during a call.
           </p>
         </div>
@@ -186,7 +186,7 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
         <div className="flex gap-3">
           <button
             onClick={onPermissionsDenied}
-            className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all"
+            className="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-all"
             disabled={isRequesting}
           >
             Cancel
@@ -194,7 +194,7 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
           <button
             onClick={requestPermissions}
             disabled={isRequesting}
-            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold hover:from-pink-700 hover:to-purple-700 shadow-lg shadow-pink-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isRequesting ? (
               <span className="flex items-center justify-center gap-2">
@@ -213,12 +213,11 @@ export default function PermissionModal({ onPermissionsGranted, onPermissionsDen
         {/* Help Text */}
         <p className="text-center text-xs text-gray-500 mt-4">
           By continuing, you agree to our{' '}
-          <a href="#" className="text-pink-600 hover:underline">Terms of Service</a>
+          <a href="#" className="text-violet-600 hover:underline">Terms of Service</a>
           {' '}and{' '}
-          <a href="#" className="text-pink-600 hover:underline">Privacy Policy</a>
+          <a href="#" className="text-violet-600 hover:underline">Privacy Policy</a>
         </p>
       </div>
     </div>
   );
 }
-
