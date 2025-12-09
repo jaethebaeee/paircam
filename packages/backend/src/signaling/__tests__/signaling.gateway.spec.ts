@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SignalingGateway, JoinQueueDto, WebRTCSignalDto } from '../signaling.gateway';
+import { SignalingGateway } from '../signaling.gateway';
+import { JoinQueueDto, WebRTCSignalDto } from '../dto';
 import { RedisService } from '../../redis/redis.service';
 import { RedisPubSubService } from '../../redis/redis-pubsub.service';
 import { MatchmakingService } from '../matchmaking.service';
