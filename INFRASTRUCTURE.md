@@ -32,6 +32,11 @@
 └─────────────────────────┘     └─────────────────────────┘
 ```
 
+## Vercel Project
+
+- **Project ID**: `prj_5q6wSqXnlSPaX7dRxkTWPCZ9MB9E`
+- **Dashboard**: [vercel.com/dashboard](https://vercel.com)
+
 ## Services Overview
 
 | Service | Provider | Status | Dashboard |
