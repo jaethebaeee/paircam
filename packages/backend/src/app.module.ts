@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 import { LoggerModule } from './services/logger.module';
 import { AuthModule } from './auth/auth.module';
@@ -30,13 +32,30 @@ import { BlockedUser } from './blocking/entities/blocked-user.entity';
       isGlobal: true,
       load: [() => env],
     }),
+    // Rate Limiting - Global throttler for all endpoints
+    ThrottlerModule.forRoot([{
+      name: 'short',
+      ttl: 1000,   // 1 second
+      limit: 10,   // 10 requests per second max
+    }, {
+      name: 'medium',
+      ttl: 10000,  // 10 seconds
+      limit: 50,   // 50 requests per 10 seconds
+    }, {
+      name: 'long',
+      ttl: 60000,  // 1 minute
+      limit: 200,  // 200 requests per minute
+    }]),
     // TypeORM Configuration
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: env.DATABASE_URL,
       entities: [User, Subscription, Payment, BlockedUser],
-      synchronize: env.NODE_ENV === 'development', // Auto-create tables in dev only
-      ssl: env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      synchronize: false, // NEVER use synchronize in production - use migrations
+      ssl: env.NODE_ENV === 'production' ? {
+        rejectUnauthorized: true, // Enforce SSL certificate validation
+        ca: process.env.DATABASE_CA_CERT || undefined, // Optional CA cert
+      } : false,
       logging: env.NODE_ENV === 'development' ? ['error', 'warn'] : false,
     }),
     LoggerModule,
@@ -54,5 +73,12 @@ import { BlockedUser } from './blocking/entities/blocked-user.entity';
     MonitoringModule,
   ],
   controllers: [HealthController],
+  providers: [
+    // Apply rate limiting globally to all routes
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
