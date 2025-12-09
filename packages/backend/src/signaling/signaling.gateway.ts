@@ -15,6 +15,7 @@ import { RedisService } from '../redis/redis.service';
 import { RedisPubSubService, MatchNotifyEvent, SessionEndEvent, SignalForwardEvent } from '../redis/redis-pubsub.service';
 import { MatchmakingService } from './matchmaking.service';
 import { MatchAnalyticsService } from '../analytics/match-analytics.service';
+import { ContentScreeningService } from '../moderation/content-screening.service';
 import { AuthService } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
 import {
@@ -58,6 +59,8 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     private readonly matchmakingService: MatchmakingService,
     @Inject(forwardRef(() => MatchAnalyticsService))
     private readonly analyticsService: MatchAnalyticsService,
+    @Inject(forwardRef(() => ContentScreeningService))
+    private readonly contentScreeningService: ContentScreeningService,
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly logger: LoggerService,
@@ -364,6 +367,60 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
     if (!deviceId) return;
 
     try {
+      // Get user for moderation
+      const user = await this.usersService.findOrCreate(deviceId);
+
+      // Check if user is restricted
+      const restrictionStatus = await this.contentScreeningService.isUserRestricted(user.id);
+      if (restrictionStatus.restricted) {
+        client.emit('moderation-action', {
+          type: 'restricted',
+          message: `You are currently restricted from sending messages. ${restrictionStatus.until ? `Restriction ends at ${new Date(restrictionStatus.until).toLocaleTimeString()}` : ''}`,
+        });
+        return;
+      }
+
+      // Screen the message
+      const screeningResult = await this.contentScreeningService.screenTextMessage(
+        data.sessionId,
+        user.id,
+        data.message,
+      );
+
+      // Handle high-severity violations (block message)
+      if (!screeningResult.isSafe && screeningResult.severity === 'high') {
+        // Issue warning
+        const warningResult = await this.contentScreeningService.issueWarning(
+          user.id,
+          screeningResult.reason || 'Community guideline violation',
+          data.sessionId,
+        );
+
+        client.emit('moderation-action', {
+          type: warningResult.action,
+          message: `Your message was blocked: ${screeningResult.reason}. Warning ${warningResult.warningCount}/3.`,
+          severity: screeningResult.severity,
+        });
+
+        this.logger.warn('Message blocked by content screening', {
+          userId: user.id,
+          sessionId: data.sessionId,
+          categories: screeningResult.categories,
+          warningCount: warningResult.warningCount,
+        });
+
+        return; // Don't send the message
+      }
+
+      // Handle medium-severity (warn but allow)
+      if (screeningResult.flagged && screeningResult.severity === 'medium') {
+        client.emit('moderation-warning', {
+          type: 'warning',
+          message: 'Please be mindful of community guidelines.',
+          severity: screeningResult.severity,
+        });
+      }
+
       // Get peer from session
       const session = await this.redisService.getSession<{ peers: string[] }>(data.sessionId);
       if (!session) return;
@@ -559,7 +616,7 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
   }
 
   // 🌐 Public method for matchmaking service to notify clients (now uses Pub/Sub)
-  async notifyMatch(deviceId1: string, deviceId2: string, sessionId: string) {
+  async notifyMatch(deviceId1: string, deviceId2: string, sessionId: string, matchData?: { compatibilityScore?: number; commonInterests?: string[] }) {
     // 🆕 Track session start time for reputation
     const startTime = Date.now();
     await this.redisService.getClient().setEx(
@@ -568,20 +625,42 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       startTime.toString()
     );
 
+    // Store compatibility score for later retrieval
+    if (matchData?.compatibilityScore) {
+      await this.redisService.getClient().setEx(
+        `session:${sessionId}:compatibilityScore`,
+        600,
+        matchData.compatibilityScore.toString()
+      );
+    }
+    if (matchData?.commonInterests && matchData.commonInterests.length > 0) {
+      await this.redisService.getClient().setEx(
+        `session:${sessionId}:commonInterests`,
+        600,
+        JSON.stringify(matchData.commonInterests)
+      );
+    }
+
     // Try local notification first (this instance might have the clients)
     const client1 = this.connectedClients.get(deviceId1);
     const client2 = this.connectedClients.get(deviceId2);
+
+    const matchPayload = {
+      sessionId,
+      timestamp: startTime,
+      compatibilityScore: matchData?.compatibilityScore,
+      commonInterests: matchData?.commonInterests || [],
+    };
 
     if (client1) {
       client1.data.sessionId = sessionId;
       client1.data.peerId = deviceId2;
       client1.data.sessionStartTime = startTime;
       client1.emit('matched', {
-        sessionId,
+        ...matchPayload,
         peerId: deviceId2,
-        timestamp: startTime,
       });
-      this.logger.log('✅ Local match notification sent', { deviceId: deviceId1 });
+      this.logger.log('Local match notification sent', { deviceId: deviceId1, compatibilityScore: matchData?.compatibilityScore });
     }
 
     if (client2) {
@@ -589,23 +668,51 @@ export class SignalingGateway implements OnGatewayConnection, OnGatewayDisconnec
       client2.data.peerId = deviceId1;
       client2.data.sessionStartTime = startTime;
       client2.emit('matched', {
-        sessionId,
+        ...matchPayload,
         peerId: deviceId1,
-        timestamp: startTime,
       });
-      this.logger.log('✅ Local match notification sent', { deviceId: deviceId2 });
+      this.logger.log('Local match notification sent', { deviceId: deviceId2, compatibilityScore: matchData?.compatibilityScore });
     }
 
     // 🌐 Publish to Pub/Sub for other instances (distributed notification)
     await this.redisPubSub.publishMatchNotify(deviceId1, deviceId2, sessionId);
 
-    this.logger.log('🌐 Match published to Pub/Sub', { 
-      deviceId1, 
-      deviceId2, 
+    this.logger.log('Match published to Pub/Sub', {
+      deviceId1,
+      deviceId2,
       sessionId,
+      compatibilityScore: matchData?.compatibilityScore,
       localClient1: !!client1,
       localClient2: !!client2,
     });
+  }
+
+  // Get match details including compatibility score
+  @SubscribeMessage('get-match-details')
+  async handleGetMatchDetails(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { sessionId: string },
+  ) {
+    try {
+      const scoreStr = await this.redisService.getClient().get(`session:${data.sessionId}:compatibilityScore`);
+      const interestsStr = await this.redisService.getClient().get(`session:${data.sessionId}:commonInterests`);
+
+      const compatibilityScore = scoreStr ? parseFloat(scoreStr) : null;
+      const commonInterests = interestsStr ? JSON.parse(interestsStr) : [];
+
+      client.emit('match-details', {
+        sessionId: data.sessionId,
+        compatibilityScore,
+        commonInterests,
+      });
+    } catch (error) {
+      this.logger.error('Get match details error', error.stack);
+      client.emit('match-details', {
+        sessionId: data.sessionId,
+        compatibilityScore: null,
+        commonInterests: [],
+      });
+    }
   }
 
   // 🌐 Handle match notifications from other instances
