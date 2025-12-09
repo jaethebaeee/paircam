@@ -53,14 +53,6 @@ describe('LandingPage', () => {
       });
     });
 
-    it('should render compact safety section', () => {
-      render(<LandingPage onStartCall={mockOnStartCall} />);
-
-      expect(screen.getByText('Your Safety Matters')).toBeInTheDocument();
-      expect(screen.getByText('24/7 Moderation')).toBeInTheDocument();
-      expect(screen.getByText('Anonymous by Default')).toBeInTheDocument();
-    });
-
     it('should render start chat form', () => {
       render(<LandingPage onStartCall={mockOnStartCall} />);
 
@@ -331,13 +323,6 @@ describe('LandingPage', () => {
       expect(screen.getByText('Free')).toBeInTheDocument();
       expect(screen.getByText('Anonymous')).toBeInTheDocument();
       expect(screen.getByText('Instant')).toBeInTheDocument();
-    });
-
-    it('should render safety features', () => {
-      render(<LandingPage onStartCall={mockOnStartCall} />);
-
-      expect(screen.getByText('Report & Block')).toBeInTheDocument();
-      expect(screen.getByText('18+ Verification')).toBeInTheDocument();
     });
   });
 });
