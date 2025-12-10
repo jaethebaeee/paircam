@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "npm run dev --workspace=packages/frontend",
     "build": "npm run build --workspace=packages/frontend",
+    "build:backend": "npm run build --workspace=packages/backend",
+    "start:backend": "npm run start --workspace=packages/backend",
     "dev:backend": "npm run dev --workspace=packages/backend"
   }
 }
