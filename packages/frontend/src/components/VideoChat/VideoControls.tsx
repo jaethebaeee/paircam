@@ -142,7 +142,7 @@ export default function VideoControls({
             </div>
           </div>
 
-          {/* Next - Pink/Purple refresh button with enhanced animation */}
+          {/* Next - Violet refresh button with enhanced animation */}
           <div className="relative group">
             <button
               onClick={onNext}
@@ -150,7 +150,7 @@ export default function VideoControls({
               className={`relative p-4 sm:p-4 rounded-full shadow-lg transition-all duration-300 transform min-w-[48px] min-h-[48px] flex items-center justify-center ${
                 isSkipping
                   ? 'bg-gray-400 cursor-not-allowed opacity-50'
-                  : 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 shadow-pink-500/50 hover:scale-110 active:scale-95 hover:shadow-pink-500/70'
+                  : 'bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-violet-500/50 hover:scale-110 active:scale-95 hover:shadow-violet-500/70'
               }`}
               aria-label={isSkipping ? 'Finding new match, please wait...' : 'Skip to next person'}
             >

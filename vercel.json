@@ -29,4 +29,5 @@
       ]
     }
   ]
+  "rootDirectory": "packages/frontend"
 }

@@ -50,7 +50,7 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fadeIn">
       <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slideUp">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-6 rounded-t-3xl">
+        <div className="sticky top-0 bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-6 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="bg-white/20 p-2 rounded-xl">
@@ -156,7 +156,7 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
           {/* Who to Meet */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-2 rounded-lg">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -328,9 +328,9 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
             </button>
             <button
               onClick={handleStart}
-              className="flex-1 py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-xl shadow-pink-500/30 hover:shadow-2xl hover:shadow-pink-500/50 transition-all duration-300 hover:scale-105 active:scale-95"
+              className="flex-1 py-4 px-6 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-xl shadow-violet-500/25 hover:shadow-2xl hover:shadow-violet-500/35 transition-all duration-300 hover:scale-105 active:scale-95"
             >
-              Start Chatting →
+              Start Chatting
             </button>
           </div>
 
