@@ -6,6 +6,34 @@ interface GenderFilterProps {
   isPremium?: boolean;
 }
 
+// Modern SVG Icons
+const GlobeIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+);
+
+const FemaleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+    <circle cx="12" cy="8" r="5" />
+    <path d="M12 13v8M9 18h6" />
+  </svg>
+);
+
+const MaleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+    <circle cx="10" cy="14" r="5" />
+    <path d="M19 5l-5.4 5.4M19 5h-5M19 5v5" />
+  </svg>
+);
+
+const LockIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clipRule="evenodd" />
+  </svg>
+);
+
 export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPremium = false }: GenderFilterProps) {
   const [genderPreference, setGenderPreference] = useState('any');
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
@@ -13,7 +41,7 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
   const handlePreferenceChange = (preference: string) => {
     if (!isPremium && preference !== 'any') {
       setShowUpgradePrompt(true);
-      setTimeout(() => setShowUpgradePrompt(false), 5000); // Auto-hide after 5 seconds
+      setTimeout(() => setShowUpgradePrompt(false), 5000);
       return;
     }
 
@@ -21,59 +49,66 @@ export default function GenderFilter({ onPreferenceChange, onUpgradeClick, isPre
     onPreferenceChange(preference);
   };
 
+  const options = [
+    { id: 'any', label: 'Anyone', Icon: GlobeIcon, gradient: 'from-violet-500 to-purple-600' },
+    { id: 'female', label: 'Women', Icon: FemaleIcon, gradient: 'from-pink-500 to-rose-600' },
+    { id: 'male', label: 'Men', Icon: MaleIcon, gradient: 'from-blue-500 to-indigo-600' },
+  ];
+
   return (
-    <div className="space-y-3">
-      <label className="block text-sm font-semibold text-gray-900">
-        Who would you like to meet?
-        {!isPremium && (
-          <span className="ml-2 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 py-1 rounded-full font-bold shadow-sm">
-            Premium
-          </span>
-        )}
-      </label>
+    <div className="space-y-4">
+      {/* Modern Segmented Control */}
+      <div className="relative bg-gray-100 rounded-2xl p-1.5 flex gap-1">
+        {/* Animated Selection Indicator */}
+        <div
+          className={`absolute top-1.5 bottom-1.5 w-[calc(33.333%-4px)] bg-gradient-to-r ${
+            genderPreference === 'any' ? 'from-violet-500 to-purple-600' :
+            genderPreference === 'female' ? 'from-pink-500 to-rose-600' :
+            'from-blue-500 to-indigo-600'
+          } rounded-xl shadow-lg transition-all duration-300 ease-out`}
+          style={{
+            left: genderPreference === 'any' ? '6px' :
+                  genderPreference === 'female' ? 'calc(33.333% + 2px)' :
+                  'calc(66.666% - 2px)'
+          }}
+        />
 
-      <div className="grid grid-cols-3 gap-3">
-        <button
-          onClick={() => handlePreferenceChange('any')}
-          className={`group p-4 rounded-xl border-2 transition-all duration-200 ${
-            genderPreference === 'any'
-              ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-200/50 scale-105'
-              : 'border-gray-200 hover:border-violet-300 bg-white hover:bg-violet-50/50 shadow-sm hover:shadow-md hover:scale-105'
-          }`}
-        >
-          <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">🌍</div>
-          <div className="text-sm font-semibold text-gray-700">Anyone</div>
-        </button>
+        {options.map(({ id, label, Icon }) => {
+          const isSelected = genderPreference === id;
+          const isLocked = !isPremium && id !== 'any';
 
-        <button
-          onClick={() => handlePreferenceChange('female')}
-          className={`group p-4 rounded-xl border-2 transition-all duration-200 relative ${
-            genderPreference === 'female'
-              ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-200/50 scale-105'
-              : 'border-gray-200 hover:border-violet-300 bg-white hover:bg-violet-50/50 shadow-sm hover:shadow-md hover:scale-105'
-          } ${!isPremium ? 'opacity-70 hover:opacity-80' : ''}`}
-        >
-          {!isPremium && (
-            <div className="absolute top-2 right-2 text-lg bg-white rounded-full p-0.5 shadow-sm">🔒</div>
-          )}
-          <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">👩</div>
-          <div className="text-sm font-semibold text-gray-700">Women</div>
-        </button>
+          return (
+            <button
+              key={id}
+              onClick={() => handlePreferenceChange(id)}
+              className={`relative flex-1 flex flex-col items-center gap-2 py-4 px-3 rounded-xl transition-all duration-300 ${
+                isSelected
+                  ? 'text-white'
+                  : 'text-gray-600 hover:text-gray-900'
+              } ${isLocked ? 'cursor-pointer' : ''}`}
+            >
+              {/* Icon Container with Animation */}
+              <div className={`relative transition-transform duration-300 ${isSelected ? 'scale-110' : 'group-hover:scale-105'}`}>
+                <Icon className={`w-7 h-7 transition-all duration-300 ${
+                  isSelected ? 'stroke-white' : 'stroke-gray-500'
+                }`} />
 
-        <button
-          onClick={() => handlePreferenceChange('male')}
-          className={`group p-4 rounded-xl border-2 transition-all duration-200 relative ${
-            genderPreference === 'male'
-              ? 'border-violet-500 bg-violet-50 shadow-lg shadow-violet-200/50 scale-105'
-              : 'border-gray-200 hover:border-violet-300 bg-white hover:bg-violet-50/50 shadow-sm hover:shadow-md hover:scale-105'
-          } ${!isPremium ? 'opacity-70 hover:opacity-80' : ''}`}
-        >
-          {!isPremium && (
-            <div className="absolute top-2 right-2 text-lg bg-white rounded-full p-0.5 shadow-sm">🔒</div>
-          )}
-          <div className="text-3xl mb-2 transform group-hover:scale-110 transition-transform">👨</div>
-          <div className="text-sm font-semibold text-gray-700">Men</div>
-        </button>
+                {/* Lock Badge for Premium Options */}
+                {isLocked && (
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-md">
+                    <LockIcon className="w-2.5 h-2.5 text-white" />
+                  </div>
+                )}
+              </div>
+
+              <span className={`text-sm font-semibold transition-all duration-300 ${
+                isSelected ? 'text-white' : 'text-gray-700'
+              }`}>
+                {label}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {showUpgradePrompt && (
