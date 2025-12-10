@@ -62,7 +62,7 @@ export default function BlogList() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <header className="text-center mb-12">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
             PairCam Blog
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -109,7 +109,7 @@ export default function BlogList() {
               onClick={() => setSelectedCategory(null)}
               className={`px-4 sm:px-5 py-2 rounded-full font-medium text-sm sm:text-base transition-all ${
                 selectedCategory === null
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/25'
                   : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
               }`}
             >
@@ -121,7 +121,7 @@ export default function BlogList() {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-4 sm:px-5 py-2 rounded-full font-medium text-sm sm:text-base transition-all ${
                   selectedCategory === category
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg'
+                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/25'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
@@ -149,7 +149,7 @@ export default function BlogList() {
             >
               <div className="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow border border-gray-100">
                 <div className="md:flex">
-                  <div className="md:w-1/2 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-8 flex items-center justify-center">
+                  <div className="md:w-1/2 bg-gradient-to-br from-violet-100 via-purple-100 to-indigo-100 p-8 flex items-center justify-center">
                     <div className="text-center">
                       <span className="text-6xl mb-4 block">
                         {filteredPosts[0].category === 'Guides' ? '📚' :
@@ -164,7 +164,7 @@ export default function BlogList() {
                   </div>
                   <div className="md:w-1/2 p-8">
                     <div className="flex items-center gap-3 mb-4">
-                      <span className="px-3 py-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-semibold rounded-full">
+                      <span className="px-3 py-1 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-xs font-semibold rounded-full">
                         {filteredPosts[0].category}
                       </span>
                       <span className="text-sm text-gray-500">
@@ -179,7 +179,7 @@ export default function BlogList() {
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-violet-600 to-purple-600 flex items-center justify-center text-white font-bold">
                           {filteredPosts[0].author.charAt(0)}
                         </div>
                         <div>
@@ -193,7 +193,7 @@ export default function BlogList() {
                           </p>
                         </div>
                       </div>
-                      <span className="text-pink-600 font-semibold group-hover:translate-x-2 transition-transform inline-flex items-center gap-1">
+                      <span className="text-violet-600 font-semibold group-hover:translate-x-2 transition-transform inline-flex items-center gap-1">
                         Read More
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -215,7 +215,7 @@ export default function BlogList() {
             <p className="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
             <button
               onClick={() => { setSearchQuery(''); setSelectedCategory(null); }}
-              className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium rounded-full hover:shadow-lg transition-all"
+              className="px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium rounded-full hover:shadow-lg shadow-violet-500/25 transition-all"
             >
               Clear Filters
             </button>
@@ -232,7 +232,7 @@ export default function BlogList() {
               >
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all h-full flex flex-col border border-gray-100 hover:border-purple-200">
                   {/* Thumbnail placeholder */}
-                  <div className="h-48 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 flex items-center justify-center">
+                  <div className="h-48 bg-gradient-to-br from-violet-100 via-purple-100 to-indigo-100 flex items-center justify-center">
                     <span className="text-5xl">
                       {post.category === 'Guides' ? '📚' :
                        post.category === 'Safety' ? '🛡️' :
@@ -263,7 +263,7 @@ export default function BlogList() {
                           year: 'numeric'
                         })}
                       </span>
-                      <span className="text-pink-600 text-sm font-medium group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                      <span className="text-violet-600 text-sm font-medium group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
                         Read
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -278,7 +278,7 @@ export default function BlogList() {
         </div>
 
         {/* CTA Section */}
-        <section className="mt-16 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-3xl p-10 text-center text-white">
+        <section className="mt-16 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 rounded-3xl p-10 text-center text-white shadow-xl shadow-violet-500/20">
           <h2 className="text-3xl font-bold mb-4">Ready to Start Chatting?</h2>
           <p className="text-lg text-white/90 mb-6 max-w-xl mx-auto">
             Put these tips into practice. Connect with people from around the world in seconds.

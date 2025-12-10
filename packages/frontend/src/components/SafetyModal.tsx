@@ -13,6 +13,11 @@ interface SafetyModalProps {
 
 function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
   return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-soft-lg max-w-3xl w-full p-8 animate-scaleIn max-h-[90vh] overflow-y-auto custom-scrollbar">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full mb-4">
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       role="dialog"
@@ -34,10 +39,13 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         </div>
 
         {/* Age Verification Warning */}
+        <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-5 mb-6">
         <div className="bg-red-50 dark:bg-red-900/30 border-2 border-red-300 dark:border-red-700 rounded-2xl p-5 mb-6" role="alert">
           <div className="flex items-start gap-3">
             <ExclamationTriangleIcon className="w-7 h-7 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
             <div>
+              <h3 className="font-bold text-red-900 text-lg mb-2">18+ Only - Age Requirement</h3>
+              <p className="text-sm text-red-800 leading-relaxed">
               <h3 className="font-bold text-red-900 dark:text-red-200 text-lg mb-2">18+ Only - Age Requirement</h3>
               <p className="text-sm text-red-800 dark:text-red-300 leading-relaxed">
                 You must be <strong>at least 18 years old</strong> to use this service.
@@ -50,6 +58,12 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
 
         {/* Safety Rules */}
         <div className="space-y-4 mb-6">
+          <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
+            <ShieldCheckIcon className="w-6 h-6 text-violet-600" />
+            Safety Rules
+          </h3>
+
+          <div className="space-y-3">
           <h3 className="font-bold text-gray-900 dark:text-white text-lg flex items-center gap-2">
             <ShieldCheckIcon className="w-6 h-6 text-pink-600 dark:text-pink-400" aria-hidden="true" />
             Safety Rules
@@ -82,6 +96,8 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
                 description: 'Recording, screenshotting, or sharing content from calls without consent is prohibited and may be illegal in your jurisdiction.'
               }
             ].map((rule, index) => (
+              <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
+                <CheckCircleIcon className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
               <li key={index} className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl" role="listitem">
                 <CheckCircleIcon className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
                 <div>
@@ -94,6 +110,12 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         </div>
 
         {/* Consequences */}
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 mb-6">
+          <h3 className="font-bold text-amber-900 text-lg mb-3 flex items-center gap-2">
+            <ExclamationTriangleIcon className="w-6 h-6" />
+            Consequences of Violations
+          </h3>
+          <ul className="text-sm text-amber-800 space-y-2">
         <div className="bg-yellow-50 dark:bg-yellow-900/30 border-2 border-yellow-200 dark:border-yellow-700 rounded-2xl p-5 mb-6">
           <h3 className="font-bold text-yellow-900 dark:text-yellow-200 text-lg mb-3 flex items-center gap-2">
             <ExclamationTriangleIcon className="w-6 h-6" aria-hidden="true" />
@@ -143,6 +165,9 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         </div>
 
         {/* Legal Disclaimer */}
+        <div className="bg-gray-100 rounded-2xl p-5 mb-6">
+          <h3 className="font-bold text-gray-900 text-sm mb-2">Legal Disclaimer</h3>
+          <p className="text-xs text-gray-600 leading-relaxed">
         <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl p-5 mb-6">
           <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2">Legal Disclaimer</h3>
           <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -155,6 +180,9 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         </div>
 
         {/* Acceptance Checkbox */}
+        <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-5 mb-6 border-2 border-violet-200">
+          <div className="flex items-start gap-3">
+            <CheckCircleIcon className="w-6 h-6 text-violet-600 flex-shrink-0 mt-1" />
         <div className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/30 dark:to-purple-900/30 rounded-2xl p-5 mb-6 border-2 border-pink-200 dark:border-pink-700">
           <div className="flex items-start gap-3">
             <CheckCircleIcon className="w-6 h-6 text-pink-600 dark:text-pink-400 flex-shrink-0 mt-1" aria-hidden="true" />
@@ -177,6 +205,7 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         <div className="flex gap-3">
           <button
             onClick={onDecline}
+            className="flex-1 px-6 py-4 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
             className="flex-1 px-6 py-4 rounded-xl border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-500/30"
           >
             <XMarkIcon className="w-5 h-5" aria-hidden="true" />
@@ -184,6 +213,7 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
           </button>
           <button
             onClick={onAccept}
+            className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold hover:from-violet-700 hover:to-purple-700 shadow-lg shadow-violet-500/25 transition-all flex items-center justify-center gap-2"
             className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold hover:from-pink-700 hover:to-purple-700 shadow-lg shadow-pink-500/30 transition-all flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
           >
             <CheckCircleIcon className="w-5 h-5" aria-hidden="true" />
@@ -194,6 +224,9 @@ function SafetyModal({ onAccept, onDecline }: SafetyModalProps) {
         {/* Help Link */}
         <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-4">
           Questions? Read our{' '}
+          <a href="#" className="text-violet-600 hover:underline font-medium">Safety Center</a>
+          {' '}or{' '}
+          <a href="#" className="text-violet-600 hover:underline font-medium">Contact Support</a>
           <a href="#" className="text-pink-600 dark:text-pink-400 hover:underline font-medium">Safety Center</a>
           {' '}or{' '}
           <a href="#" className="text-pink-600 dark:text-pink-400 hover:underline font-medium">Contact Support</a>

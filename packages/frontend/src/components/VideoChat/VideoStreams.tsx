@@ -86,14 +86,14 @@ export default function VideoStreams({
             <div className="relative mb-8">
               {/* Outer ripple */}
               <div className="absolute inset-0 -m-8">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-pink-500/30 to-purple-500/30 animate-ping-slow"></div>
+                <div className="w-32 h-32 rounded-full bg-gradient-to-r from-violet-500/30 to-purple-500/30 animate-ping-slow"></div>
               </div>
               {/* Middle ripple */}
               <div className="absolute inset-0 -m-4">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-pink-500/40 to-purple-500/40 animate-ping-slower"></div>
+                <div className="w-24 h-24 rounded-full bg-gradient-to-r from-violet-500/40 to-purple-500/40 animate-ping-slower"></div>
               </div>
               {/* Inner circle with icon */}
-              <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-pink-500/50 animate-pulse-gentle">
+              <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-violet-600 to-purple-600 flex items-center justify-center shadow-2xl shadow-violet-500/50 animate-pulse-gentle">
                 <VideoCameraIcon className="h-8 w-8 text-white animate-float" />
               </div>
             </div>
@@ -102,9 +102,9 @@ export default function VideoStreams({
               <p className="text-white text-xl font-semibold">Searching...</p>
               <p className="text-slate-400 text-sm">Finding someone for you</p>
               <div className="flex gap-1 justify-center mt-4">
-                <div className="w-2 h-2 rounded-full bg-pink-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
                 <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
           </div>
@@ -124,9 +124,9 @@ export default function VideoStreams({
                 <p className="text-slate-400 text-sm">Finding someone new...</p>
               </div>
               <div className="flex gap-1 justify-center mt-4 animate-fadeIn" style={{ animationDelay: '400ms' }}>
-                <div className="w-2 h-2 rounded-full bg-pink-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-violet-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
                 <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function VideoStreams({
             {showMatchedAnimation && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
                 <div className="animate-scale-fade-out">
-                  <div className="bg-gradient-to-r from-pink-500 to-purple-600 rounded-3xl px-8 py-4 shadow-2xl">
+                  <div className="bg-gradient-to-r from-violet-600 to-purple-600 rounded-3xl px-8 py-4 shadow-2xl shadow-violet-500/30">
                     <div className="flex items-center gap-3">
                       <SparklesIcon className="w-8 h-8 text-white animate-spin-slow" />
                       <span className="text-white text-2xl font-bold">Matched!</span>

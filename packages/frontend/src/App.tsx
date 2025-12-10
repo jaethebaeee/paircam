@@ -165,6 +165,7 @@ function AppRoutes({
   const isInChat = appState === 'chatting' || appState === 'waiting';
 
   return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-50 via-white to-purple-50">
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 transition-colors">
       {/* Dynamic SEO meta tags */}
       <SEO {...getSEOProps()} />

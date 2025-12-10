@@ -76,8 +76,8 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
           {/* Your Gender */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="bg-purple-100 p-2 rounded-lg">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="bg-gradient-to-br from-violet-500 to-purple-600 p-2.5 rounded-xl shadow-md">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
@@ -89,63 +89,83 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
+            {/* Modern Segmented Control for Gender */}
+            <div className="relative bg-gray-100 rounded-2xl p-1.5 flex gap-1">
+              {/* Animated Selection Indicator */}
+              <div
+                className={`absolute top-1.5 bottom-1.5 w-[calc(25%-3px)] bg-gradient-to-r ${
+                  userGender === 'male' ? 'from-blue-500 to-indigo-600' :
+                  userGender === 'female' ? 'from-pink-500 to-rose-600' :
+                  userGender === 'other' ? 'from-violet-500 to-purple-600' :
+                  'from-gray-500 to-gray-600'
+                } rounded-xl shadow-lg transition-all duration-300 ease-out`}
+                style={{
+                  left: userGender === 'male' ? '6px' :
+                        userGender === 'female' ? 'calc(25% + 2px)' :
+                        userGender === 'other' ? 'calc(50% - 2px)' :
+                        'calc(75% - 6px)'
+                }}
+              />
+
               {/* Male */}
               <button
                 onClick={() => setUserGender('male')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  userGender === 'male'
-                    ? 'border-blue-500 bg-blue-50 shadow-md scale-105'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                className={`relative flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-300 ${
+                  userGender === 'male' ? 'text-white' : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <div className="text-3xl mb-2">👨</div>
-                <div className="text-sm font-semibold text-gray-700">Male</div>
+                <svg className={`w-6 h-6 transition-all duration-300 ${userGender === 'male' ? 'stroke-white' : 'stroke-gray-500'}`} viewBox="0 0 24 24" fill="none" strokeWidth={1.5}>
+                  <circle cx="10" cy="14" r="5" />
+                  <path d="M19 5l-5.4 5.4M19 5h-5M19 5v5" />
+                </svg>
+                <span className={`text-xs font-semibold transition-colors ${userGender === 'male' ? 'text-white' : 'text-gray-700'}`}>Male</span>
               </button>
 
               {/* Female */}
               <button
                 onClick={() => setUserGender('female')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  userGender === 'female'
-                    ? 'border-pink-500 bg-pink-50 shadow-md scale-105'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                className={`relative flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-300 ${
+                  userGender === 'female' ? 'text-white' : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <div className="text-3xl mb-2">👩</div>
-                <div className="text-sm font-semibold text-gray-700">Female</div>
+                <svg className={`w-6 h-6 transition-all duration-300 ${userGender === 'female' ? 'stroke-white' : 'stroke-gray-500'}`} viewBox="0 0 24 24" fill="none" strokeWidth={1.5}>
+                  <circle cx="12" cy="8" r="5" />
+                  <path d="M12 13v8M9 18h6" />
+                </svg>
+                <span className={`text-xs font-semibold transition-colors ${userGender === 'female' ? 'text-white' : 'text-gray-700'}`}>Female</span>
               </button>
 
               {/* Other */}
               <button
                 onClick={() => setUserGender('other')}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  userGender === 'other'
-                    ? 'border-purple-500 bg-purple-50 shadow-md scale-105'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                className={`relative flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-300 ${
+                  userGender === 'other' ? 'text-white' : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <div className="text-3xl mb-2">✨</div>
-                <div className="text-sm font-semibold text-gray-700">Other</div>
+                <svg className={`w-6 h-6 transition-all duration-300 ${userGender === 'other' ? 'stroke-white' : 'stroke-gray-500'}`} viewBox="0 0 24 24" fill="none" strokeWidth={1.5}>
+                  <path d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364-6.364l-2.121 2.121M8.757 15.243l-2.121 2.121m12.728 0l-2.121-2.121M8.757 8.757L6.636 6.636" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <span className={`text-xs font-semibold transition-colors ${userGender === 'other' ? 'text-white' : 'text-gray-700'}`}>Other</span>
               </button>
 
               {/* Private */}
               <button
                 onClick={() => setUserGender(undefined)}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  userGender === undefined
-                    ? 'border-gray-500 bg-gray-50 shadow-md scale-105'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                className={`relative flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl transition-all duration-300 ${
+                  userGender === undefined ? 'text-white' : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <div className="text-3xl mb-2">🔒</div>
-                <div className="text-sm font-semibold text-gray-700">Private</div>
+                <svg className={`w-6 h-6 transition-all duration-300 ${userGender === undefined ? 'fill-white' : 'fill-gray-500'}`} viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clipRule="evenodd" />
+                </svg>
+                <span className={`text-xs font-semibold transition-colors ${userGender === undefined ? 'text-white' : 'text-gray-700'}`}>Private</span>
               </button>
             </div>
 
             {userGender === undefined && (
-              <div className="mt-3 flex items-start gap-2 text-xs text-gray-600 bg-gray-50 p-3 rounded-lg">
-                <LockClosedIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <div className="mt-3 flex items-start gap-2 text-xs text-gray-600 bg-gradient-to-r from-gray-50 to-slate-50 p-3 rounded-xl border border-gray-200">
+                <LockClosedIcon className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-500" />
                 <span>
                   You'll match with everyone, but premium users can't filter for you
                 </span>
@@ -183,9 +203,9 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
             />
 
             {/* 🆕 Queue Type Selection */}
-            <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-pink-50/50 border-2 border-purple-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
+            <div className="bg-gradient-to-br from-blue-50/50 via-purple-50/50 to-violet-50/50 border-2 border-purple-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-2.5 shadow-md">
+                <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-2.5 shadow-md">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
@@ -273,9 +293,9 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
             )}
 
             {/* 🆕 Interest Tags */}
-            <div className="bg-gradient-to-br from-pink-50/50 via-orange-50/50 to-yellow-50/50 border-2 border-orange-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
+            <div className="bg-gradient-to-br from-amber-50/50 via-orange-50/50 to-yellow-50/50 border-2 border-amber-200/60 rounded-2xl p-6 space-y-4 shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="bg-gradient-to-br from-orange-500 to-pink-600 rounded-2xl p-2.5 shadow-md">
+                <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-2.5 shadow-md">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                   </svg>
@@ -303,10 +323,10 @@ export default function PreferencesModal({ onStart, onCancel, isPremium = false,
                       disabled={isDisabled}
                       className={`px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
                         isSelected
-                          ? 'bg-gradient-to-r from-orange-500 to-pink-600 text-white shadow-lg shadow-orange-200/50 scale-105'
+                          ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-200/50 scale-105'
                           : isDisabled
                           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50 hover:scale-105 shadow-sm'
+                          : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-amber-300 hover:bg-amber-50 hover:scale-105 shadow-sm'
                       }`}
                     >
                       <span className="mr-2">{interest.emoji}</span>

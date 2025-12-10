@@ -76,14 +76,14 @@ export default function BlockedUsersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 flex items-center justify-center">
         <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -103,7 +103,7 @@ export default function BlockedUsersPage() {
 
         {/* Content */}
         {blockedUsers.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <div className="bg-white rounded-2xl shadow-soft-lg p-12 text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <NoSymbolIcon className="h-8 w-8 text-gray-400" />
             </div>
@@ -113,7 +113,7 @@ export default function BlockedUsersPage() {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-soft-lg overflow-hidden">
             <div className="divide-y divide-gray-100">
               {blockedUsers.map((user) => (
                 <div

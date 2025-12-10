@@ -58,13 +58,13 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 flex items-center justify-center px-4">
       <div className="max-w-2xl w-full">
         {/* Main Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-soft-lg p-8 md:p-12 border border-gray-100">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-6 animate-pulse">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-violet-600 to-purple-600 rounded-full mb-6 animate-pulse">
               <SparklesIcon className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
@@ -78,18 +78,18 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
           {/* Queue Stats */}
           <div className="grid grid-cols-2 gap-4 mb-8">
             {/* Queue Position */}
-            <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-6 text-center">
-              <UserGroupIcon className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <div className="text-3xl font-bold text-purple-900 mb-1">
+            <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-6 text-center border border-violet-100">
+              <UserGroupIcon className="w-8 h-8 text-violet-600 mx-auto mb-2" />
+              <div className="text-3xl font-bold text-violet-900 mb-1">
                 {queuePosition !== undefined ? queuePosition : '...'}
               </div>
-              <div className="text-sm text-purple-700 font-medium">
+              <div className="text-sm text-violet-700 font-medium">
                 {queuePosition === 1 ? 'person ahead' : 'people in queue'}
               </div>
             </div>
 
             {/* Wait Time */}
-            <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl p-6 text-center">
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 text-center border border-blue-100">
               <ClockIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
               <div className="text-3xl font-bold text-blue-900 mb-1">
                 {estimatedWaitTime !== undefined ? formatTime(estimatedWaitTime) : '~15s'}
@@ -103,8 +103,8 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 transition-all duration-500 ease-out relative"
+              <div
+                className="h-full bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 transition-all duration-500 ease-out relative"
                 style={{ width: `${progress}%` }}
               >
                 {/* Shimmer effect */}
@@ -118,13 +118,13 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
           </div>
 
           {/* Rotating Tips */}
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-orange-400 rounded-xl p-6 mb-8">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 rounded-xl p-6 mb-8">
             <div className="flex items-start gap-4">
               <div className="text-4xl mt-1 animate-bounce-subtle">
                 {tips[currentTipIndex].icon}
               </div>
               <div>
-                <div className="text-sm font-semibold text-orange-900 mb-1 uppercase tracking-wide">
+                <div className="text-sm font-semibold text-amber-900 mb-1 uppercase tracking-wide">
                   Quick Tip
                 </div>
                 <p className="text-gray-800 text-base leading-relaxed">
@@ -136,14 +136,14 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
 
           {/* Safety Badge */}
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-6">
-            <ShieldCheckIcon className="w-5 h-5 text-green-600" />
+            <ShieldCheckIcon className="w-5 h-5 text-emerald-600" />
             <span>Your safety is our priority • All chats are monitored</span>
           </div>
 
           {/* Cancel Button */}
           <button
             onClick={onCancel}
-            className="w-full py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 hover:shadow-lg active:scale-95"
+            className="w-full py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 hover:shadow-lg active:scale-[0.98]"
           >
             Cancel and Go Back
           </button>
@@ -176,4 +176,3 @@ export default function WaitingQueue({ queuePosition, estimatedWaitTime, onCance
     </div>
   );
 }
-

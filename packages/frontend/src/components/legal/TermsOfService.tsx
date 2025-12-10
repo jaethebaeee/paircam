@@ -225,9 +225,9 @@ export default function TermsOfService() {
 
         {/* Back Button */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <a 
-            href="/" 
-            className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold transition-colors"
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

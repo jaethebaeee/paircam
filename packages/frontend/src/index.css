@@ -418,7 +418,7 @@
   }
 
   .text-gradient-vibrant {
-    @apply bg-gradient-to-r from-violet-600 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-violet-600 via-purple-500 to-indigo-500 bg-clip-text text-transparent;
   }
 
   /* Hover lift effect */
