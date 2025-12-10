@@ -132,6 +132,9 @@ export function useConnectionRecovery(
     onRecoverySuccess?.();
   }, [cleanup, onRecoverySuccess]);
 
+  // Expose markRecoverySuccess for external use
+  void markRecoverySuccess;
+
   // Cleanup on unmount
   useEffect(() => {
     return cleanup;
