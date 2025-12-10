@@ -2,6 +2,12 @@ import { SignalingGateway } from '../signaling.gateway';
 import { RedisService } from '../../redis/redis.service';
 import { LoggerService } from '../../services/logger.service';
 
+// Mock ContentScreeningService for all tests
+const mockContentScreeningService = {
+  screenText: jest.fn(async () => ({ safe: true })),
+  screenImage: jest.fn(async () => ({ safe: true })),
+} as any;
+
 describe('SignalingGateway integration', () => {
   it('emits offer to peer client when stored and session exists', async () => {
     const logger = new LoggerService();
@@ -29,6 +35,7 @@ describe('SignalingGateway integration', () => {
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
+      mockContentScreeningService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -75,6 +82,7 @@ describe('SignalingGateway integration', () => {
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
+      mockContentScreeningService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -129,6 +137,7 @@ describe('SignalingGateway integration', () => {
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
+      mockContentScreeningService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -178,6 +187,7 @@ describe('SignalingGateway integration', () => {
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
+      mockContentScreeningService,
       { validateToken: jest.fn(async () => { throw new Error('bad'); }) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -193,6 +203,7 @@ describe('SignalingGateway integration', () => {
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
+      mockContentScreeningService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -229,6 +240,7 @@ describe('SignalingGateway integration', () => {
       redisPubSub,
       { removeFromQueue: jest.fn(async () => {}) } as any,
       analyticsService,
+      mockContentScreeningService,
       { validateToken: jest.fn(async () => ({ deviceId: 'a' })) } as any,
       { findOrCreate: jest.fn(async () => ({ id: '1', deviceId: 'a' })), isPremium: jest.fn(async () => false) } as any,
       logger,
@@ -245,5 +257,3 @@ describe('SignalingGateway integration', () => {
     expect(redis.storeOffer).toHaveBeenCalled();
   });
 });
-
-
