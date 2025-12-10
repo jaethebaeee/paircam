@@ -13,6 +13,8 @@ export interface MatchData {
   peerId: string;
   sessionId: string;
   timestamp: number;
+  compatibilityScore?: number;
+  commonInterests?: string[];
 }
 
 export interface QueueStatus {

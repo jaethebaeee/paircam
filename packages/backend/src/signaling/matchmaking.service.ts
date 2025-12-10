@@ -743,28 +743,31 @@ export class MatchmakingService {
   private async createSession(user1: QueueUser, user2: QueueUser, compatibilityScore?: number): Promise<void> {
     const sessionId = uuidv4();
     const matchId = uuidv4(); // Unique match ID for tracking
-    
+
+    // Calculate common interests
+    const commonInterests = user1.interests && user2.interests
+      ? user1.interests.filter(i => user2.interests?.includes(i))
+      : [];
+
     const sessionData = {
       id: sessionId,
-      matchId, // 🆕 For analytics
+      matchId,
       peers: [user1.userId, user2.userId],
       createdAt: Date.now(),
       region: user1.region,
       language: user1.language,
+      compatibilityScore: compatibilityScore || 0,
+      commonInterests,
     };
 
     // Store session in Redis (5 minute TTL)
     await this.redisService.createSession(sessionId, sessionData, 300);
 
-    // 🆕 Remember this match to avoid rematching
+    // Remember this match to avoid rematching
     await this.redisService.addToRecentMatches(user1.userId, user2.userId);
     await this.redisService.addToRecentMatches(user2.userId, user1.userId);
 
-    // 🆕 Track match creation analytics
-    const commonInterests = user1.interests && user2.interests
-      ? user1.interests.filter(i => user2.interests?.includes(i))
-      : [];
-    
+    // Track match creation analytics
     await this.analyticsService.trackMatchCreated({
       matchId,
       sessionId,
@@ -776,8 +779,11 @@ export class MatchmakingService {
       commonInterests,
     });
 
-    // Notify both users
-    await this.signalingGateway.notifyMatch(user1.userId, user2.userId, sessionId);
+    // Notify both users with compatibility score
+    await this.signalingGateway.notifyMatch(user1.userId, user2.userId, sessionId, {
+      compatibilityScore,
+      commonInterests,
+    });
 
     // Track legacy analytics (keep for backwards compatibility)
     await this.redisService.incrementCounter('sessions:created');

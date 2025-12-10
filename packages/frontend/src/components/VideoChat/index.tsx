@@ -11,6 +11,7 @@ import VideoControls from './VideoControls';
 import VideoStreams from './VideoStreams';
 import ChatPanel from './ChatPanel';
 import NetworkQualityIndicator from '../NetworkQualityIndicator';
+import MatchQualityBadge from './MatchQualityBadge';
 import PermissionErrorModal from '../PermissionErrorModal';
 import WaitingQueue from '../WaitingQueue';
 import ReportModal from '../ReportModal';
@@ -403,6 +404,13 @@ export default function VideoChat({
           showRecommendation={!isAudioOnlyMode}
         />
       )}
+
+      {/* Match Quality Badge */}
+      <MatchQualityBadge
+        score={signaling.matched?.compatibilityScore ?? null}
+        commonInterests={signaling.matched?.commonInterests || []}
+        show={!!signaling.matched}
+      />
 
       {/* Permission Error Modal */}
       {permissionError && (

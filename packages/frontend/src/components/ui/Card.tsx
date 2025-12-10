@@ -2,16 +2,17 @@ import { HTMLAttributes, forwardRef } from 'react';
 import { clsx } from 'clsx';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'glass' | 'elevated' | 'bordered';
+  variant?: 'default' | 'glass' | 'elevated' | 'bordered' | 'subtle';
   padding?: 'none' | 'sm' | 'md' | 'lg';
   hover?: boolean;
 }
 
 const variantClasses = {
-  default: 'bg-white shadow-lg border border-gray-100',
-  glass: 'bg-white/80 backdrop-blur-xl border border-white/20 shadow-2xl',
-  elevated: 'bg-white shadow-xl shadow-gray-200/50',
-  bordered: 'bg-white border-2 border-gray-200',
+  default: 'bg-white shadow-soft border border-gray-100',
+  glass: 'bg-white/80 backdrop-blur-xl border border-white/40 shadow-soft-lg',
+  elevated: 'bg-white shadow-soft-lg border border-gray-50',
+  bordered: 'bg-white border border-gray-200',
+  subtle: 'bg-gray-50 border border-gray-100',
 };
 
 const paddingClasses = {
@@ -27,10 +28,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={clsx(
-          'rounded-2xl transition-all duration-300',
+          'rounded-2xl transition-all duration-200',
           variantClasses[variant],
           paddingClasses[padding],
-          hover && 'hover:shadow-2xl hover:-translate-y-1',
+          hover && 'hover:shadow-soft-lg hover:-translate-y-0.5 cursor-pointer',
           className
         )}
         {...props}
