@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { enforceSecureConnection, validateSecurityConfig } from './utils/security';
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
@@ -40,18 +41,22 @@ if (rootElement.hasChildNodes()) {
   ReactDOM.hydrateRoot(
     rootElement,
     <React.StrictMode>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
     </React.StrictMode>,
   );
 } else {
   // Normal client-side rendering
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
     </React.StrictMode>,
   );
 }
