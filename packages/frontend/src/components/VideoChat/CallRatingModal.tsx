@@ -35,6 +35,10 @@ export default function CallRatingModal({
   onSkip,
   isLoading: _isLoading = false,
 }: CallRatingModalProps) {
+  // Note: sessionId, peerId, and isLoading are available for future analytics/loading states
+  void _sessionId;
+  void _peerId;
+  void _isLoading;
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
