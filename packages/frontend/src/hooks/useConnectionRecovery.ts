@@ -18,6 +18,7 @@ export interface UseConnectionRecoveryReturn {
   isRecovering: boolean;
   startRecovery: () => Promise<boolean>;
   resetRecovery: () => void;
+  markRecoverySuccess: () => void;
   shouldFallbackToAudio: boolean;
 }
 
@@ -143,6 +144,7 @@ export function useConnectionRecovery(
     isRecovering: recoveryState === 'recovering',
     startRecovery,
     resetRecovery,
+    markRecoverySuccess,
     shouldFallbackToAudio,
   };
 }
