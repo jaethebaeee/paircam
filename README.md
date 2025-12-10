@@ -336,12 +336,12 @@ See [COST_ESTIMATE.md](COST_ESTIMATE.md) for detailed breakdown.
 
 ## 📚 Documentation
 
-- [Setup Guide](SETUP_GUIDE.md) - Detailed setup instructions
-- [Architecture](SYSTEM_ARCHITECTURE.md) - System architecture
-- [Cost Estimates](COST_ESTIMATE.md) - Infrastructure costs
-- [Security](SECURITY_CHECKLIST.md) - Security checklist
-- [Monitoring](MONITORING_AND_OBSERVABILITY.md) - Monitoring guide
-- [Project Status](PROJECT_STATUS.md) - Current status
+- [Architecture](md/SYSTEM_ARCHITECTURE.md) - System architecture
+- [Infrastructure](md/INFRASTRUCTURE.md) - Infrastructure setup
+- [Security Audit](md/SECURITY_AND_COMPLIANCE_AUDIT.md) - Security checklist
+- [Deployment](md/DEPLOYMENT_SUCCESS.md) - Deployment guide
+- [API Documentation](packages/backend/README.md)
+- [Frontend Documentation](packages/frontend/README.md)
 
 ---
 
@@ -479,9 +479,8 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for de
 
 ## 🔗 Quick Links
 
-- [Setup Guide](SETUP_GUIDE.md)
-- [Project Status](PROJECT_STATUS.md)
-- [Architecture](SYSTEM_ARCHITECTURE.md)
+- [Architecture](md/SYSTEM_ARCHITECTURE.md)
+- [Infrastructure](md/INFRASTRUCTURE.md)
 - [API Documentation](packages/backend/README.md)
 - [Frontend Documentation](packages/frontend/README.md)
 

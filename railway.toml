@@ -1,0 +1,12 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "cd packages/backend && npm install && npm run build"
+
+[deploy]
+startCommand = "cd packages/backend && npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[env]
+NODE_ENV = "production"
+RAILPACK_NODE_VERSION = "18"
