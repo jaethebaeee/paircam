@@ -28,12 +28,12 @@ const RATING_TAGS = [
 ];
 
 export default function CallRatingModal({
-  sessionId,
-  peerId,
+  sessionId: _sessionId,
+  peerId: _peerId,
   callDuration,
   onSubmit,
   onSkip,
-  isLoading = false,
+  isLoading: _isLoading = false,
 }: CallRatingModalProps) {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
